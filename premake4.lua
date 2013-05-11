@@ -7,6 +7,8 @@ solution( "BooruSurfer2" )
 		location( "build" )
 		files( { "./src/**.h", "./src/**.cpp" } )
 		
+		buildoptions{ "-std=c++11" }
+		
 		links( {
 				"cppnetlib-client-connections"
 			,	"cppnetlib-uri"
