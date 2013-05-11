@@ -29,7 +29,7 @@ class DataNodeInterface{
 		
 		virtual void* get_by_name( void* p, const std::string& child_name ) const = 0;
 		virtual void* get_by_index( void* p, const int index ) const = 0;
-		virtual int size( void* p ) const = 0;
+		virtual unsigned size( void* p ) const = 0;
 };
 
 #endif

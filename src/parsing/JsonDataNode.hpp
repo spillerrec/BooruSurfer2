@@ -53,7 +53,7 @@ class JsonDataNode : public DataNodeInterface{
 		virtual void* get_by_index( void* p, const int index ) const{
 			return json_array_get( (json_t*)p, index );
 		}
-		virtual int size( void* p ) const{ return json_array_size( (json_t*)p ); }
+		virtual unsigned size( void* p ) const{ return json_array_size( (json_t*)p ); }
 };
 
 #endif

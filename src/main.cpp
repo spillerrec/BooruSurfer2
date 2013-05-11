@@ -28,8 +28,8 @@ string parse_post( DataNode post_object ){
 	
 	
 	DataNode url = post_object[ "preview_url" ];
-	if( url.is_valid() ){
-		contents += "<img src=\"" + url.as_string() + "\"/>";
+	if( url ){
+		contents += "<img src=\"" + (string)url + "\"/>";
 	}
 	
 	return contents + "</div>";
@@ -64,9 +64,9 @@ string serve_index( vector<string> args ){
 	string contents = "<html><title>test</title><body>";
 	
 	DataNode root = get_page( "https://yande.re" );
-	if( root.is_valid() ){
-		for( int i=0; i<root.size(); i++ )
-			contents += parse_post( root[ i ] );
+	if( root ){
+		for( DataNode post : root )
+			contents += parse_post( post );
 	}
 	else{
 		std::cout << "Failed to parse JSON : \\" << "\n";

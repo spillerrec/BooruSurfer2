@@ -35,7 +35,7 @@ class NullDataNode : public DataNodeInterface{
 		
 		virtual void* get_by_name( void* p, const std::string& child_name ) const{ return NULL; }
 		virtual void* get_by_index( void* p, const int index ) const{ return NULL; }
-		virtual int size( void* p ) const{ return 0; }
+		virtual unsigned size( void* p ) const{ return 0; }
 };
 
 #endif

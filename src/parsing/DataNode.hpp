@@ -25,6 +25,27 @@ class DataNode{
 	private:
 		void* node;
 		DataNodeInterface* interface;
+		
+	public:
+		class Iterator{
+			private:
+				const DataNode& node;
+				unsigned pos;
+			
+			public:
+				Iterator( const DataNode& node, unsigned pos ) : node( node ){
+					this->pos = pos;
+				}
+			
+			bool operator!=( const Iterator& other ) const{
+				return pos != other.pos;
+			}
+			const Iterator& operator++(){
+				pos++;
+				return *this;
+			}
+			DataNode operator*() const{ return node[pos]; }
+		};
 
 	public:
 		DataNode(){
@@ -45,10 +66,24 @@ class DataNode{
 		DataNode operator[] ( const std::string& child_name ){
 			return DataNode( interface->get_by_name( node, child_name ), interface );
 		}
+		DataNode operator[] ( const char* child_name ){
+			return DataNode( interface->get_by_name( node, std::string(child_name) ), interface );
+		}
 		DataNode operator[] ( const int index ) const{
 			return DataNode( interface->get_by_index( node, index ), interface );
 		}
-		int size() const{ return interface->size( node ); }
+		unsigned size() const{ return interface->size( node ); }
+		
+		Iterator begin() const{ return Iterator( *this, 0 ); }
+		Iterator end() const{
+			//TODO: how should size==0 be handled?
+			unsigned amount = size();
+			return Iterator( *this, amount ? amount-1 : 0 );
+		}
+		
+		operator bool() const{ return is_valid(); }
+		operator int() const{ return as_int(); }
+		operator std::string() const{ return as_string(); }
 };
 
 #endif
