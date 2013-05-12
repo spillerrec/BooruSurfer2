@@ -30,6 +30,8 @@ namespace html{
 		public:
 			HtmlDocument( std::string title );
 			
+			void add_stylesheet( std::string path, std::string media = "" );
+			
 			std::string output() const;
 			
 			operator pugi::xml_node() const{ return doc; }

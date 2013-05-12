@@ -34,6 +34,11 @@ HtmlDocument::HtmlDocument( string title ){
 }
 
 
+void HtmlDocument::add_stylesheet( std::string path, std::string media ){
+	attr( attr( head.append_child( "link" ), "rel", "stylesheet" ), "href", path );
+}
+
+
 std::string HtmlDocument::output() const{
 	//This is pretty much just the save_custom_writer.cpp example
 	struct xml_string_writer : pugi::xml_writer{

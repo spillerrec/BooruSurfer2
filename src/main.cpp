@@ -53,6 +53,7 @@ string serve_error(){
 string serve_not_implemented(){
 	html::HtmlDocument page( "Not Implemented" );
 	html::p( page, "Page has not yet been implemented" );
+	page.add_stylesheet( "/file/main.css" );
 	return page.output();
 }
 
@@ -96,6 +97,20 @@ string serve_tool( vector<string> args ){
 	return serve_not_implemented();
 }
 
+#include <fstream>
+#include <istream>
+string serve_file( vector<string> args ){
+	string filepath = "files";
+	for( string arg : args )
+		if( arg != ".." )
+			filepath += "/" + arg;
+	
+	cout << filepath << "\n";
+	fstream fs( filepath, fstream::in );
+	
+	return string( istreambuf_iterator<char>( fs ), istreambuf_iterator<char>() );
+}
+
 struct test_server;
 typedef boost::network::http::server<test_server> server_t;
 struct test_server{
@@ -128,6 +143,8 @@ struct test_server{
 		}
 		
 		response = server_t::response::stock_reply( server_t::response::ok, contents );
+		//response << boost::network::body( contents );
+	//	response.headers.push_back( boost::network::header( "Content-Type", "image/png" ) );
 		cout << "response served\n";
 	}
 	
@@ -147,6 +164,7 @@ int main(int argc, char *argv[]) {
 	handler.add( "favicon", &serve_favicon );
 	handler.add( "md5", &serve_md5 );
 	handler.add( "tool", &serve_tool );
+	handler.add( "file", &serve_file );
 	
 	server_t my_server( server_t::options(handler).address( "localhost" ).port( "8000" ) );
 	my_server.run();
