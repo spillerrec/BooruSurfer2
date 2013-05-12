@@ -38,26 +38,36 @@ namespace html{
 			operator std::string() const{ return output(); }
 	};
 	
-	inline pugi::xml_node attr( pugi::xml_node parent, std::string attribute, std::string value ){
+	typedef pugi::xml_node node;
+	
+	inline node attr( node parent, std::string attribute, std::string value ){
 		parent.append_attribute( attribute.c_str() ) = value.c_str();
 		return parent;
 	}
 	
-	inline pugi::xml_node p( pugi::xml_node parent, std::string text ){
-		pugi::xml_node p = parent.append_child( "p" );
+	inline node element( node parent, std::string name ){
+		return parent.append_child( name.c_str() );
+	}
+	
+	inline node element( node parent, std::string name, std::string attribute, std::string value ){
+		return attr( parent.append_child( name.c_str() ), attribute, value );
+	}
+	
+	inline node p( node parent, std::string text ){
+		node p = parent.append_child( "p" );
 		p.text().set( text.c_str() );
 		return p;
 	}
 	
-	inline pugi::xml_node div( pugi::xml_node parent ){
+	inline node div( node parent ){
 		return parent.append_child( "div" );
 	}
-	inline pugi::xml_node div( pugi::xml_node parent, std::string attribute, std::string value ){
+	inline node div( node parent, std::string attribute, std::string value ){
 		return attr( div( parent ), attribute, value );
 	}
 	
-	inline pugi::xml_node image( pugi::xml_node parent, std::string src, std::string alt ){
-		pugi::xml_node img = attr( parent.append_child( "img" ), "src", src );
+	inline node image( node parent, std::string src, std::string alt ){
+		node img = attr( parent.append_child( "img" ), "src", src );
 		return attr( img, "alt", alt );
 	}
 }
