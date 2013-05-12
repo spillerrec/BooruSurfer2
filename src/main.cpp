@@ -11,6 +11,8 @@
 #include "parsing/JsonDataNode.hpp"
 #include "parsing/NullDataNode.hpp"
 
+#include "html/HtmlDocument.hpp"
+
 using namespace std;
 
 DataNode get_page( string server ){
@@ -49,7 +51,9 @@ string serve_error(){
 }
 
 string serve_not_implemented(){
-	return "<html><head><title>BooruSurfer</title></head><body>Page has not yet been implemented</body></html>";
+	html::HtmlDocument page( "Not Implemented" );
+	html::p( page, "Page has not yet been implemented" );
+	return page.output();
 }
 
 string serve_manage( vector<string> args ){
@@ -118,7 +122,7 @@ struct test_server{
 		else{
 			unordered_map<string, page_handler>::const_iterator got = pages.find( args[0] );
 			if( got != pages.end() )
-				contents = (got->second)( args ); //This 
+				contents = (got->second)( args );
 			else
 				contents = serve_404();
 		}
