@@ -21,7 +21,7 @@
 
 class PostPage : public APage{
 	public:
-		std::string serve( std::vector<std::string> args, std::vector<header> headers ) const;
+		std::string serve( std::vector<std::string> args, std::vector<header> &headers ) const;
 };
 
 #endif

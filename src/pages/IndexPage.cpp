@@ -40,7 +40,7 @@ DataNode get_page( string server ){
 	return JsonDataNode::from_string( body( client.get( request ) ) );
 }
 
-string IndexPage::serve( vector<string> args, vector<header> headers ) const{
+string IndexPage::serve( vector<string> args, vector<header> &headers ) const{
 	DataNode root = get_page( "https://yande.re" );
 	if( root ){
 		using namespace html;

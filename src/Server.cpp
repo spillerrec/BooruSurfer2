@@ -33,27 +33,29 @@ struct server_implementation{
 		
 		void operator() ( const server_t::request &request, server_t::response &response ) const{
 		PageHandler pages = PageHandler();
-			string contents;
-			vector<string> raw_args;
-			string query = destination( request );
-			boost::split( raw_args, query, boost::is_any_of( "/" ) ); //TODO: avoid is_any_of() ?
-			
 			vector<string> args;
-			for( string arg : raw_args )
-				if( !arg.empty() )
-					args.push_back( arg );
 			
+			//Split on '/' and remove empty parts
+			string query = destination( request );
+			boost::split( args, query, boost::is_any_of( "/" ) ); //TODO: avoid is_any_of() ?
+			args.erase( remove_if( args.begin(), args.end(), [](string arg){ return arg.empty(); } ) );
+			
+			string contents;
 			vector<APage::header> headers;
 			if( args.size() == 0 )
 				contents = pages.get_root()->serve( args, headers );
 			else
 				contents = pages.get( args[0] )->serve( args, headers );
 			
-			//TODO: apply headers
 			
 			response = server_t::response::stock_reply( server_t::response::ok, contents );
-			//response << boost::network::body( contents );
-		//	response.headers.push_back( boost::network::header( "Content-Type", "image/png" ) );
+			
+			//Add headers
+			for( APage::header h : headers ){
+				server_t::response_header header = { h.first, h.second };
+				response.headers.push_back( header );
+			}
+			
 			cout << "response served\n";
 		}
 		

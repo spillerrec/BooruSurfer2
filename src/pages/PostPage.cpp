@@ -21,7 +21,7 @@ using namespace std;
 using namespace pugi;
 using namespace html;
 
-string PostPage::serve( vector<string> args, vector<header> headers ) const{
+string PostPage::serve( vector<string> args, vector<header> &headers ) const{
 	HtmlDocument doc( "Not implemented" );
 	
 	p( doc, "Page not yet implemented" );

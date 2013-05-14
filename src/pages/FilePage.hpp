@@ -19,9 +19,16 @@
 
 #include "APage.hpp"
 
+#include <unordered_map>
+
 class FilePage : public APage{
+	private:
+		std::unordered_map<std::string, std::string> mimes;
+		
 	public:
-		std::string serve( std::vector<std::string> args, std::vector<header> headers ) const;
+		FilePage();
+		std::string serve( std::vector<std::string> args, std::vector<header> &headers ) const;
+		std::string get_mime( std::string ext ) const;
 };
 
 #endif
