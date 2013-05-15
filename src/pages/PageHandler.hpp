@@ -22,24 +22,27 @@
 #include <unordered_map>
 #include <utility>
 
+#include <boost/shared_ptr.hpp>
+
 #include "APage.hpp"
 
 class PageHandler{
 	private:
-		std::unordered_map<std::string, APage*> pages;
-		APage* page_root;
-		APage* page_404;
+		typedef boost::shared_ptr<APage> APage_ptr;
+		std::unordered_map<std::string, APage_ptr > pages;
+		APage_ptr page_root;
+		APage_ptr page_404;
 		
 	public:
 		PageHandler();
 		~PageHandler();
 		
 		void add( std::string name, APage* handler ){
-			pages[ name ] = handler;
+			pages[ name ] = APage_ptr( handler );
 		}
 		
-		APage* get( std::string page );
-		APage* get_root(){ return page_root; }
+		APage_ptr get( std::string page );
+		APage_ptr get_root(){ return page_root; }
 };
 
 #endif

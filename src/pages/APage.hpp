@@ -25,6 +25,7 @@ class APage{
 	public:
 		typedef std::pair<std::string,std::string> header;
 		virtual std::string serve( std::vector<std::string> args, std::vector<header> &headers ) const = 0;
+		virtual ~APage(){ }
 };
 
 #endif

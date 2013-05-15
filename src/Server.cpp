@@ -38,7 +38,7 @@ struct server_implementation{
 			//Split on '/' and remove empty parts
 			string query = destination( request );
 			boost::split( args, query, boost::is_any_of( "/" ) ); //TODO: avoid is_any_of() ?
-			args.erase( remove_if( args.begin(), args.end(), [](string arg){ return arg.empty(); } ) );
+			args.erase( remove_if( args.begin(), args.end(), [](string arg){ return arg.empty(); } ), args.end() );
 			
 			string contents;
 			vector<APage::header> headers;

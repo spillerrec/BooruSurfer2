@@ -22,23 +22,23 @@
 
 using namespace std;
 
-PageHandler::PageHandler(){
+PageHandler::PageHandler()
+		:	page_root( new PostPage() ) //TODO:
+		,	page_404( new PostPage() ) //TODO:
+	{
 	add( "index", new IndexPage() );
 	add( "post", new PostPage() );
 	add( "file", new FilePage() );
-	
-	page_root = new PostPage(); //TODO:
-	page_404 = new PostPage(); //TODO:
 }
 
 
 PageHandler::~PageHandler(){
-	//TODO: delete pages again
+	
 }
 
 
-APage* PageHandler::get( std::string page ){
-	unordered_map<string, APage*>::const_iterator got = pages.find( page );
+PageHandler::APage_ptr PageHandler::get( std::string page ){
+	auto got = pages.find( page );
 	if( got != pages.end() )
 		return got->second;
 	else
