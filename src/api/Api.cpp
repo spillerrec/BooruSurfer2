@@ -14,29 +14,16 @@
 	along with BooruSurfer2.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "PostPage.hpp"
-#include "../html/HtmlDocument.hpp"
-#include "../api/YandereApi.hpp"
+#include "Api.hpp"
 
-using namespace std;
-using namespace pugi;
-using namespace html;
+#include <boost/network/protocol/http/client.hpp>
 
-string PostPage::serve( vector<string> args, vector<header> &headers ) const{
-	YandereApi api;
+std::string Api::get_from_url( std::string url ) const{
+	using namespace boost::network;
+	http::client client;
+	http::client::request request( url );
+	request << header( "Connection", "close" );
 	
-	Post post = api.get_post( 0 );
-	
-	
-	HtmlDocument doc( "Post test" );
-	
-	p( doc.get_body(), "url: " + post.url );
-	
-	for( int i=0; i<post.tags.get().size(); i++ )
-		p( doc.get_body(), "tags: " + post.tags.get()[i] );
-//	for( string s : post.tags.get() )
-//		p( doc, "tags2: " + s );
-	
-	return doc;
+	return body( client.get( request ) );
 }
 

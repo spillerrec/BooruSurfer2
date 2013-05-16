@@ -14,29 +14,21 @@
 	along with BooruSurfer2.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "PostPage.hpp"
-#include "../html/HtmlDocument.hpp"
-#include "../api/YandereApi.hpp"
+#ifndef KONACHAN_API_H
+#define KONACHAN_API_H
 
-using namespace std;
-using namespace pugi;
-using namespace html;
+#include "DanApi.hpp"
 
-string PostPage::serve( vector<string> args, vector<header> &headers ) const{
-	YandereApi api;
-	
-	Post post = api.get_post( 0 );
-	
-	
-	HtmlDocument doc( "Post test" );
-	
-	p( doc.get_body(), "url: " + post.url );
-	
-	for( int i=0; i<post.tags.get().size(); i++ )
-		p( doc.get_body(), "tags: " + post.tags.get()[i] );
-//	for( string s : post.tags.get() )
-//		p( doc, "tags2: " + s );
-	
-	return doc;
-}
+class KonachanApi : public DanApi{
+	protected:
+		static const char* const kona_post_strings[POST_ITEM_SIZE];
+		
+	public:
+		std::string get_name() const{ return "Konachan"; }
+		std::string get_shorthand() const{ return "kona"; }
+		
+		const char* const* post_table() const{ return kona_post_strings; }
+};
+
+#endif
 

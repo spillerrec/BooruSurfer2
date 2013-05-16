@@ -63,10 +63,10 @@ class DataNode{
 		int as_int() const{ return interface->as_int( node ); }
 		std::string as_string() const{ return interface->as_string( node ); }
 		
-		DataNode operator[] ( const std::string& child_name ){
+		DataNode operator[] ( const std::string& child_name ) const{
 			return DataNode( interface->get_by_name( node, child_name ), interface );
 		}
-		DataNode operator[] ( const char* child_name ){
+		DataNode operator[] ( const char* child_name ) const{
 			return DataNode( interface->get_by_name( node, std::string(child_name) ), interface );
 		}
 		DataNode operator[] ( const int index ) const{

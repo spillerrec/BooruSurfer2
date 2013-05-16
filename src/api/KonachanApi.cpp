@@ -14,29 +14,42 @@
 	along with BooruSurfer2.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "PostPage.hpp"
-#include "../html/HtmlDocument.hpp"
-#include "../api/YandereApi.hpp"
+#include "KonachanApi.hpp"
 
-using namespace std;
-using namespace pugi;
-using namespace html;
-
-string PostPage::serve( vector<string> args, vector<header> &headers ) const{
-	YandereApi api;
+const char* const KonachanApi::kona_post_strings[] = {
+	"id",
+	"md5",
+	"author",
+	"created_at",
+	"parent_id",
+	"has_children",
+	"has_notes", //notes
+	"has_comments",
+	NULL,
+	"source",
+	"tags",
+	"score",
+	"rating",
+	"status",
 	
-	Post post = api.get_post( 0 );
+	"file_url",
+	"width",
+	"height",
+	"file_size",
 	
+	"preview_url",
+	"preview_width",
+	"preview_height",
+	NULL,
 	
-	HtmlDocument doc( "Post test" );
+	"sample_url",
+	"sample_width",
+	"sample_height",
+	NULL,
 	
-	p( doc.get_body(), "url: " + post.url );
-	
-	for( int i=0; i<post.tags.get().size(); i++ )
-		p( doc.get_body(), "tags: " + post.tags.get()[i] );
-//	for( string s : post.tags.get() )
-//		p( doc, "tags2: " + s );
-	
-	return doc;
-}
+	NULL,
+	NULL,
+	NULL,
+	NULL,
+};
 

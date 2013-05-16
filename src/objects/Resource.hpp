@@ -14,29 +14,27 @@
 	along with BooruSurfer2.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "PostPage.hpp"
-#include "../html/HtmlDocument.hpp"
-#include "../api/YandereApi.hpp"
+/*	Abstract class, which links to some resource which contents is not known.
+ *	We might have an ID (or list of them), or a boolean determining if any exists
+ */
 
-using namespace std;
-using namespace pugi;
-using namespace html;
+#ifndef RESOURCE_H
+#define RESOURCE_H
 
-string PostPage::serve( vector<string> args, vector<header> &headers ) const{
-	YandereApi api;
-	
-	Post post = api.get_post( 0 );
-	
-	
-	HtmlDocument doc( "Post test" );
-	
-	p( doc.get_body(), "url: " + post.url );
-	
-	for( int i=0; i<post.tags.get().size(); i++ )
-		p( doc.get_body(), "tags: " + post.tags.get()[i] );
-//	for( string s : post.tags.get() )
-//		p( doc, "tags2: " + s );
-	
-	return doc;
-}
+#include <vector>
+
+template<class object, class indentifier = unsigned>
+class Resource{
+	private:
+		std::vector<indentifier> list;
+		bool exists; //if true, then the resource exists, even if not in the list
+		
+	public:
+		Resource( bool exists ) : exists( exists ){ }
+		Resource( std::vector<indentifier> list ) : list( list ), exists( !list.empty() ){ }
+		
+		std::vector<indentifier> get() const{ return list; }
+};
+
+#endif
 
