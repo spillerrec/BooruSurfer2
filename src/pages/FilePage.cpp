@@ -20,10 +20,9 @@
 #include <iostream>
 #include <fstream>
 #include <istream>
+#include <algorithm>
 
 using namespace std;
-using namespace pugi;
-using namespace html;
 
 FilePage::FilePage(){
 	//Images
@@ -56,10 +55,8 @@ FilePage::FilePage(){
 
 string FilePage::serve( vector<string> args, vector<header> &headers ) const{
 	//Rebuild the filepath, as it was split appart
-	string filepath = "files";
-	for( string arg : args )
-		if( arg != ".." )
-			filepath += "/" + arg;
+	auto add_dir = [](string sum, string add){ return ( add != ".." ) ? sum + "/" + add : ""; };
+	string filepath = accumulate( args.begin()+1, args.end(), string("resources"), add_dir );
 	
 	//Get file extension, using the solution by graphitemaster:
 	// http://stackoverflow.com/questions/51949/how-to-get-file-extension-from-string-in-c
