@@ -20,11 +20,25 @@ using namespace std;
 using namespace pugi;
 using namespace html;
 
+typedef Styler::html_node html_node;
+
 #include "../objects/Post.hpp"
 #include "../objects/Tag.hpp"
 
 #include <algorithm>
 #include <boost/lexical_cast.hpp>
+
+
+Styler::Styler( string title ) : doc( title ){
+	doc.add_stylesheet( "/file/main.css" );
+	
+	//Navigation
+	nav = element( element( doc.get_body(), "header" ), "nav" );
+	//TODO: add stuff here
+	
+	container = div( doc.get_body(), "id", "container" );
+	//element( container, "aside", "class", "post_list_info" ).text().set( " " );
+}
 
 
 string Styler::format_filesize( unsigned filesize ) const{
@@ -48,12 +62,12 @@ string Styler::format_date( unsigned unix_time ) const{
 }
 
 
-Styler::html_node Styler::time( unsigned unix_time ) const{
+html_node Styler::time( unsigned unix_time ) const{
 	
 }
 
 
-Styler::html_node Styler::tag_search( const Styler::html_node& parent ) const{
+html_node Styler::tag_search( const html_node& parent ) const{
 	html_node input = attr( attr( attr( attr( element( parent, "input" )
 		,	"id", "search"
 		),	"type", "search"
@@ -65,12 +79,12 @@ Styler::html_node Styler::tag_search( const Styler::html_node& parent ) const{
 	
 }
 
-Styler::html_node Styler::main_navigation( const Styler::html_node& parent, string search ) const{
+html_node Styler::main_navigation( const html_node& parent, string search ) const{
 	
 }
 
 
-Styler::html_node Styler::tag( Styler::html_node parent, const Tag& tag ) const{
+html_node Styler::tag( html_node parent, const Tag& tag ) const{
 	string url = "/index/dan/" + tag.name + "/"; //TODO: make url class
 	
 	string text = tag.name;
@@ -88,7 +102,7 @@ Styler::html_node Styler::tag( Styler::html_node parent, const Tag& tag ) const{
 	return a;
 }
 
-Styler::html_node Styler::tag_list( Styler::html_node parent, const vector<Tag>& tags, string title ) const{
+html_node Styler::tag_list( html_node parent, const vector<Tag>& tags, string title ) const{
 	if( !title.empty() )
 		set_text( element( parent, "h3" ), title );
 	
@@ -98,22 +112,22 @@ Styler::html_node Styler::tag_list( Styler::html_node parent, const vector<Tag>&
 }
 
 
-Styler::html_node Styler::note( Styler::html_node parent, const Note& note ) const{
+html_node Styler::note( html_node parent, const Note& note ) const{
 	
 }
 
-Styler::html_node Styler::comment( Styler::html_node parent, const Comment& comment ) const{
-	
-}
-
-
-Styler::html_node Styler::post_preview( Styler::html_node parent, const Post& post ) const{
+html_node Styler::comment( html_node parent, const Comment& comment ) const{
 	
 }
 
 
+html_node Styler::post_preview( html_node parent, const Post& post ) const{
+	
+}
 
-Styler::html_node Styler::post_thumb( Styler::html_node parent, const Post& post ) const{
+
+
+html_node Styler::post_thumb( html_node parent, const Post& post ) const{
 	string url = "/post/dan/" + boost::lexical_cast<string>( post.id ) + "/"; //TODO: make url class
 	html_node a = link( parent, url, "" );
 	
@@ -122,11 +136,29 @@ Styler::html_node Styler::post_thumb( Styler::html_node parent, const Post& post
 	return image( a, post.thumbnail.url, "thumbnail" );
 }
 
-Styler::html_node Styler::post_info( Styler::html_node parent, const Post& post, bool extended ) const{
+html_node Styler::post_thumb_info( html_node parent, const Post& post, bool extended ) const{
 	
 }
 
-Styler::html_node Styler::post_details( Styler::html_node parent, const Post& post ) const{
+html_node Styler::post_details( html_node parent, const Post& post ) const{
 	
+}
+
+
+html_node Styler::post( html_node parent, Post post ) const{
+	html_node container = element( element( parent, "section", "class", "post" ), "div", "class", "container" );
+	
+	string url = "/proxy/dan/original/" + boost::lexical_cast<string>( post.id );
+	image( link( container, url, "" ), post.preview.url, "preview" ); //TODO: url
+}
+
+html_node Styler::post_list( html_node parent, std::vector<Post> posts ) const{
+	html_node list_container = element( parent, "section", "class", "post_list size_medium" );
+	html_node list = element( list_container, "ul" );
+	
+	for( Post post : posts )
+		post_thumb( element( list, "li" ), post );
+		
+	return list_container;
 }
 

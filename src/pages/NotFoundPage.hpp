@@ -14,36 +14,15 @@
 	along with BooruSurfer2.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "IndexPage.hpp"
+#ifndef NOT_FOUND_PAGE_H
+#define NOT_FOUND_PAGE_H
 
-#include <boost/algorithm/string.hpp>
+#include "APage.hpp"
 
-#include "../api/YandereApi.hpp"
-#include "Styler.hpp"
+class NotFoundPage : public APage{
+	public:
+		std::string serve( std::vector<std::string> args, std::vector<header> &headers ) const;
+};
 
-using namespace std;
-using namespace pugi;
-using namespace html;
-
-string IndexPage::serve( vector<string> args, vector<header> &headers ) const{
-	YandereApi api;
-	
-	
-	vector<Post> posts = api.get_index( "", 1 );
-	
-	if( posts.size() ){
-		Styler styler( "Index" );
-		
-		element( styler.container, "aside", "class", "post_list_info" ).text().set( " " );
-		
-		styler.post_list( styler.container, posts );
-		
-		return styler.doc;
-	}
-	else{
-		std::cout << "Failed to parse JSON : \\" << "\n";
-		return "fail";
-		//TODO: throw exception
-	}
-}
+#endif
 

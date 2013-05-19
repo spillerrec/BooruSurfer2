@@ -31,9 +31,17 @@ class Note;
 class Image;
 
 class Styler{
-	typedef pugi::xml_node html_node;
+	public:
+		typedef pugi::xml_node html_node;
 	
 	public:
+		html::HtmlDocument doc;
+		html_node nav;
+		html_node container;
+	
+	public:
+		Styler( std::string title );
+		
 		std::string format_filesize( unsigned filesize ) const;
 		std::string format_date( unsigned unix_time ) const;
 		
@@ -52,8 +60,11 @@ class Styler{
 		
 		
 		html_node post_thumb( html_node parent, const Post& post ) const;
-		html_node post_info( html_node parent, const Post& post, bool extended=false ) const;
+		html_node post_thumb_info( html_node parent, const Post& post, bool extended=false ) const;
 		html_node post_details( html_node parent, const Post& post ) const;
+		
+		html_node post( html_node parent, Post post ) const;
+		html_node post_list( html_node parent, std::vector<Post> list ) const;
 		
 		//html_node page_index_nav( html_node parent, $index, $page ) const;
 };

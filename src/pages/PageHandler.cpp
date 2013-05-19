@@ -19,12 +19,13 @@
 #include "PostPage.hpp"
 #include "IndexPage.hpp"
 #include "FilePage.hpp"
+#include "NotFoundPage.hpp"
 
 using namespace std;
 
 PageHandler::PageHandler()
 		:	page_root( new PostPage() ) //TODO:
-		,	page_404( new PostPage() ) //TODO:
+		,	page_404( new NotFoundPage() )
 	{
 	add( "index", new IndexPage() );
 	add( "post", new PostPage() );

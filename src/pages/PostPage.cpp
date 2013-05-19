@@ -15,8 +15,9 @@
 */
 
 #include "PostPage.hpp"
-#include "../html/HtmlDocument.hpp"
 #include "../api/YandereApi.hpp"
+
+#include "Styler.hpp"
 
 using namespace std;
 using namespace pugi;
@@ -24,19 +25,26 @@ using namespace html;
 
 string PostPage::serve( vector<string> args, vector<header> &headers ) const{
 	YandereApi api;
-	
 	Post post = api.get_post( 0 );
 	
+	Styler s( "Post: TODO: add tags here" );
 	
-	HtmlDocument doc( "Post test" );
+	s.post( s.container, post );
 	
-	p( doc.get_body(), "url: " + post.url );
+	//Post info
+	Styler::html_node info = element( s.container, "aside", "class", "post_info" );
 	
-	for( int i=0; i<post.tags.get().size(); i++ )
-		p( doc.get_body(), "tags: " + post.tags.get()[i] );
-//	for( string s : post.tags.get() )
-//		p( doc, "tags2: " + s );
 	
-	return doc;
+	//Temp
+	vector<Tag> tags;
+	vector<string> tag_string = post.tags.get();
+	for( string s : tag_string ){
+		Tag t;
+		t.name = s;
+		tags.push_back( t );
+	}
+	s.tag_list( info, tags, "Tags:" );
+	
+	return s.doc;
 }
 

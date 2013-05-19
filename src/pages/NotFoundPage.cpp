@@ -14,36 +14,29 @@
 	along with BooruSurfer2.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "IndexPage.hpp"
+#include "NotFoundPage.hpp"
 
-#include <boost/algorithm/string.hpp>
-
-#include "../api/YandereApi.hpp"
 #include "Styler.hpp"
 
+#include <algorithm>
+
 using namespace std;
-using namespace pugi;
 using namespace html;
 
-string IndexPage::serve( vector<string> args, vector<header> &headers ) const{
-	YandereApi api;
+string NotFoundPage::serve( vector<string> args, vector<header> &headers ) const{
+	//Rebuild the query, as it was split appart
+	auto add_dir = [](string sum, string add){ return ( add != ".." ) ? sum + "/" + add : ""; };
+	string query = accumulate( args.begin(), args.end(), string(""), add_dir );
 	
+	//headers.push_back( header( "Content-Type", get_mime( ext ) ) ); //TODO:
 	
-	vector<Post> posts = api.get_index( "", 1 );
+	//TODO: set error code
+	Styler s( "Could not find \'" + query + "'" );
 	
-	if( posts.size() ){
-		Styler styler( "Index" );
-		
-		element( styler.container, "aside", "class", "post_list_info" ).text().set( " " );
-		
-		styler.post_list( styler.container, posts );
-		
-		return styler.doc;
-	}
-	else{
-		std::cout << "Failed to parse JSON : \\" << "\n";
-		return "fail";
-		//TODO: throw exception
-	}
+	set_text( element( s.container, "h3" ), "404: Page not found" );
+	p( s.container, query );
+	//TODO: provides link to index
+	
+	return s.doc;
 }
 
