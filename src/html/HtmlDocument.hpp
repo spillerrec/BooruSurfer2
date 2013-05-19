@@ -54,6 +54,11 @@ namespace html{
 		return attr( parent.append_child( name.c_str() ), attribute, value );
 	}
 	
+	inline node set_text( node element, std::string text ){
+		element.text().set( text.c_str() );
+		return element;
+	}
+	
 	inline node p( node parent, std::string text ){
 		node p = parent.append_child( "p" );
 		p.text().set( text.c_str() );
@@ -70,6 +75,11 @@ namespace html{
 	inline node image( node parent, std::string src, std::string alt ){
 		node img = attr( parent.append_child( "img" ), "src", src );
 		return attr( img, "alt", alt );
+	}
+	
+	inline node link( node parent, std::string href, std::string text ){
+		//TODO: encode href properly
+		return set_text( element( parent, "a", "href", href ), text );
 	}
 }
 

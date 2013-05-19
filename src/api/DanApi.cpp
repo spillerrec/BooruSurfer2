@@ -57,33 +57,66 @@ const char* const DanApi::post_strings[] = {
 	NULL
 };
 
+Image DanApi::get_image( DataNode parent, DanApi::PostItem url, DanApi::PostItem width, DanApi::PostItem height, DanApi::PostItem size ) const{
+	Image img;
+	img.url = "";
+	img.width = 0;
+	img.height = 0;
+	img.size = 0;
+	
+	if( post_table()[ url ] )
+		img.url = parent[ post_table()[ url ] ].as_string();
+	if( post_table()[ width ] )
+		img.width = parent[ post_table()[ width ] ].as_int();
+	if( post_table()[ height ] )
+		img.height = parent[ post_table()[ height ] ].as_int();
+	if( post_table()[ size ] )
+		img.size = parent[ post_table()[ size ] ].as_int();
+	
+	return img;
+}
+
+
+Post DanApi::parse_post( DataNode p ) const{
+	Post post;
+	post.id = int( p[ post_table()[ POST_ID ] ] );
+	post.author = p[ post_table()[ AUTHOR ] ].as_string();
+	post.hash = p[ post_table()[ HASH ] ].as_string();
+	post.score = p[ post_table()[ SCORE ] ];
+	
+	post.tags = get_resource<Tag, std::string>( p, TAGS );
+	post.parents = get_resource<Post>( p, PARENT_ID );
+	post.children = get_resource<Post>( p, CHILDREN );
+	post.notes = get_resource<Note>( p, NOTES );
+	post.comments = get_resource<Comment>( p, COMMENTS );
+	post.pools = get_resource<Pool>( p, POOLS );
+	
+	post.full = get_image( p, URL, WIDTH, HEIGHT, SIZE );
+	post.thumbnail = get_image( p, THUMB_URL, THUMB_WIDTH, THUMB_HEIGHT, THUMB_SIZE );
+	post.preview = get_image( p, PREVIEW_URL, PREVIEW_WIDTH, PREVIEW_HEIGHT, PREVIEW_SIZE );
+	post.reduced = get_image( p, REDUCED_URL, REDUCED_WIDTH, REDUCED_HEIGHT, REDUCED_SIZE );
+	
+	return post;
+}
+
 
 Post DanApi::get_post( unsigned id ) const{
 	DataNode data = JsonDataNode::from_string( get_from_url( "https://yande.re/post/index.json?tags=touhou" ) );
 	
+	if( data.size() > 0 )
+		return parse_post( data[0] );
+	else
+		return Post();
+}
+
+std::vector<Post> DanApi::get_index( std::string search, int page, int limit ) const{
+	DataNode data = JsonDataNode::from_string( get_from_url( "https://yande.re/post/index.json?tags=touhou" ) );
 	
-	if( data.size() > 0 ){
-		DataNode p = data[0];
-		
-		Post post;
-		post.id = int( p[ post_table()[ POST_ID ] ] );
-		post.author = p[ post_table()[ AUTHOR ] ].as_string();
-		post.hash = p[ post_table()[ HASH ] ].as_string();
-		post.score = p[ post_table()[ SCORE ] ];
-		
-		post.url = p[ post_table()[ URL ] ].as_string();
-		
-		
-		post.tags = get_resource<Tag, std::string>( p, TAGS );
-		post.parents = get_resource<Post>( p, PARENT_ID );
-		post.children = get_resource<Post>( p, CHILDREN );
-		post.notes = get_resource<Note>( p, NOTES );
-		post.comments = get_resource<Comment>( p, COMMENTS );
-		post.pools = get_resource<Pool>( p, POOLS );
-		
-		return post;
-	}
+	std::vector<Post> list;
 	
-	return Post();
+	for( DataNode node : data )
+		list.push_back( parse_post( node ) );
+	
+	return list;
 }
 

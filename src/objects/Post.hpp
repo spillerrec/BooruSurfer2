@@ -52,8 +52,6 @@ class Post{
 		std::string author;
 		//TODO: creation_date
 		
-		std::string url; //temp
-		
 		
 		Resource<Tag, std::string> tags;
 		Resource<Post> parents;
@@ -68,8 +66,8 @@ class Post{
 		Rating rating;
 		
 		Image full;
-		Image compressed;
-		Image prevew;
+		Image reduced;
+		Image preview;
 		Image thumbnail;
 		
 		

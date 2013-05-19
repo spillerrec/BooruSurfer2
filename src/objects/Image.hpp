@@ -17,13 +17,14 @@
 #ifndef IMAGE_H
 #define IMAGE_H
 
+#include <string>
+
 class Image{
-	private:
-		
-		
 	public:
-		
-		
+		std::string url;
+		unsigned width;
+		unsigned height;
+		unsigned size;
 };
 
 #endif

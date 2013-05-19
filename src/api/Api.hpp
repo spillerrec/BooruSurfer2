@@ -18,6 +18,7 @@
 #define API_H
 
 #include <string>
+#include <vector>
 #include "../objects/Post.hpp"
 
 class Api{
@@ -28,7 +29,8 @@ class Api{
 		virtual std::string get_name() const;
 		virtual std::string get_shorthand() const;
 		
-		virtual Post get_post( unsigned id ) const;
+		virtual Post get_post( unsigned id ) const = 0;
+		virtual std::vector<Post> get_index( std::string search, int page, int limit=-1 ) const = 0;
 };
 
 #endif

@@ -42,6 +42,7 @@ class DanApi : public Api{
 			SCORE,
 			RATING,
 			STATUS,
+			
 			URL,
 			WIDTH,
 			HEIGHT,
@@ -100,7 +101,12 @@ class DanApi : public Api{
 				
 				return Resource<T1,T2>( convert_vector<T2>( list ) );
 			}
+			
+			return Resource<T1,T2>( false );
 		}
+		
+		virtual Post parse_post( DataNode node ) const;
+		virtual Image get_image( DataNode parent, PostItem url, PostItem width, PostItem height, PostItem size ) const;
 		
 	public:
 		std::string get_name() const{ return "Danbooru"; }
@@ -109,6 +115,7 @@ class DanApi : public Api{
 		virtual const char* const* post_table() const{ return post_strings; }
 		
 		Post get_post( unsigned id ) const;
+		std::vector<Post> get_index( std::string search, int page, int limit=-1 ) const;
 };
 
 

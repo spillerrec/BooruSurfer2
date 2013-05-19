@@ -17,32 +17,23 @@
 #include "IndexPage.hpp"
 #include "../html/HtmlDocument.hpp"
 
-#include <boost/network/protocol/http/client.hpp>
-#include <boost/network/protocol/http/server.hpp>
 #include <boost/algorithm/string.hpp>
 
-
-#include "../parsing/JsonDataNode.hpp"
-#include "../parsing/NullDataNode.hpp"
+#include "../api/YandereApi.hpp"
+#include "Styler.hpp"
 
 using namespace std;
 using namespace pugi;
 using namespace html;
 
-
-DataNode get_page( string server ){
-	using namespace boost::network;
-	http::client client;
-	http::client::request request( server + "/post/index.json" );
-	request << header( "Connection", "close" );
-	
-	//http::client::response response = client.get( request );
-	return JsonDataNode::from_string( body( client.get( request ) ) );
-}
-
 string IndexPage::serve( vector<string> args, vector<header> &headers ) const{
-	DataNode root = get_page( "https://yande.re" );
-	if( root ){
+	YandereApi api;
+	
+	Styler styler;
+	
+	vector<Post> posts = api.get_index( "", 1 );
+	
+	if( posts.size() ){
 		using namespace html;
 		HtmlDocument page( "Index" );
 		page.add_stylesheet( "/file/main.css" );
@@ -52,12 +43,8 @@ string IndexPage::serve( vector<string> args, vector<header> &headers ) const{
 		node list_container = element( container, "section", "class", "post_list size_medium" );
 		node list = element( container, "ul" );
 		
-		for( DataNode post : root ){
-			DataNode url = post[ "preview_url" ];
-			if( url ){
-				image( element( element( list, "li" ), "a", "href", post[ "file_url" ] ), url, "preview" );
-			}
-		}
+		for( Post post : posts )
+			styler.post_thumb( element( list, "li" ), post );
 		
 		return page;
 	}

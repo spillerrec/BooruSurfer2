@@ -31,7 +31,7 @@ class Tag{
 			UNKNOWN = 255
 		};
 		
-	private:
+	public:
 		unsigned id;
 		std::string name;
 		Type type;
