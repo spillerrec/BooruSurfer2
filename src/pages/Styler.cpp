@@ -17,10 +17,7 @@
 #include "Styler.hpp"
 
 using namespace std;
-using namespace pugi;
 using namespace html;
-
-typedef Styler::html_node html_node;
 
 #include "../objects/Post.hpp"
 #include "../objects/Tag.hpp"
@@ -62,29 +59,29 @@ string Styler::format_date( unsigned unix_time ) const{
 }
 
 
-html_node Styler::time( unsigned unix_time ) const{
+Node Styler::time( unsigned unix_time ) const{
 	
 }
 
 
-html_node Styler::tag_search( const html_node& parent ) const{
-	html_node input = attr( attr( attr( attr( element( parent, "input" )
-		,	"id", "search"
-		),	"type", "search"
-		),	"name", "tags"
-		),	"placeholder", "Tag query"
+Node Styler::tag_search() const{
+	return input(
+			ID( "search" )
+		,	TYPE( "search" )
+		,	NAME( "tags" )
+		,	PLACEHOLDER( "Tag query" )
 		);
 	
 	//TODO: create form
 	
 }
 
-html_node Styler::main_navigation( const html_node& parent, string search ) const{
+Node Styler::main_navigation( string search ) const{
 	
 }
 
 
-html_node Styler::tag( html_node parent, const Tag& tag ) const{
+Node Styler::tag( const Tag& tag ) const{
 	string url = "/index/dan/" + tag.name + "/"; //TODO: make url class
 	
 	string text = tag.name;
@@ -94,7 +91,7 @@ html_node Styler::tag( html_node parent, const Tag& tag ) const{
 	if( tag.count )
 		text += " (" + boost::lexical_cast<string>( tag.count ) + ")";
 	
-	html_node a = link( parent, url, text );
+	node a = link( parent, url, text );
 	
 	if( tag.type )
 		attr( a, "class", "tagtype" + boost::lexical_cast<string>( tag.type ) );
@@ -102,7 +99,7 @@ html_node Styler::tag( html_node parent, const Tag& tag ) const{
 	return a;
 }
 
-html_node Styler::tag_list( html_node parent, const vector<Tag>& tags, string title ) const{
+Node Styler::tag_list( const vector<Tag>& tags, string title ) const{
 	if( !title.empty() )
 		set_text( element( parent, "h3" ), title );
 	
@@ -112,22 +109,22 @@ html_node Styler::tag_list( html_node parent, const vector<Tag>& tags, string ti
 }
 
 
-html_node Styler::note( html_node parent, const Note& note ) const{
+Node Styler::note( const Note& note ) const{
 	
 }
 
-html_node Styler::comment( html_node parent, const Comment& comment ) const{
-	
-}
-
-
-html_node Styler::post_preview( html_node parent, const Post& post ) const{
+Node Styler::comment( const Comment& comment ) const{
 	
 }
 
 
+Node Styler::post_preview( const Post& post ) const{
+	
+}
 
-html_node Styler::post_thumb( html_node parent, const Post& post ) const{
+
+
+Node Styler::post_thumb( const Post& post ) const{
 	string url = "/post/dan/" + boost::lexical_cast<string>( post.id ) + "/"; //TODO: make url class
 	html_node a = link( parent, url, "" );
 	
@@ -136,23 +133,23 @@ html_node Styler::post_thumb( html_node parent, const Post& post ) const{
 	return image( a, post.thumbnail.url, "thumbnail" );
 }
 
-html_node Styler::post_thumb_info( html_node parent, const Post& post, bool extended ) const{
+Node Styler::post_thumb_info( const Post& post, bool extended ) const{
 	
 }
 
-html_node Styler::post_details( html_node parent, const Post& post ) const{
+Node Styler::post_details( const Post& post ) const{
 	
 }
 
 
-html_node Styler::post( html_node parent, Post post ) const{
+Node Styler::post( Post post ) const{
 	html_node container = element( element( parent, "section", "class", "post" ), "div", "class", "container" );
 	
 	string url = "/proxy/dan/original/" + boost::lexical_cast<string>( post.id );
 	image( link( container, url, "" ), post.preview.url, "preview" ); //TODO: url
 }
 
-html_node Styler::post_list( html_node parent, std::vector<Post> posts ) const{
+Node Styler::post_list( std::vector<Post> posts ) const{
 	html_node list_container = element( parent, "section", "class", "post_list size_medium" );
 	html_node list = element( list_container, "ul" );
 	

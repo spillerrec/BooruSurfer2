@@ -40,13 +40,16 @@ struct server_implementation{
 			boost::split( args, query, boost::is_any_of( "/" ) ); //TODO: avoid is_any_of() ?
 			args.erase( remove_if( args.begin(), args.end(), [](string arg){ return arg.empty(); } ), args.end() );
 			
+			cout << "Request: " << query << "\n";
+			for( string s : args )
+				cout << "\t" << s << "\n";
+			
 			string contents;
 			vector<APage::header> headers;
 			if( args.size() == 0 )
 				contents = pages.get_root()->serve( args, headers );
 			else
 				contents = pages.get( args[0] )->serve( args, headers );
-			
 			
 			response = server_t::response::stock_reply( server_t::response::ok, contents );
 			
@@ -55,8 +58,6 @@ struct server_implementation{
 				server_t::response_header header = { h.first, h.second };
 				response.headers.push_back( header );
 			}
-			
-			cout << "response served\n";
 		}
 		
 		

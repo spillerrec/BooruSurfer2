@@ -19,7 +19,7 @@
 
 #include "Styler.hpp"
 
-#include "../html/HtmlDocument.hpp"
+#include "../parsing/html.hpp"
 
 #include <vector>
 
@@ -32,12 +32,9 @@ class Image;
 
 class Styler{
 	public:
-		typedef pugi::xml_node html_node;
-	
-	public:
-		html::HtmlDocument doc;
-		html_node nav;
-		html_node container;
+		html::Document doc;
+		html::Node nav;
+		html::Node container;
 	
 	public:
 		Styler( std::string title );
@@ -45,28 +42,28 @@ class Styler{
 		std::string format_filesize( unsigned filesize ) const;
 		std::string format_date( unsigned unix_time ) const;
 		
-		html_node time( unsigned unix_time ) const;
+		html::Node time( unsigned unix_time ) const;
 		
-		html_node tag_search( const html_node& parent ) const;
-		html_node main_navigation( const html_node& parent, std::string search ) const;
+		html::Node tag_search() const;
+		html::Node main_navigation( std::string search ) const;
 		
-		html_node tag( html_node parent, const Tag& tag ) const;
-		html_node tag_list( html_node parent, const std::vector<Tag>& tags, std::string title="" ) const;
+		html::Node tag( const Tag& tag ) const;
+		html::Node tag_list( const std::vector<Tag>& tags, std::string title="" ) const;
 		
-		html_node note( html_node parent, const Note& note ) const;
-		html_node comment( html_node parent, const Comment& comment ) const;
+		html::Node note( const Note& note ) const;
+		html::Node comment( const Comment& comment ) const;
 		
-		html_node post_preview( html_node parent, const Post& post ) const;
+		html::Node post_preview( const Post& post ) const;
 		
 		
-		html_node post_thumb( html_node parent, const Post& post ) const;
-		html_node post_thumb_info( html_node parent, const Post& post, bool extended=false ) const;
-		html_node post_details( html_node parent, const Post& post ) const;
+		html::Node post_thumb( const Post& post ) const;
+		html::Node post_thumb_info( const Post& post, bool extended=false ) const;
+		html::Node post_details( const Post& post ) const;
 		
-		html_node post( html_node parent, Post post ) const;
-		html_node post_list( html_node parent, std::vector<Post> list ) const;
+		html::Node post( Post post ) const;
+		html::Node post_list( std::vector<Post> list ) const;
 		
-		//html_node page_index_nav( html_node parent, $index, $page ) const;
+		//html::Node page_index_nav( $index, $page ) const;
 };
 
 #endif
