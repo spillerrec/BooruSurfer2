@@ -24,15 +24,15 @@ using namespace HTML;
 
 string PostPage::serve( vector<string> args, vector<header> &headers ) const{
 	YandereApi api;
-	Post post = api.get_post( 0 );
+	Post post = api.get_post( 277759 );
 	
-	return "";/*
 	Styler s( "Post: TODO: add tags here" );
+	headers.push_back( content_type() );
 	
-	s.post( s.container, post );
+	s.container( s.post( post ) );
 	
 	//Post info
-	Styler::html_node info = element( s.container, "aside", "class", "post_info" );
+	auto info = aside( s.doc, CLASS( "post_info" ) );
 	
 	
 	//Temp
@@ -45,6 +45,8 @@ string PostPage::serve( vector<string> args, vector<header> &headers ) const{
 	}
 	s.tag_list( info, tags, "Tags:" );
 	
-	return s.doc;*/
+	s.container( info );
+	
+	return s.doc;
 }
 

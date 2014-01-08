@@ -29,6 +29,12 @@ namespace HTML{
 				//std::string s;
 				//rapidxml::print( std::back_inserter( s ), doc, 0 );
 			}
+			
+			operator std::string() const{
+				std::string s;
+				rapidxml::print( std::back_inserter( s ), doc, 0 );
+				return s;
+			}
 	};
 	
 	class Node{

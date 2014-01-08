@@ -15,7 +15,7 @@
 */
 
 //Include Poco before anything else
-#include <Poco/Net/HTTPClientSession.h>
+#include <Poco/Net/HTTPSClientSession.h>
 #include <Poco/Net/HTTPRequest.h>
 #include <Poco/Net/HTTPResponse.h>
 #include <Poco/StreamCopier.h>
@@ -35,7 +35,9 @@ std::string Api::get_from_url( std::string url ) const{
 	try{
 		// prepare session
 		Poco::URI uri(url.c_str());
-		HTTPClientSession session(uri.getHost(), uri.getPort());
+		//TODO: understand and improve
+		const Context::Ptr context = new Context(Context::CLIENT_USE, "", "", "", Context::VERIFY_NONE, 9, false, "ALL:!ADH:!LOW:!EXP:!MD5:@STRENGTH");
+		HTTPSClientSession session(uri.getHost(), uri.getPort(), context);
 
 		// prepare path
 		std::string path(uri.getPathAndQuery());
@@ -51,7 +53,11 @@ std::string Api::get_from_url( std::string url ) const{
 
 		// print response
 		std::istream &is = session.receiveResponse(res);
-		return std::string(static_cast<std::stringstream const&>(std::stringstream() << is.rdbuf()).str());
+		
+		std::string str = std::string(static_cast<std::stringstream const&>(std::stringstream() << is.rdbuf()).str());
+		std::cout << "Retrived: " << url << "\n";
+		std::cout << str << "\n";
+		return str;
 	}
 	catch( Exception &ex ){
 		return "";

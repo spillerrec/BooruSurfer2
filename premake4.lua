@@ -13,12 +13,15 @@ solution( "BooruSurfer2" )
 				"tidy"
 			,	"jansson"
 			
-			,	"PocoNet"
 			,	"PocoNetSSL"
+			,	"PocoCrypto"
+			,	"PocoNet"
 			,	"PocoUtil"
 			,	"PocoXML"
 			,	"Ws2_32"
 			,	"wsock32"
+			,	"ssl"
+			,	"crypto"
 			,	"PocoFoundation"
 			,	"iphlpapi"
 			} )

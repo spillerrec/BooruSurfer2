@@ -33,8 +33,10 @@ class Image;
 class Styler{
 	public:
 		HTML::Document doc;
-		HTML::Node nav;
-		HTML::Node container;
+		HTML::Node head{ HTML::head(doc) };
+		HTML::Node body{ HTML::body(doc) };
+		HTML::Node nav{ HTML::nav(doc) };
+		HTML::Node container{ HTML::div( doc, HTML::ID("container") ) };
 	
 	public:
 		Styler( std::string title );

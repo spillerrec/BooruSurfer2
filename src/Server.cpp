@@ -33,17 +33,12 @@ using namespace std;
 class RequestHandler : public HTTPRequestHandler {
 	public:
 		virtual void handleRequest( HTTPServerRequest& req, HTTPServerResponse& response ) override {
-			PageHandler pages = PageHandler();
-			vector<string> args;
+			PageHandler pages;
 			
 			//Split on '/' and remove empty parts
-			string query = req.getURI();
-			boost::split( args, query, boost::is_any_of( "/" ) ); //TODO: avoid is_any_of() ?
+			vector<string> args;
+			boost::split( args, req.getURI(), boost::is_any_of( "/" ) ); //TODO: avoid is_any_of() ?
 			args.erase( remove_if( args.begin(), args.end(), [](string arg){ return arg.empty(); } ), args.end() );
-			
-			cout << "Request: " << query << "\n";
-			for( string s : args )
-				cout << "\t" << s << "\n";
 			
 			//Create content
 			string contents;
@@ -53,16 +48,13 @@ class RequestHandler : public HTTPRequestHandler {
 			else
 				contents = pages.get( args[0] )->serve( args, headers );
 			
-			
 			//Add headers
 			response.setStatus( HTTPResponse::HTTP_OK );
 			for( APage::header h : headers )
 				response.add( h.first, h.second );
 			
 			//Send content
-			auto& out = response.send();
-			out << contents;
-			out.flush();
+			( response.send() << contents ).flush();
 		}
 };
 

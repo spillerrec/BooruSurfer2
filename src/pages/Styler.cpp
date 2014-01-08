@@ -26,15 +26,20 @@ using namespace HTML;
 #include <boost/lexical_cast.hpp>
 
 
-Styler::Styler( string title ) : nav("nav",doc), container("div",doc)/* : doc( title )*/{
-	//doc.add_stylesheet( "/file/main.css" );
-	
-	//Navigation
-	//nav = HTML::nav( header( doc.get_body() ) );
-	//TODO: add stuff here
-	
-	//container = div( doc.get_body(), ID( "container" ) );
-	//element( container, "aside", "class", "post_list_info" ).text().set( " " );
+Styler::Styler( string page_title ){
+	doc.html()(
+			head(
+					title(doc)( page_title )
+				,	link( doc, REL( "stylesheet" ), HREF( "/file/main.css" ) )
+			//	,	"<!--[if lt IE 9]><script src=\"/style/ie8.js\"></script><![endif]-->" //TODO:
+				)
+		,	body(
+					header(doc)(
+							nav
+						)
+				,	container
+				)
+		);
 }
 
 
@@ -104,6 +109,7 @@ void Styler::tag_list( Node& parent, const vector<Tag>& tags, string title ){
 	auto list = ul( doc );
 	for( Tag tag : tags )
 		list( li(doc)( this->tag( tag ) ) );
+	
 	parent( list );
 }
 
@@ -143,12 +149,16 @@ Node Styler::post_details( const Post& post ){
 
 
 Node Styler::post( Post post ){
-	return p(doc)( "unimplemented" );
-/*	html_node container = element( element( parent, "section", "class", "post" ), "div", "class", "container" );
+	string url_org = "/proxy/dan/original/" + boost::lexical_cast<string>( post.id );
+	string url_show = "/proxy/dan/sample/" + boost::lexical_cast<string>( post.id );
 	
-	string url = "/proxy/dan/original/" + boost::lexical_cast<string>( post.id );
-	image( link( container, url, "" ), post.preview.url, "preview" ); //TODO: url
-	*/
+	return section( doc, CLASS("post") )(
+			div( doc, CLASS("container") )(
+					a( doc, HREF(url_org) )(
+						img( doc, SRC(url_show), ALT("preview") )
+					)
+				)
+		);
 }
 
 Node Styler::post_list( std::vector<Post> posts ){

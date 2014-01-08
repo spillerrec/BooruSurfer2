@@ -37,9 +37,7 @@ string NotFoundPage::serve( vector<string> args, vector<header> &headers ) const
 	s.container( h3( s.doc )( "404: Page not found" ) );
 	s.container( p( s.doc )( query ) );
 	
-	string str;
-	rapidxml::print( std::back_inserter( str ), s.doc.doc, 0 );
-	return str;
+	return s.doc;
 	/*
 	set_text( element( s.container, "h3" ), "404: Page not found" );
 	p( s.container, query );

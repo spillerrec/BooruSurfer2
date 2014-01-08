@@ -24,6 +24,7 @@
 class APage{
 	public:
 		typedef std::pair<std::string,std::string> header;
+		static header content_type( std::string mime="text/html" ){ return header( "Content-Type", mime ); }
 		virtual std::string serve( std::vector<std::string> args, std::vector<header> &headers ) const = 0;
 		virtual ~APage(){ }
 };
