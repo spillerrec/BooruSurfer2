@@ -13,59 +13,6 @@
 	You should have received a copy of the GNU General Public License
 	along with BooruSurfer2.  If not, see <http://www.gnu.org/licenses/>.
 */
-/*
-#include "Server.hpp"
-
-#include "pages/PageHandler.hpp"
-
-#include <boost/network/protocol/http/client.hpp>
-#include <boost/network/protocol/http/server.hpp>
-#include <boost/algorithm/string.hpp>
-
-#include <iostream>
-
-using namespace std;
-
-struct server_implementation;
-typedef boost::network::http::server<server_implementation> server_t;
-struct server_implementation{
-	public:
-		
-		void operator() ( const server_t::request &request, server_t::response &response ) const{
-		PageHandler pages = PageHandler();
-			vector<string> args;
-			
-			//Split on '/' and remove empty parts
-			string query = destination( request );
-			boost::split( args, query, boost::is_any_of( "/" ) ); //TODO: avoid is_any_of() ?
-			args.erase( remove_if( args.begin(), args.end(), [](string arg){ return arg.empty(); } ), args.end() );
-			
-			cout << "Request: " << query << "\n";
-			for( string s : args )
-				cout << "\t" << s << "\n";
-			
-			string contents;
-			vector<APage::header> headers;
-			if( args.size() == 0 )
-				contents = pages.get_root()->serve( args, headers );
-			else
-				contents = pages.get( args[0] )->serve( args, headers );
-			
-			response = server_t::response::stock_reply( server_t::response::ok, contents );
-			
-			//Add headers
-			for( APage::header h : headers ){
-				server_t::response_header header = { h.first, h.second };
-				response.headers.push_back( header );
-			}
-		}
-		
-		
-		void log( server_t::string_type const &info ){
-			std::cerr << "ERROR: " << info << '\n';
-		}
-};
-*/
 
 #include <Poco/Net/HTTPRequestHandler.h>
 #include <Poco/Net/HTTPServerRequest.h>
@@ -74,6 +21,9 @@ struct server_implementation{
 #include <Poco/Net/HTTPServer.h>
 
 #include "Server.hpp"
+#include "pages/PageHandler.hpp"
+
+#include <boost/algorithm/string.hpp>
 
 #include <iostream>
 
@@ -83,13 +33,35 @@ using namespace std;
 class RequestHandler : public HTTPRequestHandler {
 	public:
 		virtual void handleRequest( HTTPServerRequest& req, HTTPServerResponse& response ) override {
+			PageHandler pages = PageHandler();
+			vector<string> args;
+			
+			//Split on '/' and remove empty parts
+			string query = req.getURI();
+			boost::split( args, query, boost::is_any_of( "/" ) ); //TODO: avoid is_any_of() ?
+			args.erase( remove_if( args.begin(), args.end(), [](string arg){ return arg.empty(); } ), args.end() );
+			
+			cout << "Request: " << query << "\n";
+			for( string s : args )
+				cout << "\t" << s << "\n";
+			
+			//Create content
+			string contents;
+			vector<APage::header> headers;
+			if( args.size() == 0 )
+				contents = pages.get_root()->serve( args, headers );
+			else
+				contents = pages.get( args[0] )->serve( args, headers );
+			
+			
+			//Add headers
 			response.setStatus( HTTPResponse::HTTP_OK );
-			response.setContentType( "text/html" );
+			for( APage::header h : headers )
+				response.add( h.first, h.second );
 			
-			//cout << respo
-			
+			//Send content
 			auto& out = response.send();
-			out << "<p>Test</p>";
+			out << contents;
 			out.flush();
 		}
 };
