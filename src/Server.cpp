@@ -13,7 +13,7 @@
 	You should have received a copy of the GNU General Public License
 	along with BooruSurfer2.  If not, see <http://www.gnu.org/licenses/>.
 */
-
+/*
 #include "Server.hpp"
 
 #include "pages/PageHandler.hpp"
@@ -65,16 +65,53 @@ struct server_implementation{
 			std::cerr << "ERROR: " << info << '\n';
 		}
 };
+*/
 
-Server::Server(){
-	//TODO: load settings
+#include <Poco/Net/HTTPRequestHandler.h>
+#include <Poco/Net/HTTPServerRequest.h>
+#include <Poco/Net/HTTPServerResponse.h>
+#include <Poco/Net/HTTPServerParams.h>
+#include <Poco/Net/HTTPServer.h>
+
+#include "Server.hpp"
+
+#include <iostream>
+
+using namespace Poco::Net;
+using namespace std;
+
+class RequestHandler : public HTTPRequestHandler {
+	public:
+		virtual void handleRequest( HTTPServerRequest& req, HTTPServerResponse& response ) override {
+			response.setStatus( HTTPResponse::HTTP_OK );
+			response.setContentType( "text/html" );
+			
+			//cout << respo
+			
+			auto& out = response.send();
+			out << "<p>Test</p>";
+			out.flush();
+		}
+};
+
+class RequestHandlerFactory : public HTTPRequestHandlerFactory {
+	public:
+		virtual HTTPRequestHandler* createRequestHandler( const HTTPServerRequest& request ) override{
+			return new RequestHandler;
+		}
+};
+
+
+int Server::main( const vector<string>& unknown ){
+	HTTPServer s( new RequestHandlerFactory, ServerSocket( 8000 ), new HTTPServerParams );
+	
+	s.start();
+	waitForTerminationRequest();
+	s.stop();
+	
+	return Application::EXIT_OK;
 }
 
-void Server::run(){
-	server_implementation handler;
-	server_t my_server( server_t::options(handler).address( "localhost" ).port( "8000" ) );
-	my_server.run();
-}
 
 
 

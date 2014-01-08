@@ -14,16 +14,47 @@
 	along with BooruSurfer2.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+//Include Poco before anything else
+#include <Poco/Net/HTTPClientSession.h>
+#include <Poco/Net/HTTPRequest.h>
+#include <Poco/Net/HTTPResponse.h>
+#include <Poco/StreamCopier.h>
+#include <Poco/Path.h>
+#include <Poco/URI.h>
+#include <Poco/Exception.h>
+
 #include "Api.hpp"
 
-#include <boost/network/protocol/http/client.hpp>
+#include <iostream>
+#include <sstream>
+
+using namespace Poco::Net;
+using namespace Poco;
 
 std::string Api::get_from_url( std::string url ) const{
-	using namespace boost::network;
-	http::client client;
-	http::client::request request( url );
-	request << header( "Connection", "close" );
-	
-	return body( client.get( request ) );
+	try{
+		// prepare session
+		Poco::URI uri(url.c_str());
+		HTTPClientSession session(uri.getHost(), uri.getPort());
+
+		// prepare path
+		std::string path(uri.getPathAndQuery());
+		if (path.empty()) path = "/";
+
+		// send request
+		HTTPRequest req(HTTPRequest::HTTP_GET, path, HTTPMessage::HTTP_1_1);
+		session.sendRequest(req);
+
+		// get response
+		HTTPResponse res;
+		//cout << res.getStatus() << " " << res.getReason() << endl;
+
+		// print response
+		std::istream &is = session.receiveResponse(res);
+		return std::string(static_cast<std::stringstream const&>(std::stringstream() << is.rdbuf()).str());
+	}
+	catch( Exception &ex ){
+		return "";
+	}
 }
 

@@ -229,6 +229,8 @@ namespace HTML{
 	HTML_ATTRIBUTE( ID, "id" )
 	HTML_ATTRIBUTE( CLASS, "class" )
 	HTML_ATTRIBUTE( HREF, "href" )
+	HTML_ATTRIBUTE( SRC, "src" )
+	HTML_ATTRIBUTE( ALT, "alt" )
 	HTML_ATTRIBUTE( REL, "rel" )
 	HTML_ATTRIBUTE( TYPE, "type" )
 	HTML_ATTRIBUTE( NAME, "name" )

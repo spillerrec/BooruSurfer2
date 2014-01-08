@@ -14,9 +14,5 @@ int main( int argc, char *argv[] ){
 	server_t my_server( server_t::options(handler).address( "localhost" ).port( "8000" ) );
 	my_server.run(); */
 	
-	Server server;
-	server.run();
-
-	
-	return 0;
+	return Server().run( argc, argv );
 }

@@ -17,11 +17,11 @@
 #ifndef SERVER_H
 #define SERVER_H
 
-class Server{
-	public:
-		Server();
-		
-		void run();
+#include <Poco/Util/ServerApplication.h>
+
+class Server : public Poco::Util::ServerApplication{
+	protected:
+		int main( const std::vector<std::string>& unknown );
 };
 
 #endif

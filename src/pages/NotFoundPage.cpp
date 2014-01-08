@@ -21,22 +21,30 @@
 #include <algorithm>
 
 using namespace std;
-using namespace html;
+using namespace HTML;
 
 string NotFoundPage::serve( vector<string> args, vector<header> &headers ) const{
-	//Rebuild the query, as it was split appart
+	//Rebuild the query, as it was split apart
 	auto add_dir = [](string sum, string add){ return ( add != ".." ) ? sum + "/" + add : ""; };
 	string query = accumulate( args.begin(), args.end(), string(""), add_dir );
 	
 	//headers.push_back( header( "Content-Type", get_mime( ext ) ) ); //TODO:
 	
+	return "";
 	//TODO: set error code
 	Styler s( "Could not find \'" + query + "'" );
 	
+	s.container( h3( s.doc )( "404: Page not found" ) );
+	s.container( p( s.doc )( query ) );
+	
+	string str;
+	rapidxml::print( std::back_inserter( str ), s.doc.doc, 0 );
+	return str;
+	/*
 	set_text( element( s.container, "h3" ), "404: Page not found" );
 	p( s.container, query );
 	//TODO: provides link to index
-	
-	return s.doc;
+	/*
+	return s.doc;*/
 }
 

@@ -22,8 +22,7 @@
 #include "Styler.hpp"
 
 using namespace std;
-using namespace pugi;
-using namespace html;
+using namespace HTML;
 
 string IndexPage::serve( vector<string> args, vector<header> &headers ) const{
 	YandereApi api;
@@ -34,11 +33,11 @@ string IndexPage::serve( vector<string> args, vector<header> &headers ) const{
 	if( posts.size() ){
 		Styler styler( "Index" );
 		
-		element( styler.container, "aside", "class", "post_list_info" ).text().set( " " );
+	//TODO:	element( styler.container, "aside", "class", "post_list_info" ).text().set( " " );
 		
-		styler.post_list( styler.container, posts );
+	//	styler.post_list( styler.container, posts );
 		
-		return styler.doc;
+		return "";// styler.doc;
 	}
 	else{
 		std::cout << "Failed to parse JSON : \\" << "\n";

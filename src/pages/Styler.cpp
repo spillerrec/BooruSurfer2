@@ -17,7 +17,7 @@
 #include "Styler.hpp"
 
 using namespace std;
-using namespace html;
+using namespace HTML;
 
 #include "../objects/Post.hpp"
 #include "../objects/Tag.hpp"
@@ -26,14 +26,14 @@ using namespace html;
 #include <boost/lexical_cast.hpp>
 
 
-Styler::Styler( string title ) : doc( title ){
-	doc.add_stylesheet( "/file/main.css" );
+Styler::Styler( string title ) : nav("nav",doc), container("div",doc)/* : doc( title )*/{
+	//doc.add_stylesheet( "/file/main.css" );
 	
 	//Navigation
-	nav = element( element( doc.get_body(), "header" ), "nav" );
+	//nav = HTML::nav( header( doc.get_body() ) );
 	//TODO: add stuff here
 	
-	container = div( doc.get_body(), "id", "container" );
+	//container = div( doc.get_body(), ID( "container" ) );
 	//element( container, "aside", "class", "post_list_info" ).text().set( " " );
 }
 
@@ -42,7 +42,7 @@ string Styler::format_filesize( unsigned filesize ) const{
 	string endings[] = { "bytes", "KiB", "MiB", "GiB", "TiB", "PiB" };
 	double size = filesize;
 	
-	for( string ending : endings ){
+	for( auto ending : endings ){
 		if( size > 1024 )
 			size /= 1024;
 		else{
@@ -59,13 +59,13 @@ string Styler::format_date( unsigned unix_time ) const{
 }
 
 
-Node Styler::time( unsigned unix_time ) const{
+Node Styler::time( unsigned unix_time ){
 	
 }
 
 
-Node Styler::tag_search() const{
-	return input(
+Node Styler::tag_search(){
+	return input( doc ,
 			ID( "search" )
 		,	TYPE( "search" )
 		,	NAME( "tags" )
@@ -76,12 +76,12 @@ Node Styler::tag_search() const{
 	
 }
 
-Node Styler::main_navigation( string search ) const{
+Node Styler::main_navigation( string search ){
 	
 }
 
 
-Node Styler::tag( const Tag& tag ) const{
+Node Styler::tag( const Tag& tag ){
 	string url = "/index/dan/" + tag.name + "/"; //TODO: make url class
 	
 	string text = tag.name;
@@ -91,65 +91,69 @@ Node Styler::tag( const Tag& tag ) const{
 	if( tag.count )
 		text += " (" + boost::lexical_cast<string>( tag.count ) + ")";
 	
-	node a = link( parent, url, text );
-	
 	if( tag.type )
-		attr( a, "class", "tagtype" + boost::lexical_cast<string>( tag.type ) );
-	
-	return a;
+		return a( doc, HREF( url ), CLASS( "tagtype" + to_string( tag.type ) ) )( text );
+	else
+		return a( doc, HREF( url ) )( text );
 }
 
-Node Styler::tag_list( const vector<Tag>& tags, string title ) const{
+void Styler::tag_list( Node& parent, const vector<Tag>& tags, string title ){
 	if( !title.empty() )
-		set_text( element( parent, "h3" ), title );
+		parent( h3(doc)( title ) );
 	
-	html_node list = element( parent, "ul" );
+	auto list = ul( doc );
 	for( Tag tag : tags )
-		this->tag( element( list, "li" ), tag );
+		list( li(doc)( this->tag( tag ) ) );
+	parent( list );
 }
 
 
-Node Styler::note( const Note& note ) const{
-	
+Node Styler::note( const Note& note ){
+	return p(doc)( "unimplemented" );
 }
 
-Node Styler::comment( const Comment& comment ) const{
-	
-}
-
-
-Node Styler::post_preview( const Post& post ) const{
-	
+Node Styler::comment( const Comment& comment ){
+	return p(doc)( "unimplemented" );
 }
 
 
+Node Styler::post_preview( const Post& post ){
+	return p(doc)( "unimplemented" );
+}
 
-Node Styler::post_thumb( const Post& post ) const{
+
+
+Node Styler::post_thumb( const Post& post ){
 	string url = "/post/dan/" + boost::lexical_cast<string>( post.id ) + "/"; //TODO: make url class
-	html_node a = link( parent, url, "" );
+	auto link = a( doc, HREF(url) )(
+		img( doc, SRC( post.thumbnail.url ), ALT( "thumbnail" ) )
+		);
 	
+	return link;
 	//TODO: set status class on a
-	
-	return image( a, post.thumbnail.url, "thumbnail" );
 }
 
-Node Styler::post_thumb_info( const Post& post, bool extended ) const{
-	
+Node Styler::post_thumb_info( const Post& post, bool extended ){
+	return p(doc)( "unimplemented" );
 }
 
-Node Styler::post_details( const Post& post ) const{
-	
+Node Styler::post_details( const Post& post ){
+	return p(doc)( "unimplemented" );
 }
 
 
-Node Styler::post( Post post ) const{
-	html_node container = element( element( parent, "section", "class", "post" ), "div", "class", "container" );
+Node Styler::post( Post post ){
+	return p(doc)( "unimplemented" );
+/*	html_node container = element( element( parent, "section", "class", "post" ), "div", "class", "container" );
 	
 	string url = "/proxy/dan/original/" + boost::lexical_cast<string>( post.id );
 	image( link( container, url, "" ), post.preview.url, "preview" ); //TODO: url
+	*/
 }
 
-Node Styler::post_list( std::vector<Post> posts ) const{
+Node Styler::post_list( std::vector<Post> posts ){
+	return p(doc)( "unimplemented" );	
+	/*
 	html_node list_container = element( parent, "section", "class", "post_list size_medium" );
 	html_node list = element( list_container, "ul" );
 	
@@ -157,5 +161,6 @@ Node Styler::post_list( std::vector<Post> posts ) const{
 		post_thumb( element( list, "li" ), post );
 		
 	return list_container;
+	*/
 }
 

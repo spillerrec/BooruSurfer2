@@ -20,13 +20,13 @@
 #include "Styler.hpp"
 
 using namespace std;
-using namespace pugi;
-using namespace html;
+using namespace HTML;
 
 string PostPage::serve( vector<string> args, vector<header> &headers ) const{
 	YandereApi api;
 	Post post = api.get_post( 0 );
 	
+	return "";/*
 	Styler s( "Post: TODO: add tags here" );
 	
 	s.post( s.container, post );
@@ -45,6 +45,6 @@ string PostPage::serve( vector<string> args, vector<header> &headers ) const{
 	}
 	s.tag_list( info, tags, "Tags:" );
 	
-	return s.doc;
+	return s.doc;*/
 }
 

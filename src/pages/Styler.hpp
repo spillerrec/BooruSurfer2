@@ -32,9 +32,9 @@ class Image;
 
 class Styler{
 	public:
-		html::Document doc;
-		html::Node nav;
-		html::Node container;
+		HTML::Document doc;
+		HTML::Node nav;
+		HTML::Node container;
 	
 	public:
 		Styler( std::string title );
@@ -42,28 +42,28 @@ class Styler{
 		std::string format_filesize( unsigned filesize ) const;
 		std::string format_date( unsigned unix_time ) const;
 		
-		html::Node time( unsigned unix_time ) const;
+		HTML::Node time( unsigned unix_time );
 		
-		html::Node tag_search() const;
-		html::Node main_navigation( std::string search ) const;
+		HTML::Node tag_search();
+		HTML::Node main_navigation( std::string search );
 		
-		html::Node tag( const Tag& tag ) const;
-		html::Node tag_list( const std::vector<Tag>& tags, std::string title="" ) const;
+		HTML::Node tag( const Tag& tag );
+		void tag_list( HTML::Node& parent, const std::vector<Tag>& tags, std::string title="" );
 		
-		html::Node note( const Note& note ) const;
-		html::Node comment( const Comment& comment ) const;
+		HTML::Node note( const Note& note );
+		HTML::Node comment( const Comment& comment );
 		
-		html::Node post_preview( const Post& post ) const;
+		HTML::Node post_preview( const Post& post );
 		
 		
-		html::Node post_thumb( const Post& post ) const;
-		html::Node post_thumb_info( const Post& post, bool extended=false ) const;
-		html::Node post_details( const Post& post ) const;
+		HTML::Node post_thumb( const Post& post );
+		HTML::Node post_thumb_info( const Post& post, bool extended=false );
+		HTML::Node post_details( const Post& post );
 		
-		html::Node post( Post post ) const;
-		html::Node post_list( std::vector<Post> list ) const;
+		HTML::Node post( Post post );
+		HTML::Node post_list( std::vector<Post> list );
 		
-		//html::Node page_index_nav( $index, $page ) const;
+		//HTML::Node page_index_nav( $index, $page );
 };
 
 #endif
