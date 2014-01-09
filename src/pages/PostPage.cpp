@@ -26,7 +26,7 @@ string PostPage::serve( vector<string> args, vector<header> &headers ) const{
 	YandereApi api;
 	Post post = api.get_post( 277759 );
 	
-	Styler s( "Post: TODO: add tags here" );
+	Styler s( "yandere", "Post: TODO: add tags here" );
 	headers.push_back( content_type() );
 	
 	s.container( s.post( post ) );

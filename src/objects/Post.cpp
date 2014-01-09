@@ -16,5 +16,13 @@
 
 #include "Post.hpp"
 
-
+Image Post::get_image_size( Image::Size size ) const{
+	switch( size ){
+		case Image::THUMB:      return thumbnail;
+		case Image::RESIZED:    return preview;
+		case Image::COMPRESSED: return reduced;
+		case Image::ORIGINAL:   return full;
+		default: return full;
+	}
+}
 

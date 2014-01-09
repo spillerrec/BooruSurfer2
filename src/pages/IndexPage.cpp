@@ -31,7 +31,7 @@ string IndexPage::serve( vector<string> args, vector<header> &headers ) const{
 	vector<Post> posts = api.get_index( "", 1 );
 	
 	if( posts.size() ){
-		Styler styler( "Index" );
+		Styler styler( "yandere", "Index" );
 		
 	//TODO:	element( styler.container, "aside", "class", "post_list_info" ).text().set( " " );
 		

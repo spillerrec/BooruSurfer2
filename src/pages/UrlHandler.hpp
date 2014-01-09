@@ -14,24 +14,24 @@
 	along with BooruSurfer2.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef IMAGE_H
-#define IMAGE_H
+#ifndef URL_HANDLER_H
+#define URL_HANDLER_H
 
+#include "../objects/Post.hpp"
 #include <string>
+#include <vector>
 
-class Image{
+
+class UrlHandler{
+	private:
+		std::string site;
 	public:
-		enum Size{
-				THUMB
-			,	RESIZED
-			,	COMPRESSED
-			,	ORIGINAL
-		};
+		UrlHandler( std::string site ) : site(site) { }
 		
-		std::string url;
-		unsigned width;
-		unsigned height;
-		unsigned size;
+		std::string post_url( const Post& p ) const;
+		std::string index_url( const std::vector<Tag>& tags = std::vector<Tag>(), unsigned page=1, int amount = -1 ) const;
+		
+		std::string image_url( const Post& p, Image::Size size );
 };
 
 #endif

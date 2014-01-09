@@ -26,7 +26,7 @@ using namespace HTML;
 #include <boost/lexical_cast.hpp>
 
 
-Styler::Styler( string page_title ){
+Styler::Styler( string site, string page_title ) : url( site ){
 	doc.html()(
 			head(
 					title(doc)( page_title )
@@ -87,7 +87,7 @@ Node Styler::main_navigation( string search ){
 
 
 Node Styler::tag( const Tag& tag ){
-	string url = "/index/dan/" + tag.name + "/"; //TODO: make url class
+	string url = this->url.index_url( vector<Tag>{ tag } );
 	
 	string text = tag.name;
 	replace( text.begin(), text.end(), '_', ' ' );
@@ -130,7 +130,7 @@ Node Styler::post_preview( const Post& post ){
 
 
 Node Styler::post_thumb( const Post& post ){
-	string url = "/post/dan/" + boost::lexical_cast<string>( post.id ) + "/"; //TODO: make url class
+	string url = this->url.post_url( post );
 	auto link = a( doc, HREF(url) )(
 		img( doc, SRC( post.thumbnail.url ), ALT( "thumbnail" ) )
 		);
@@ -149,8 +149,10 @@ Node Styler::post_details( const Post& post ){
 
 
 Node Styler::post( Post post ){
-	string url_org = "/proxy/dan/original/" + boost::lexical_cast<string>( post.id );
-	string url_show = "/proxy/dan/sample/" + boost::lexical_cast<string>( post.id );
+//	string url_org = "/proxy/dan/original/" + boost::lexical_cast<string>( post.id );
+//	string url_show = "/proxy/dan/sample/" + boost::lexical_cast<string>( post.id );
+	string url_org = post.full.url;
+	string url_show = post.preview.url;
 	
 	return section( doc, CLASS("post") )(
 			div( doc, CLASS("container") )(
@@ -162,15 +164,10 @@ Node Styler::post( Post post ){
 }
 
 Node Styler::post_list( std::vector<Post> posts ){
-	return p(doc)( "unimplemented" );	
-	/*
-	html_node list_container = element( parent, "section", "class", "post_list size_medium" );
-	html_node list = element( list_container, "ul" );
-	
+	auto list = ul(doc);
 	for( Post post : posts )
-		post_thumb( element( list, "li" ), post );
-		
-	return list_container;
-	*/
+		list( li(doc)( post_thumb( post ) ) );
+	
+	return section( doc, CLASS("post_list size_medium") )( list );
 }
 

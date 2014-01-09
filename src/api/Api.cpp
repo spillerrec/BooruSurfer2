@@ -53,11 +53,7 @@ std::string Api::get_from_url( std::string url ) const{
 
 		// print response
 		std::istream &is = session.receiveResponse(res);
-		
-		std::string str = std::string(static_cast<std::stringstream const&>(std::stringstream() << is.rdbuf()).str());
-		std::cout << "Retrived: " << url << "\n";
-		std::cout << str << "\n";
-		return str;
+		return std::string(static_cast<std::stringstream const&>(std::stringstream() << is.rdbuf()).str());
 	}
 	catch( Exception &ex ){
 		return "";

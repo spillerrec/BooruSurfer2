@@ -70,6 +70,8 @@ class Post{
 		Image preview;
 		Image thumbnail;
 		
+		Image get_image_size( Image::Size size ) const;
+		
 		
 	public:
 		unsigned get_id() const{ return id; }

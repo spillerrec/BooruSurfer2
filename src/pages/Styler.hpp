@@ -20,6 +20,7 @@
 #include "Styler.hpp"
 
 #include "../parsing/html.hpp"
+#include "UrlHandler.hpp"
 
 #include <vector>
 
@@ -37,9 +38,11 @@ class Styler{
 		HTML::Node body{ HTML::body(doc) };
 		HTML::Node nav{ HTML::nav(doc) };
 		HTML::Node container{ HTML::div( doc, HTML::ID("container") ) };
+		
+		UrlHandler url;
 	
 	public:
-		Styler( std::string title );
+		Styler( std::string site, std::string title );
 		
 		std::string format_filesize( unsigned filesize ) const;
 		std::string format_date( unsigned unix_time ) const;
