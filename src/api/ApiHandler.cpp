@@ -14,26 +14,30 @@
 	along with BooruSurfer2.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef URL_HANDLER_H
-#define URL_HANDLER_H
 
-#include "../objects/Post.hpp"
-#include <string>
-#include <vector>
+#include "ApiHandler.hpp"
 
-class Api;
+#include "YandereApi.hpp"
 
-class UrlHandler{
-	private:
-		const Api* api;
-	public:
-		UrlHandler( const Api* api ) : api(api) { }
-		
-		std::string post_url( const Post& p ) const;
-		std::string index_url( const std::vector<Tag>& tags = std::vector<Tag>(), unsigned page=1, int amount = -1 ) const;
-		
-		std::string image_url( const Post& p, Image::Size size );
-};
+ApiHandler* ApiHandler::instance{ nullptr };
 
-#endif
+ApiHandler::ApiHandler() : apis{
+	//TODO: add all the apis
+		new DanApi()
+	,	new KonachanApi()
+	,	new YandereApi()
+}{ }
 
+ApiHandler* ApiHandler::get_instance(){
+	//TODO: make atomic
+	if( !instance )
+		instance = new ApiHandler;
+	return instance;
+}
+
+const Api* ApiHandler::get_by_shorthand( std::string shorthand ) const{
+	for( auto api : apis )
+		if( api->get_shorthand() == shorthand )
+			return api;
+	return nullptr;
+}

@@ -101,7 +101,8 @@ Post DanApi::parse_post( DataNode p ) const{
 
 
 Post DanApi::get_post( unsigned id ) const{
-	DataNode data = JsonDataNode::from_string( get_from_url( "https://yande.re/post/index.json?tags=touhou" ) );
+	std::string url = get_url() + "post/index.json?tags=id:" + std::to_string( id );
+	DataNode data = JsonDataNode::from_string( get_from_url( url ) );
 	
 	if( data.size() > 0 )
 		return parse_post( data[0] );
@@ -110,7 +111,8 @@ Post DanApi::get_post( unsigned id ) const{
 }
 
 std::vector<Post> DanApi::get_index( std::string search, int page, int limit ) const{
-	DataNode data = JsonDataNode::from_string( get_from_url( "https://yande.re/post/index.json?tags=touhou" ) );
+	std::string url = get_url() + "post/index.json?tags=" + search;
+	DataNode data = JsonDataNode::from_string( get_from_url( url ) );
 	
 	std::vector<Post> list;
 	

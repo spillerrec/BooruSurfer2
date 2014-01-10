@@ -109,8 +109,9 @@ class DanApi : public Api{
 		virtual Image get_image( DataNode parent, PostItem url, PostItem width, PostItem height, PostItem size ) const;
 		
 	public:
-		std::string get_name() const{ return "Danbooru"; }
-		std::string get_shorthand() const{ return "dan"; }
+		virtual std::string get_name() const{ return "Danbooru"; }
+		virtual std::string get_shorthand() const{ return "dan"; }
+		virtual std::string get_url() const{ return "http://danbooru.donmai.us/"; }
 		
 		virtual const char* const* post_table() const{ return post_strings; }
 		

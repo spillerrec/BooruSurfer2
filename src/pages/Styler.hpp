@@ -30,6 +30,7 @@ class Comment;
 class Pool;
 class Note;
 class Image;
+class Api;
 
 class Styler{
 	public:
@@ -39,10 +40,11 @@ class Styler{
 		HTML::Node nav{ HTML::nav(doc) };
 		HTML::Node container{ HTML::div( doc, HTML::ID("container") ) };
 		
+		const Api* api;
 		UrlHandler url;
 	
 	public:
-		Styler( std::string site, std::string title );
+		Styler( const Api* api, std::string title );
 		
 		std::string format_filesize( unsigned filesize ) const;
 		std::string format_date( unsigned unix_time ) const;

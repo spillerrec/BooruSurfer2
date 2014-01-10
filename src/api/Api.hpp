@@ -26,11 +26,13 @@ class Api{
 		std::string get_from_url( std::string url ) const; //temporary
 		
 	public:
-		virtual std::string get_name() const;
-		virtual std::string get_shorthand() const;
+		virtual std::string get_name() const = 0;
+		virtual std::string get_shorthand() const = 0;
 		
 		virtual Post get_post( unsigned id ) const = 0;
 		virtual std::vector<Post> get_index( std::string search, int page, int limit=-1 ) const = 0;
+		
+		virtual ~Api(){ }
 };
 
 #endif

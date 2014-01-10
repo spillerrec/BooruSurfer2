@@ -21,8 +21,9 @@
 
 class YandereApi : public KonachanApi{
 	public:
-		std::string get_name() const{ return "Yandere"; }
-		std::string get_shorthand() const{ return "yandere"; }
+		virtual std::string get_name() const override{ return "Yandere"; }
+		virtual std::string get_shorthand() const override{ return "yandere"; }
+		virtual std::string get_url() const override{ return "https://yande.re/"; }
 };
 
 #endif

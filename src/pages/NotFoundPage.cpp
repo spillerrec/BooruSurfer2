@@ -32,7 +32,7 @@ string NotFoundPage::serve( vector<string> args, vector<header> &headers ) const
 	
 	return "";
 	//TODO: set error code
-	Styler s( "yandere", "Could not find \'" + query + "'" );
+	Styler s( nullptr, "Could not find \'" + query + "'" );
 	
 	s.container( h3( s.doc )( "404: Page not found" ) );
 	s.container( p( s.doc )( query ) );

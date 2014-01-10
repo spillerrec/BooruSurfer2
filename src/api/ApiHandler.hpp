@@ -14,25 +14,25 @@
 	along with BooruSurfer2.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef URL_HANDLER_H
-#define URL_HANDLER_H
+#ifndef API_HANDLER_HPP
+#define API_HANDLER_HPP
 
-#include "../objects/Post.hpp"
 #include <string>
 #include <vector>
 
 class Api;
 
-class UrlHandler{
+class ApiHandler{
 	private:
-		const Api* api;
+		std::vector<const Api*> apis;
+		ApiHandler();
+		static ApiHandler* instance;
+		
 	public:
-		UrlHandler( const Api* api ) : api(api) { }
+		static ApiHandler* get_instance();
 		
-		std::string post_url( const Post& p ) const;
-		std::string index_url( const std::vector<Tag>& tags = std::vector<Tag>(), unsigned page=1, int amount = -1 ) const;
-		
-		std::string image_url( const Post& p, Image::Size size );
+		std::vector<const Api*> get_apis(){ return apis; }
+		const Api* get_by_shorthand( std::string shorthand ) const;
 };
 
 #endif

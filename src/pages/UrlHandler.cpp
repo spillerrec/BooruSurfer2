@@ -16,13 +16,15 @@
 
 #include "UrlHandler.hpp"
 
+#include "../api/Api.hpp"
+
 using namespace std;
 
 string UrlHandler::post_url( const Post& p ) const{
-	return "/post/" + site + "/" + to_string( p.id ) + "/";
+	return "/post/" + api->get_shorthand() + "/" + to_string( p.id ) + "/";
 }
 string UrlHandler::index_url( const vector<Tag>& tags, unsigned page, int amount ) const{
-	string start( "/index/" + site + "/" );
+	string start( "/index/" + api->get_shorthand() + "/" );
 	
 	//Page and post-amount
 	string offset;
@@ -67,9 +69,9 @@ string tags_to_name( const Post& p, Tag::Type type, int limit ){
 string UrlHandler::image_url( const Post& p, Image::Size size ){
 	//TODO: change size depending on post
 	string size_str = image_size_string( size );
-	string path = "/proxy/" + site + "/" + size_str + "/";
+	string path = "/proxy/" + api->get_shorthand() + "/" + size_str + "/";
 	
-	string filename_start = site + " " + to_string( p.id ) + " - ";
+	string filename_start = api->get_shorthand() + " " + to_string( p.id ) + " - ";
 	string filename_end;
 	if( size != Image::ORIGINAL )
 		filename_end += "." + size_str;

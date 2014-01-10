@@ -15,7 +15,8 @@
 */
 
 #include "PostPage.hpp"
-#include "../api/YandereApi.hpp"
+#include "../api/Api.hpp"
+#include "../api/ApiHandler.hpp"
 
 #include "Styler.hpp"
 
@@ -23,10 +24,24 @@ using namespace std;
 using namespace HTML;
 
 string PostPage::serve( vector<string> args, vector<header> &headers ) const{
-	YandereApi api;
-	Post post = api.get_post( 277759 );
+	if( args.size() != 3 )
+		return "fail";
 	
-	Styler s( "yandere", "Post: TODO: add tags here" );
+	const Api *api = ApiHandler::get_instance()->get_by_shorthand( args[1] );
+	if( !api )
+		return "Not a site";
+	
+	unsigned id;
+	try{
+		id = stoi( args[2] );
+	}
+	catch( ... ){
+		return "Post id not an number!";
+	}
+	cout << "Post: " << id << "\n";
+	Post post = api->get_post( id );
+	
+	Styler s( api, "Post: TODO: add tags here" );
 	headers.push_back( content_type() );
 	
 	s.container( s.post( post ) );

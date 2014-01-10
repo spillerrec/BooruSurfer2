@@ -22,11 +22,16 @@ using namespace HTML;
 #include "../objects/Post.hpp"
 #include "../objects/Tag.hpp"
 
+#include "../api/Api.hpp"
+#include "../api/ApiHandler.hpp"
+
 #include <algorithm>
 #include <boost/lexical_cast.hpp>
 
+//TODO: make url as input to the functions
 
-Styler::Styler( string site, string page_title ) : url( site ){
+
+Styler::Styler( const Api* api, string page_title ) : api(api), url( api ){
 	doc.html()(
 			head(
 					title(doc)( page_title )
@@ -82,7 +87,26 @@ Node Styler::tag_search(){
 }
 
 Node Styler::main_navigation( string search ){
+	vector<const Api*> apis = ApiHandler::get_instance()->get_apis();
 	
+	auto list = ul(doc);
+	for( auto api : apis ){
+		if( api == this->api ) //TODO:
+			continue;
+		
+		string href = UrlHandler( api ).index_url();
+		list( li(doc)( a(doc, HREF( href ) )( api->get_name() ) ) );
+	}
+	
+	return ul(doc)(
+			li(doc)(
+					api->get_name()
+				,	list
+				)
+		,	li(doc)( a(doc, HREF(url.index_url()) )( "Index" ) )
+		,	li(doc)( a(doc, HREF( "/manage/" ) )( "Settings" ) )
+		,	li(doc)( tag_search() ) //TODO: search
+		);
 }
 
 
@@ -149,10 +173,8 @@ Node Styler::post_details( const Post& post ){
 
 
 Node Styler::post( Post post ){
-//	string url_org = "/proxy/dan/original/" + boost::lexical_cast<string>( post.id );
-//	string url_show = "/proxy/dan/sample/" + boost::lexical_cast<string>( post.id );
-	string url_org = post.full.url;
-	string url_show = post.preview.url;
+	string url_org = url.image_url( post, Image::RESIZED );
+	string url_show = url.image_url( post, Image::ORIGINAL );
 	
 	return section( doc, CLASS("post") )(
 			div( doc, CLASS("container") )(

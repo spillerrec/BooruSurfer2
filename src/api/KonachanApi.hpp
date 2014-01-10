@@ -24,8 +24,9 @@ class KonachanApi : public DanApi{
 		static const char* const kona_post_strings[POST_ITEM_SIZE];
 		
 	public:
-		std::string get_name() const{ return "Konachan"; }
-		std::string get_shorthand() const{ return "kona"; }
+		virtual std::string get_name() const override{ return "Konachan"; }
+		virtual std::string get_shorthand() const override{ return "kona"; }
+		virtual std::string get_url() const override{ return "http://konachan.com/"; }
 		
 		const char* const* post_table() const{ return kona_post_strings; }
 };
