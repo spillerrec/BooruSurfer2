@@ -48,6 +48,7 @@ string IndexPage::serve( vector<string> args, vector<header> &headers ) const{
 		styler.container( styler.post_list( posts ) );
 		cout << "Post amount: " << posts.size() << endl;
 		
+		headers.push_back( content_type() );
 		return styler.doc;
 	}
 	else{

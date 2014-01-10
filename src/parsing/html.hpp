@@ -18,7 +18,22 @@ namespace HTML{
 			
 		public:
 			Document() : doc(){
+				/* XHTML
+				auto declaration = doc.allocate_node( rapidxml::node_declaration );
+				declaration->append_attribute( doc.allocate_attribute( "version", "1.0" ) );
+				declaration->append_attribute( doc.allocate_attribute( "encoding", "UTF-8" ) );
+				doc.append_node( declaration );
+				/*/// HTML5
+				auto doctype = doc.allocate_node( rapidxml::node_doctype );
+				doctype->value( "html" );
+				doc.append_node( doctype );
+				//*/
+				
+				/* XHTML
+				node = doc.allocate_node( rapidxml::node_element, "html PUBLIC \"-//W3C//DTD XHTML 1.0 Strict//EN\"  \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd\"" );
+				/*/// HTML5
 				node = doc.allocate_node( rapidxml::node_element, "html" );
+				//*/
 				doc.append_node( node );
 			}
 			
