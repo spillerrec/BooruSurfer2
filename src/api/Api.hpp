@@ -19,15 +19,19 @@
 
 #include <string>
 #include <vector>
+#include <utility>
 #include "../objects/Post.hpp"
 
 class Api{
-	protected:
-		std::string get_from_url( std::string url ) const; //temporary
+	public:
+		std::string get_from_url( std::string url
+			,	std::vector<std::pair<std::string,std::string> > headers = std::vector<std::pair<std::string,std::string> >()
+			) const; //temporary
 		
 	public:
 		virtual std::string get_name() const = 0;
 		virtual std::string get_shorthand() const = 0;
+		virtual std::string get_url() const = 0;
 		
 		virtual Post get_post( unsigned id ) const = 0;
 		virtual std::vector<Post> get_index( std::string search, int page, int limit=-1 ) const = 0;

@@ -173,8 +173,8 @@ Node Styler::post_details( const Post& post ){
 
 
 Node Styler::post( Post post ){
-	string url_org = url.image_url( post, Image::RESIZED );
-	string url_show = url.image_url( post, Image::ORIGINAL );
+	string url_org = url.image_url( post, Image::ORIGINAL );
+	string url_show = url.image_url( post, Image::RESIZED );
 	
 	return section( doc, CLASS("post") )(
 			div( doc, CLASS("container") )(

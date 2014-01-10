@@ -14,34 +14,15 @@
 	along with BooruSurfer2.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef TAG_H
-#define TAG_H
+#ifndef PROXY_PAGE_H
+#define PROXY_PAGE_H
 
-#include <string>
+#include "FilePage.hpp"
 
-class Tag{
+
+class ProxyPage : public FilePage{
 	public:
-		enum Type{
-			NONE,
-			ARTIST,
-			COPYRIGHT,
-			CHARACTER,
-			SPECIAL,
-			COMPANY,
-			UNKNOWN = 255
-		};
-		
-	public:
-		unsigned id{ 0 };
-		std::string name;
-		Type type{ NONE };
-		unsigned count{ 0 };
-		
-		
-	public:
-		Tag() { }
-		Tag( std::string name ) : name(name) { }
-		
+		virtual std::string serve( std::vector<std::string> args, std::vector<header> &headers ) const override;
 };
 
 #endif

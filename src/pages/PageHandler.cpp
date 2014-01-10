@@ -19,6 +19,7 @@
 #include "PostPage.hpp"
 #include "IndexPage.hpp"
 #include "FilePage.hpp"
+#include "ProxyPage.hpp"
 #include "NotFoundPage.hpp"
 
 using namespace std;
@@ -30,6 +31,7 @@ PageHandler::PageHandler()
 	add( "index", new IndexPage() );
 	add( "post", new PostPage() );
 	add( "file", new FilePage() );
+	add( "proxy", new ProxyPage() );
 }
 
 

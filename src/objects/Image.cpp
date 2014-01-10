@@ -16,5 +16,18 @@
 
 #include "Image.hpp"
 
+#include <map>
 
+using namespace std;
+
+
+Image::Size Image::from_string( std::string input ){
+	static const map<string,Image::Size> function{
+			{"thumb", THUMB}
+		,	{"resized", RESIZED}
+		,	{"compressed", COMPRESSED}
+		};
+	auto it = function.find( input );
+	return ( it != function.end() ) ? it->second : ORIGINAL;
+}
 

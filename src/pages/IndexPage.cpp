@@ -39,7 +39,7 @@ string IndexPage::serve( vector<string> args, vector<header> &headers ) const{
 	vector<Post> posts = api->get_index( search, 1 );
 	
 	if( posts.size() ){
-		Styler styler( api, "Index" );
+		Styler styler( api, "Index: " + search );
 		
 		styler.nav( styler.main_navigation( "" ) );
 		

@@ -27,6 +27,7 @@ class Image{
 			,	COMPRESSED
 			,	ORIGINAL
 		};
+		static Size from_string( std::string input );
 		
 		std::string url;
 		unsigned width;

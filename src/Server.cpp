@@ -30,6 +30,25 @@
 using namespace Poco::Net;
 using namespace std;
 
+//TODO: find a proper implementation
+void unencode_str( string& input ){
+	int pos = 0;
+	do{
+		pos = input.find_first_of( '%', pos );
+		if( pos - 2 >= input.size() )
+			break;
+		
+		try{
+			int value = stoi( input.substr( pos+1, 2 ), nullptr, 16 );
+			input.replace( pos, 3, 1, (char)value );
+		}
+		catch( ... ){
+			cout << "Error while processing: " << input << "\n";
+			break;
+		}
+	}while( true );
+}
+
 class RequestHandler : public HTTPRequestHandler {
 	public:
 		virtual void handleRequest( HTTPServerRequest& req, HTTPServerResponse& response ) override {
@@ -39,6 +58,9 @@ class RequestHandler : public HTTPRequestHandler {
 			vector<string> args;
 			boost::split( args, req.getURI(), boost::is_any_of( "/" ) ); //TODO: avoid is_any_of() ?
 			args.erase( remove_if( args.begin(), args.end(), [](string arg){ return arg.empty(); } ), args.end() );
+			
+			for( auto& arg : args )
+				unencode_str( arg );
 			
 			//Create content
 			string contents;
