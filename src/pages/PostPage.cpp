@@ -44,6 +44,8 @@ string PostPage::serve( vector<string> args, vector<header> &headers ) const{
 	Styler s( api, "Post: TODO: add tags here" );
 	headers.push_back( content_type() );
 	
+	s.nav( s.main_navigation( "" ) );
+	
 	//Post info
 	auto info = aside( s.doc, CLASS( "post_info" ) );
 	

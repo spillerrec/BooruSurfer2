@@ -41,7 +41,7 @@ string IndexPage::serve( vector<string> args, vector<header> &headers ) const{
 	if( posts.size() ){
 		Styler styler( api, "Index: " + search );
 		
-		styler.nav( styler.main_navigation( "" ) );
+		styler.nav( styler.main_navigation( search ) );
 		
 	//TODO:	element( styler.container, "aside", "class", "post_list_info" ).text().set( " " );
 		
