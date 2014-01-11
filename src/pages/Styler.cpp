@@ -165,7 +165,15 @@ Node Styler::post_thumb( const Post& post ){
 }
 
 Node Styler::post_thumb_info( const Post& post, bool extended ){
-	return p(doc)( "unimplemented" );
+	auto node = section( doc, CLASS("details") );
+	post_info( node, post, extended );
+	
+	auto tags = p(doc);
+	tags( em(doc)( "Tags:" ) );
+	//TODO: tags
+	tags( "TODO:" );
+	
+	return node( tags );
 }
 
 Node Styler::post_details( const Post& post ){
@@ -194,8 +202,6 @@ Node Styler::post_info( Node& parent, const Post& post, bool extended ){
 				);
 		};
 	
-	parent( h3(doc)( "Info:" ) );
-	
 	parent( add( "Posted:", "TODO" ) );
 	if( extended && !post.author.empty() )
 		parent( add( "By:", post.author ) );
@@ -212,7 +218,7 @@ Node Styler::post_info( Node& parent, const Post& post, bool extended ){
 Node Styler::post_list( std::vector<Post> posts ){
 	auto list = ul(doc);
 	for( Post post : posts )
-		list( li(doc)( post_thumb( post ) ) );
+		list( li(doc)( post_thumb( post ), post_thumb_info( post, false ) ) );
 	
 	return section( doc, CLASS("post_list size_medium") )( list );
 }
