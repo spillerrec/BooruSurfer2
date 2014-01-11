@@ -48,7 +48,7 @@ string PostPage::serve( vector<string> args, vector<header> &headers ) const{
 	
 	//Post info
 	auto info = aside( s.doc, CLASS( "post_info" ) );
-	
+	s.post_info( info, post, true );
 	
 	//Temp
 	vector<Tag> tags;

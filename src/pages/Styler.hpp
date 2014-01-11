@@ -68,6 +68,7 @@ class Styler{
 		HTML::Node post_details( const Post& post );
 		
 		HTML::Node post( Post post );
+		HTML::Node post_info( HTML::Node& parent, const Post& post, bool extended=false );
 		HTML::Node post_list( std::vector<Post> list );
 		
 		//HTML::Node page_index_nav( $index, $page );

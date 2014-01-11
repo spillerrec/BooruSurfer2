@@ -56,8 +56,9 @@ string Styler::format_filesize( unsigned filesize ) const{
 		if( size > 1024 )
 			size /= 1024;
 		else{
-			//TODO: decimals
-			return boost::lexical_cast<string>( size ) + " " + ending;
+			char buf[255];
+			snprintf( buf, 255, "%.2f", size );
+			return string(buf) + " " + ending;
 		}
 	}
 	
@@ -183,6 +184,29 @@ Node Styler::post( Post post ){
 					)
 				)
 		);
+}
+
+Node Styler::post_info( Node& parent, const Post& post, bool extended ){
+	auto add = [=]( string title, string content ){
+			return p(doc)(
+						em(doc)( title )
+					,	content
+				);
+		};
+	
+	parent( h3(doc)( "Info:" ) );
+	
+	parent( add( "Posted:", "TODO" ) );
+	if( extended && !post.author.empty() )
+		parent( add( "By:", post.author ) );
+	if( post.full.width && post.full.height )
+		parent( add( "Dimensions:", to_string(post.full.width) + "x" + to_string(post.full.height) ) );
+	if( post.full.size )
+		parent( add( "Size:", format_filesize(post.full.size) ) );
+	if( post.rating != Post::UNRATED )
+		parent( add( "Rating:", "TODO" ) );
+	if( extended && !post.source.empty() )
+		parent( add( "Source:", post.source ) );
 }
 
 Node Styler::post_list( std::vector<Post> posts ){
