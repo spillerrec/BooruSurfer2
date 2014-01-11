@@ -40,14 +40,12 @@ namespace HTML{
 			Node html();
 			
 			void print_to_cout(){
-				rapidxml::print( std::cout, doc, 0 );//rapidxml::print_no_indenting );
-				//std::string s;
-				//rapidxml::print( std::back_inserter( s ), doc, 0 );
+				rapidxml::print( std::cout, doc, 0 );
 			}
 			
 			operator std::string() const{
 				std::string s;
-				rapidxml::print( std::back_inserter( s ), doc, 0 );
+				rapidxml::print( std::back_inserter( s ), doc, rapidxml::print_no_indenting );
 				return s;
 			}
 	};
