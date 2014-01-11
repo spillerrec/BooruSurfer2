@@ -34,9 +34,27 @@ string IndexPage::serve( vector<string> args, vector<header> &headers ) const{
 		return "no such site!";
 	
 	string search;
-	if( args.size() == 3 )
-		search = args[2];
-	vector<Post> posts = api->get_index( search, 1 );
+	int page = 1;
+	if( args.size() == 3 ){
+		try{
+			page = stoi( args[2] );
+		}
+		catch(...){
+			search = args[2];
+		}
+	}
+	else if( args.size() == 4 ){
+		//TODO: page 99-99
+		try{
+			page = stoi( args[2] );
+		}
+		catch(...){
+			return "fail parsing page number";
+		}
+		
+		search = args[3];
+	}
+	vector<Post> posts = api->get_index( search, page );
 	
 	if( posts.size() ){
 		Styler styler( api, "Index: " + search );

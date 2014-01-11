@@ -112,6 +112,8 @@ Post DanApi::get_post( unsigned id ) const{
 
 std::vector<Post> DanApi::get_index( std::string search, int page, int limit ) const{
 	std::string url = get_url() + "post/index.json?tags=" + search;
+	if( page > 1 )
+		url += "&page=" + std::to_string( page );
 	DataNode data = JsonDataNode::from_string( get_from_url( url ) );
 	
 	std::vector<Post> list;
