@@ -223,3 +223,39 @@ Node Styler::post_list( std::vector<Post> posts ){
 	return section( doc, CLASS("post_list size_medium") )( list );
 }
 
+Node Styler::index_navigation( string search, int page, int limit, int amount ){
+	int min_page = max( page - 3, 1 );
+	int max_page = min( page + 3, amount );
+	
+	auto link = [=]( int page ){
+			return li(doc)(
+					a(doc, HREF( UrlHandler(api).index_url( {{search}}, page, limit ) ))(
+							to_string(page)
+						)
+				);
+		};
+	
+	auto list = ul(doc);
+	
+	// 1, ..., min, min+1
+	if( min_page > 1 ){
+		list( link( 1 ) );
+		list( li(doc)( "..." ) );
+	}
+	
+	// min, min+1 ... max-1, max
+	for( int i=min_page; i<=max_page; i++ )
+		if( i == page )
+			list( li(doc)( to_string(page) ) );
+		else
+			list( link( i ) );
+	
+	// max, ..., amount
+	if( max_page < amount ){
+		list( li(doc)( "..." ) );
+		list( link( amount ) );
+	}
+	
+	return HTML::nav( doc, CLASS("page_nav") )( list );
+}
+

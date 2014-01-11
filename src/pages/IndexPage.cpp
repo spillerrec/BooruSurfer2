@@ -35,6 +35,7 @@ string IndexPage::serve( vector<string> args, vector<header> &headers ) const{
 	
 	string search;
 	int page = 1;
+	int limit = -1;
 	if( args.size() == 3 ){
 		try{
 			page = stoi( args[2] );
@@ -63,7 +64,11 @@ string IndexPage::serve( vector<string> args, vector<header> &headers ) const{
 		
 	//TODO:	element( styler.container, "aside", "class", "post_list_info" ).text().set( " " );
 		
-		styler.body( div(styler.doc, ID("container"))( styler.post_list( posts ) ) );
+		styler.body( div(styler.doc, ID("container"))(
+				styler.post_list( posts )
+				//TODO: don't include index_navigation if only one page?
+			,	styler.index_navigation( search, page, limit, 9999 ) //TODO:
+			) );
 		cout << "Post amount: " << posts.size() << endl;
 		
 		headers.push_back( content_type() );
