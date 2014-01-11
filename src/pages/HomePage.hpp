@@ -14,38 +14,15 @@
 	along with BooruSurfer2.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "PageHandler.hpp"
+#ifndef HOME_PAGE_H
+#define HOME_PAGE_H
 
-#include "HomePage.hpp"
-#include "PostPage.hpp"
-#include "IndexPage.hpp"
-#include "FilePage.hpp"
-#include "ProxyPage.hpp"
-#include "NotFoundPage.hpp"
+#include "APage.hpp"
 
-using namespace std;
+class HomePage : public APage{
+	public:
+		std::string serve( std::vector<std::string> args, std::vector<header> &headers ) const;
+};
 
-PageHandler::PageHandler()
-		:	page_root( new HomePage() )
-		,	page_404( new NotFoundPage() )
-	{
-	add( "index", new IndexPage() );
-	add( "post", new PostPage() );
-	add( "file", new FilePage() );
-	add( "proxy", new ProxyPage() );
-}
-
-
-PageHandler::~PageHandler(){
-	
-}
-
-
-PageHandler::APage_ptr PageHandler::get( std::string page ){
-	auto got = pages.find( page );
-	if( got != pages.end() )
-		return got->second;
-	else
-		return page_404;
-}
+#endif
 

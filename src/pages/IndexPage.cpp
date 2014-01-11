@@ -45,7 +45,7 @@ string IndexPage::serve( vector<string> args, vector<header> &headers ) const{
 		
 	//TODO:	element( styler.container, "aside", "class", "post_list_info" ).text().set( " " );
 		
-		styler.container( styler.post_list( posts ) );
+		styler.body( div(styler.doc, ID("container"))( styler.post_list( posts ) ) );
 		cout << "Post amount: " << posts.size() << endl;
 		
 		headers.push_back( content_type() );

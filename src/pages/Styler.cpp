@@ -42,7 +42,7 @@ Styler::Styler( const Api* api, string page_title ) : api(api), url( api ){
 					header(doc)(
 							nav
 						)
-				,	container
+				//,	container
 				)
 		);
 }

@@ -14,56 +14,27 @@
 	along with BooruSurfer2.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "PostPage.hpp"
+#include "HomePage.hpp"
+
 #include "../api/Api.hpp"
 #include "../api/ApiHandler.hpp"
-
 #include "Styler.hpp"
 
 using namespace std;
 using namespace HTML;
 
-string PostPage::serve( vector<string> args, vector<header> &headers ) const{
-	if( args.size() != 3 )
-		return "fail";
+string HomePage::serve( vector<string> args, vector<header> &headers ) const{
+	vector<const Api*> apis = ApiHandler::get_instance()->get_apis();
 	
-	const Api *api = ApiHandler::get_instance()->get_by_shorthand( args[1] );
-	if( !api )
-		return "Not a site";
-	
-	unsigned id;
-	try{
-		id = stoi( args[2] );
-	}
-	catch( ... ){
-		return "Post id not an number!";
-	}
-	cout << "Post: " << id << "\n";
-	Post post = api->get_post( id );
-	
-	Styler s( api, "Post: TODO: add tags here" );
+	Styler s( nullptr, "BooruSurfer2" );
 	headers.push_back( content_type() );
 	
-	//Post info
-	auto info = aside( s.doc, CLASS( "post_info" ) );
+	s.body( h1(s.doc)( "Available sites" ) );
 	
-	
-	//Temp
-	vector<Tag> tags;
-	vector<string> tag_string = post.tags.get();
-	for( string s : tag_string ){
-		Tag t;
-		t.name = s;
-		tags.push_back( t );
-	}
-	s.tag_list( info, tags, "Tags:" );
-	
-	s.body(
-			div( s.doc, ID("container") )(
-					s.post( post )
-				,	info
-				)
-		);
+	auto list = ul(s.doc);
+	for( auto api : apis )
+		list( li(s.doc)( a(s.doc, HREF( UrlHandler(api).index_url() ) )( api->get_name() ) ) );
+	s.body( list );
 	
 	return s.doc;
 }
