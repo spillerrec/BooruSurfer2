@@ -33,7 +33,7 @@ class Post{
 		enum Rating{
 			SAFE,
 			QUESTIONABLE,
-			EXPLICT,
+			EXPLICIT,
 			UNRATED = 255
 		};
 		

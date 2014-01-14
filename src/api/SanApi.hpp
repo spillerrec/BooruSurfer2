@@ -14,33 +14,24 @@
 	along with BooruSurfer2.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+#ifndef SAN_API_H
+#define SAN_API_H
 
-#include "ApiHandler.hpp"
+#include "Api.hpp"
 
-#include "SanApi.hpp"
-#include "YandereApi.hpp"
+class SanApi : public Api{
+	protected:
+		
+		
+	public:
+		virtual std::string get_name() const{ return "Sankaku-chan"; }
+		virtual std::string get_shorthand() const{ return "san"; }
+		virtual std::string get_url() const{ return "http://chan.sankakucomplex.com/"; }
+		
+		
+		Post get_post( unsigned id ) const;
+		std::vector<Post> get_index( std::string search, int page, int limit=-1 ) const;
+};
 
-ApiHandler* ApiHandler::instance{ nullptr };
+#endif
 
-ApiHandler::ApiHandler() : apis{
-	//TODO: add all the apis
-	//TODO: cleanup
-		new DanApi()
-	,	new SanApi()
-	,	new KonachanApi()
-	,	new YandereApi()
-}{ }
-
-ApiHandler* ApiHandler::get_instance(){
-	//TODO: make atomic
-	if( !instance )
-		instance = new ApiHandler;
-	return instance;
-}
-
-const Api* ApiHandler::get_by_shorthand( std::string shorthand ) const{
-	for( auto api : apis )
-		if( api->get_shorthand() == shorthand )
-			return api;
-	return nullptr;
-}
