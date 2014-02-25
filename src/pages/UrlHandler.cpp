@@ -67,6 +67,11 @@ string tags_to_name( const Post& p, Tag::Type type, int limit ){
 }
 
 string UrlHandler::image_url( const Post& p, Image::Size size ){
+	if( size == Image::RESIZED && p.get_image_size( size ).url.empty() )
+		size = Image::COMPRESSED;
+	if( size == Image::COMPRESSED && p.get_image_size( size ).url.empty() )
+		size = Image::ORIGINAL;
+	
 	//TODO: change size depending on post
 	string size_str = image_size_string( size );
 	string path = "/proxy/" + size_str + "/";

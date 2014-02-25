@@ -57,6 +57,9 @@ string ProxyPage::serve( vector<string> args, vector<header> &headers ) const{
 	if( pos != string::npos )
 		headers.push_back( header( "Content-Type", get_mime( img.url.substr( pos + 1 ) ) ) );
 	
-	return api->get_from_url( img.url, { { "Referer", api->get_url() } } );
+	string referer = api->get_url();
+	if( api->get_shorthand() == "san" )
+		referer += "post/show/" + to_string( id );
+	return api->get_from_url( img.url, { { "Referer", referer } } );
 }
 
