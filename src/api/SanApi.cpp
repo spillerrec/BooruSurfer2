@@ -154,17 +154,26 @@ Post parse_preview( const xml_node &span ){
 }
 
 
+Tag::Type parseTagType( const string& input ){
+	static const map<string,Tag::Type> function{
+			{"tag-type-character", Tag::CHARACTER}
+		,	{"tag-type-copyright", Tag::COPYRIGHT}
+		,	{"tag-type-artist", Tag::ARTIST}
+		,	{"tag-type-general", Tag::NONE}
+		};
+	auto it = function.find( input );
+	return ( it != function.end() ) ? it->second : Tag::UNKNOWN;
+};
+
 Tag parse_tag( const xml_node &node ){
 	Tag tag;
 	tag.name = node.select_nodes( "./a" ).first().node().child_value();
-	cout << tag.name << endl;
 	//TODO: Japanese name?
 	tag.count = parseInt( node.select_nodes( ".//span[@class='post-count']" ).first().node().child_value(), 0 );
-	//tag.type = node.attribute( "class" ).value(); //TODO:
+	tag.type = parseTagType( node.attribute( "class" ).value() );
 	
 	return tag;
 }
-
 
 Post SanApi::get_post( unsigned id ){
 	Post post;
