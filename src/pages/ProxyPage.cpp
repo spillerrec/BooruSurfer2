@@ -50,12 +50,15 @@ string ProxyPage::serve( vector<string> args, vector<header> &headers ) const{
 	
 	//TODO: use the filename to detect image size
 	Post p = api->get_post( id );
+	if( p.id == 0 )
+		return "Could not retrive post";
 	Image img = p.get_image_size( Image::from_string( args[1] ) );
 	
 	//Detect mime-type
 	int pos = img.url.find_last_of( "." );
 	if( pos != string::npos )
 		headers.push_back( header( "Content-Type", get_mime( img.url.substr( pos + 1 ) ) ) );
+	headers.push_back( header( "Cache-Control", "max-age=31536000" ) );
 	
 	string referer = api->get_url();
 	if( api->get_shorthand() == "san" )

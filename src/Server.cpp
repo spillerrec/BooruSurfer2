@@ -76,7 +76,7 @@ class RequestHandler : public HTTPRequestHandler {
 				response.add( h.first, h.second );
 			
 			//Send content
-			( response.send() << contents ).flush();
+			response.sendBuffer( contents.c_str(), contents.size() );
 		}
 };
 
