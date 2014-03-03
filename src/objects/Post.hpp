@@ -62,8 +62,8 @@ class Post{
 		
 		std::string source;
 		
-		int score;
-		Rating rating;
+		int score = 0;
+		Rating rating = UNRATED;
 		
 		Image full;
 		Image reduced;

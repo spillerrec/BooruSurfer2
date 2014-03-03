@@ -30,9 +30,9 @@ class Image{
 		static Size from_string( std::string input );
 		
 		std::string url;
-		unsigned width;
-		unsigned height;
-		unsigned size;
+		unsigned width=0;
+		unsigned height=0;
+		unsigned size=0;
 };
 
 #endif
