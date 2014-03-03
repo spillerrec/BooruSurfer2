@@ -38,7 +38,7 @@ ApiHandler* ApiHandler::get_instance(){
 	return instance;
 }
 
-const Api* ApiHandler::get_by_shorthand( std::string shorthand ) const{
+Api* ApiHandler::get_by_shorthand( std::string shorthand ) const{
 	for( auto api : apis )
 		if( api->get_shorthand() == shorthand )
 			return api;

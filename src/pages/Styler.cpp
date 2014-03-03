@@ -88,7 +88,7 @@ Node Styler::tag_search(){
 }
 
 Node Styler::main_navigation( string search ){
-	vector<const Api*> apis = ApiHandler::get_instance()->get_apis();
+	vector<Api*> apis = ApiHandler::get_instance()->get_apis();
 	
 	auto list = ul(doc);
 	for( auto api : apis ){

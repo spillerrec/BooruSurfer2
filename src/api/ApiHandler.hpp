@@ -24,15 +24,15 @@ class Api;
 
 class ApiHandler{
 	private:
-		std::vector<const Api*> apis;
+		std::vector<Api*> apis;
 		ApiHandler();
 		static ApiHandler* instance;
 		
 	public:
 		static ApiHandler* get_instance();
 		
-		std::vector<const Api*> get_apis(){ return apis; }
-		const Api* get_by_shorthand( std::string shorthand ) const;
+		std::vector<Api*> get_apis(){ return apis; }
+		Api* get_by_shorthand( std::string shorthand ) const;
 };
 
 #endif

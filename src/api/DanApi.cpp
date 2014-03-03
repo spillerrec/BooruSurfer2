@@ -100,7 +100,7 @@ Post DanApi::parse_post( DataNode p ) const{
 }
 
 
-Post DanApi::get_post( unsigned id ) const{
+Post DanApi::get_post( unsigned id ){
 	std::string url = get_url() + "post/index.json?tags=id:" + std::to_string( id );
 	DataNode data = JsonDataNode::from_string( get_from_url( url ) );
 	

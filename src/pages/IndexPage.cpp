@@ -29,7 +29,7 @@ string IndexPage::serve( vector<string> args, vector<header> &headers ) const{
 	if( args.size() < 2 )
 		return "fail";
 	
-	const Api *api = ApiHandler::get_instance()->get_by_shorthand( args[1] );
+	Api *api = ApiHandler::get_instance()->get_by_shorthand( args[1] );
 	if( !api )
 		return "no such site!";
 	

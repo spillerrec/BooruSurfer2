@@ -156,7 +156,8 @@ Post parse_preview( const xml_node &span ){
 
 Tag parse_tag( const xml_node &node ){
 	Tag tag;
-	tag.name = node.select_nodes( "./a/span" ).first().node().child_value();
+	tag.name = node.select_nodes( "./a" ).first().node().child_value();
+	cout << tag.name << endl;
 	//TODO: Japanese name?
 	tag.count = parseInt( node.select_nodes( ".//span[@class='post-count']" ).first().node().child_value(), 0 );
 	//tag.type = node.attribute( "class" ).value(); //TODO:
@@ -165,7 +166,7 @@ Tag parse_tag( const xml_node &node ){
 }
 
 
-Post SanApi::get_post( unsigned id ) const{
+Post SanApi::get_post( unsigned id ){
 	Post post;
 	
 	string url = get_url() + "post/show/" + to_string( id );
@@ -249,9 +250,11 @@ Post SanApi::get_post( unsigned id ) const{
 		}
 		
 		//Tags
-	//	for( auto tag : doc.select_nodes( "//ul[@id='tag-sidebar']/li" ) )
-	//		post.tags.push_back( parse_tag( tag.node() ) );
-		//TODO: tags
+		for( auto tag : doc.select_nodes( "//ul[@id='tag-sidebar']/li" ) ){
+			Tag t = parse_tag( tag.node() );
+			post.tags.add( t.name );
+			tag_handler.add( t.name, t );
+		}
 		
 		//Favorites
 	//	for( auto it : doc.select_nodes( "//span[@id='favorited-by']/a" ) )

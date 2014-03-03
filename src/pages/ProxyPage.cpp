@@ -44,7 +44,7 @@ string ProxyPage::serve( vector<string> args, vector<header> &headers ) const{
 	catch( ... ){
 		return "Not a valid id";
 	}
-	const Api *api = ApiHandler::get_instance()->get_by_shorthand( site );
+	Api *api = ApiHandler::get_instance()->get_by_shorthand( site );
 	if( !api )
 		return "Not a site";
 	

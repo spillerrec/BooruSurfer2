@@ -24,7 +24,7 @@ using namespace std;
 using namespace HTML;
 
 string HomePage::serve( vector<string> args, vector<header> &headers ) const{
-	vector<const Api*> apis = ApiHandler::get_instance()->get_apis();
+	vector<Api*> apis = ApiHandler::get_instance()->get_apis();
 	
 	Styler s( nullptr, "BooruSurfer2" );
 	headers.push_back( content_type() );

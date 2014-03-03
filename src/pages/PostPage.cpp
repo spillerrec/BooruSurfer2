@@ -27,7 +27,7 @@ string PostPage::serve( vector<string> args, vector<header> &headers ) const{
 	if( args.size() != 3 )
 		return "fail";
 	
-	const Api *api = ApiHandler::get_instance()->get_by_shorthand( args[1] );
+	Api *api = ApiHandler::get_instance()->get_by_shorthand( args[1] );
 	if( !api )
 		return "Not a site";
 	
@@ -55,8 +55,7 @@ string PostPage::serve( vector<string> args, vector<header> &headers ) const{
 	vector<Tag> tags;
 	vector<string> tag_string = post.tags.get();
 	for( string s : tag_string ){
-		Tag t;
-		t.name = s;
+		Tag t = api->tag_handler.get( s );
 		tags.push_back( t );
 	}
 	s.tag_list( info, tags, "Tags:" );

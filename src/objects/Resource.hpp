@@ -32,6 +32,9 @@ class Resource{
 	public:
 		Resource( bool exists ) : exists( exists ){ }
 		Resource( std::vector<indentifier> list ) : list( list ), exists( !list.empty() ){ }
+		void add( indentifier id ){
+			list.push_back( id );
+		}
 		
 		std::vector<indentifier> get() const{ return list; }
 };

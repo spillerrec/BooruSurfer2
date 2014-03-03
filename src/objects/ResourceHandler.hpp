@@ -14,23 +14,32 @@
 	along with BooruSurfer2.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef SAN_API_H
-#define SAN_API_H
+/*	Abstract class, which links to some resource which contents is not known.
+ *	We might have an ID (or list of them), or a boolean determining if any exists
+ */
 
-#include "Api.hpp"
+#ifndef RESOURCE_HANDLER_HPP
+#define RESOURCE_HANDLER_HPP
 
-class SanApi : public Api{
-	protected:
-		
+#include <map>
+
+template<class object, class indentifier = unsigned>
+class ResourceHandler{
+	private:
+		//TODO: do mutex
+		std::map<indentifier,object> list;
 		
 	public:
-		virtual std::string get_name() const{ return "Sankaku-chan"; }
-		virtual std::string get_shorthand() const{ return "san"; }
-		virtual std::string get_url() const{ return "http://chan.sankakucomplex.com/"; }
-		
-		
-		Post get_post( unsigned id );
-		std::vector<Post> get_index( std::string search, int page, int limit=-1 ) const;
+		void add( indentifier id, object obj ){
+			list.insert( {id, obj} );
+		}
+		object get( indentifier id ) const{
+			auto it = list.find( id );
+			if( it != list.end() )
+				return it->second;
+			else
+				return object();
+		}
 };
 
 #endif
