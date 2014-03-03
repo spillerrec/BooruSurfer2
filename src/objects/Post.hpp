@@ -47,7 +47,7 @@ class Post{
 		Post() : tags( false ), parents( false ), children( false ), notes( false ), comments( false ), pools( false ){ }
 		
 		//Id<Site,unsigned> ?
-		unsigned id;
+		unsigned id = 0;
 		std::string hash;
 		std::string author;
 		//TODO: creation_date

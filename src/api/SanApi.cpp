@@ -114,16 +114,16 @@ void extract_meta( Post &post, string meta ){
 	data.erase( remove_if( data.begin(), data.end(), [](string arg){ return arg.empty(); } ), data.end() );
 	
 	for( string s : data ){
-		if( boost::starts_with( s, "rating:" ) )
+		if( boost::starts_with( s, "Rating:" ) )
 			post.rating = parseAgeRating( s.substr( 7 ) );
-		else if( boost::starts_with( s, "score:" ) )
+		else if( boost::starts_with( s, "Score:" ) )
 			post.score = parseDouble( s.substr( 6 ), -1 );
-		else if( boost::starts_with( s, "user:" ) )
+		else if( boost::starts_with( s, "User:" ) )
 			post.author = s.substr( 5 );
-		else{
-			//post.tags.push_back( Tag(s) );
-			//TODO:
-		}
+		else if( boost::starts_with( s, "Size:" ) )
+			s.substr( 5 ); //TODO:
+		else
+			post.tags.add( s );
 	}
 }
 
@@ -176,7 +176,9 @@ Tag parse_tag( const xml_node &node ){
 }
 
 Post SanApi::get_post( unsigned id ){
-	Post post;
+	Post post = post_handler.get( id );
+	if( post.id != 0 )
+		return post;
 	
 	string url = get_url() + "post/show/" + to_string( id );
 	string html = CleanHTML( get_from_url( url ) );
@@ -277,10 +279,11 @@ Post SanApi::get_post( unsigned id ){
 		cout << "Error: " << result.description();
 	}
 	
+	post_handler.add( id, post );
 	return post;
 }
 
-vector<Post> SanApi::get_index( string search, int page, int limit ) const{
+vector<Post> SanApi::get_index( string search, int page, int limit ){
 	string url = get_url() + "?tags=" + search;
 	if( page > 1 )
 		url += "&page=" + to_string( page );
@@ -303,8 +306,11 @@ vector<Post> SanApi::get_index( string search, int page, int limit ) const{
 		
 		
 		xpath_node_set tags = doc.select_nodes( "//ul[@id='tag-sidebar']/li" );
-		for( xpath_node tag : tags )
-			parse_tag( tag.node() );
+		for( xpath_node tag : tags ){
+			Tag t = parse_tag( tag.node() );
+			tag_handler.add( t.name, t );
+			//TODO: return this somehow
+		}
 
 	}
 	else{

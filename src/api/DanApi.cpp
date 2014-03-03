@@ -110,7 +110,7 @@ Post DanApi::get_post( unsigned id ){
 		return Post();
 }
 
-std::vector<Post> DanApi::get_index( std::string search, int page, int limit ) const{
+std::vector<Post> DanApi::get_index( std::string search, int page, int limit ){
 	std::string url = get_url() + "post/index.json?tags=" + search;
 	if( page > 1 )
 		url += "&page=" + std::to_string( page );

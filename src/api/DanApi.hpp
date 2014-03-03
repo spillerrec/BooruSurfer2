@@ -116,7 +116,7 @@ class DanApi : public Api{
 		virtual const char* const* post_table() const{ return post_strings; }
 		
 		Post get_post( unsigned id );
-		std::vector<Post> get_index( std::string search, int page, int limit=-1 ) const;
+		std::vector<Post> get_index( std::string search, int page, int limit=-1 );
 };
 
 

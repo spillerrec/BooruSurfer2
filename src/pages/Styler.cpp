@@ -170,8 +170,11 @@ Node Styler::post_thumb_info( const Post& post, bool extended ){
 	
 	auto tags = p(doc);
 	tags( em(doc)( "Tags:" ) );
-	//TODO: tags
-	tags( "TODO:" );
+	
+	string tag_text;
+	for( auto t : post.tags.get() )
+		tag_text += t + " ";
+	tags( tag_text );
 	
 	return node( tags );
 }
@@ -194,6 +197,15 @@ Node Styler::post( Post post ){
 		);
 }
 
+string to_string( Post::Rating rating ){
+	switch( rating ){
+		case Post::SAFE: return "Safe";
+		case Post::QUESTIONABLE: return "Questionable";
+		case Post::EXPLICIT: return "Explicit";
+		default: return "Unknown";
+	}
+}
+
 Node Styler::post_info( Node& parent, const Post& post, bool extended ){
 	auto add = [=]( string title, string content ){
 			return p(doc)(
@@ -210,7 +222,7 @@ Node Styler::post_info( Node& parent, const Post& post, bool extended ){
 	if( post.full.size )
 		parent( add( "Size:", format_filesize(post.full.size) ) );
 	if( post.rating != Post::UNRATED )
-		parent( add( "Rating:", "TODO" ) );
+		parent( add( "Rating:", to_string( post.rating ) ) );
 	if( extended && !post.source.empty() )
 		parent( add( "Source:", post.source ) );
 }

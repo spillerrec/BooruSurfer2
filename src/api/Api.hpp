@@ -27,6 +27,7 @@
 class Api{
 	public:
 		ResourceHandler<Tag,std::string> tag_handler;
+		ResourceHandler<Post> post_handler;
 	public:
 		std::string get_from_url( std::string url
 			,	std::vector<std::pair<std::string,std::string> > headers = std::vector<std::pair<std::string,std::string> >()
@@ -38,7 +39,7 @@ class Api{
 		virtual std::string get_url() const = 0;
 		
 		virtual Post get_post( unsigned id ) = 0;
-		virtual std::vector<Post> get_index( std::string search, int page, int limit=-1 ) const = 0;
+		virtual std::vector<Post> get_index( std::string search, int page, int limit=-1 ) = 0;
 		
 		virtual ~Api(){ }
 };
