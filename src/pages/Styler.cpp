@@ -31,7 +31,7 @@ using namespace HTML;
 //TODO: make url as input to the functions
 
 
-Styler::Styler( const Api* api, string page_title ) : api(api), url( api ){
+Styler::Styler( Api* api, string page_title ) : api(api), url( api ){
 	doc.html()(
 			head(
 					title(doc)( page_title )

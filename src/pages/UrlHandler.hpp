@@ -25,9 +25,9 @@ class Api;
 
 class UrlHandler{
 	private:
-		const Api* api;
+		Api* api;
 	public:
-		UrlHandler( const Api* api ) : api(api) { }
+		UrlHandler( Api* api ) : api(api) { }
 		
 		std::string post_url( const Post& p ) const;
 		std::string index_url( const std::vector<Tag>& tags = std::vector<Tag>(), unsigned page=1, int amount = -1 ) const;

@@ -56,13 +56,14 @@ string image_size_string( Image::Size size ){
 	}
 }
 
-string tags_to_name( const Post& p, Tag::Type type, int limit ){
+string tags_to_name( Api* api, const Post& p, Tag::Type type, int limit ){
 	string s;
-	//TODO: get tags
-//	for( auto tag : p.tags.get() )
-//		if( tag.type == type )
-//			if( s.size() + tag.name.size() + 1 < limit )
-//				s += tag.name + " ";
+	for( auto raw : p.tags.get() ){
+		Tag tag = api->tag_handler.get( raw );
+		if( tag.type == type )
+			if( s.size() + tag.name.size() + 1 < limit )
+				s += tag.name + " ";
+	}
 	return s.size() ? s : " ";
 }
 
@@ -90,10 +91,10 @@ string UrlHandler::image_url( const Post& p, Image::Size size ){
 	//Add tags
 	string tags;
 	int left = 128 - filename_start.size() - filename_end.size();
-	tags += tags_to_name( p, Tag::ARTIST,    left - tags.size() - 3*2 ) + "- ";
-	tags += tags_to_name( p, Tag::COPYRIGHT, left - tags.size() - 2*2 ) + "- ";
-	tags += tags_to_name( p, Tag::CHARACTER, left - tags.size() - 1*2 ) + "- ";
-	tags += tags_to_name( p, Tag::NONE, left - tags.size() );
+	tags += tags_to_name( api, p, Tag::ARTIST,    left - tags.size() - 3*2 ) + "- ";
+	tags += tags_to_name( api, p, Tag::COPYRIGHT, left - tags.size() - 2*2 ) + "- ";
+	tags += tags_to_name( api, p, Tag::CHARACTER, left - tags.size() - 1*2 ) + "- ";
+	tags += tags_to_name( api, p, Tag::NONE, left - tags.size() );
 	
 	return path + filename_start + tags + filename_end;
 }

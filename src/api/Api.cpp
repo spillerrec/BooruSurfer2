@@ -66,10 +66,11 @@ string Api::get_from_url( string url, vector<pair<string,string> > headers ) con
 		HTTPResponse res;
 		
 		//Add headers
+		//TODO: do something with the user-agent
+		req.add( "User-Agent", "Opera/9.80 (Windows NT 6.2; Win64; x64) Presto/2.12.388 Version/12.16" );
+		req.add( "Accept-Language", "en" );
 		for( auto h : headers )
 			req.add( h.first, h.second );
-		req.add( "User-Agent", "Opera/9.80 (Windows NT 6.2; Win64; x64) Presto/2.12.388 Version/12.15" );
-		//TODO: do something with the user-agent
 		
 		//Get response
 		string str = ( url.find( "https://" ) == 0 )
