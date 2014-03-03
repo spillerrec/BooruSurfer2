@@ -21,6 +21,7 @@
 #include <boost/algorithm/string.hpp>
 #include <boost/algorithm/string/predicate.hpp>
 
+#include <algorithm>
 #include <iostream>
 #include <map>
 
@@ -171,6 +172,9 @@ Tag parse_tag( const xml_node &node ){
 	//TODO: Japanese name?
 	tag.count = parseInt( node.select_nodes( ".//span[@class='post-count']" ).first().node().child_value(), 0 );
 	tag.type = parseTagType( node.attribute( "class" ).value() );
+	
+	//Remove spaces in tag name
+	replace( tag.name.begin(), tag.name.end(), ' ', '_' );
 	
 	return tag;
 }

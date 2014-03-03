@@ -81,10 +81,17 @@ string UrlHandler::image_url( const Post& p, Image::Size size ){
 	string filename_end;
 	if( size != Image::ORIGINAL )
 		filename_end += "." + size_str;
-		
-	//Add file extension
+	
+	
 	string filepath = p.get_image_size( size ).url;
-	int pos = filepath.find_last_of( "." );
+	
+	//Ignore ?xxx parameters
+	int pos = filepath.find_last_of( "?" );
+	if( pos != string::npos )
+		filepath = filepath.substr( 0, pos );
+	
+	//Add file extension
+	pos = filepath.find_last_of( "." );
 	if( pos != string::npos )
 		filename_end += filepath.substr( pos );
 	
@@ -95,6 +102,11 @@ string UrlHandler::image_url( const Post& p, Image::Size size ){
 	tags += tags_to_name( api, p, Tag::COPYRIGHT, left - tags.size() - 2*2 ) + "- ";
 	tags += tags_to_name( api, p, Tag::CHARACTER, left - tags.size() - 1*2 ) + "- ";
 	tags += tags_to_name( api, p, Tag::NONE, left - tags.size() );
+	
+	//Remove last space, unless ending on "- "
+	if( tags.size() > 2 )
+		if( tags[tags.size()-1] == ' ' && tags[tags.size()-2] != '-' )
+			tags = tags.substr( 0, tags.size()-1 );
 	
 	return path + filename_start + tags + filename_end;
 }

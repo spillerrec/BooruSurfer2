@@ -172,9 +172,13 @@ Node Styler::post_thumb_info( const Post& post, bool extended ){
 	tags( em(doc)( "Tags:" ) );
 	
 	string tag_text;
-	for( auto t : post.tags.get() )
-		tag_text += t + " ";
-	tags( tag_text );
+	for( auto t : post.tags.get() ){
+		Tag tag = api->tag_handler.get( t );
+		if( tag.type != Tag::NONE )
+			tags( span(doc, CLASS("tagtype" + to_string(tag.type) ))( t, " " ) );
+		else
+			tags( t + " " );
+	}
 	
 	return node( tags );
 }
