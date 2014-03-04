@@ -58,7 +58,18 @@ string IndexPage::serve( vector<string> args, vector<header> &headers ) const{
 	vector<Post> posts = api->get_index( search, page );
 	
 	if( posts.size() ){
+		//TODO: page amount;
+		int page_amount = 9999;
 		Styler styler( api, "Index: " + search );
+		
+		//Add navigation
+		if( page+1 < page_amount )
+			styler.head( link(styler.doc, REL("next"), HREF( UrlHandler(api).index_url( {{search}}, page+1, limit ) )) );
+		if( page-1 > 0 )
+			styler.head( link(styler.doc, REL("prev"), HREF( UrlHandler(api).index_url( {{search}}, page-1, limit ) )) );
+		if( !search.empty() )
+			styler.head( link(styler.doc, REL("up"), HREF( UrlHandler(api).index_url( {{""}}, 1, limit ) )) );
+		
 		
 		styler.nav( styler.main_navigation( search ) );
 		

@@ -30,6 +30,7 @@ string PostPage::serve( vector<string> args, vector<header> &headers ) const{
 	Api *api = ApiHandler::get_instance()->get_by_shorthand( args[1] );
 	if( !api )
 		return "Not a site";
+	UrlHandler url( api );
 	
 	unsigned id;
 	try{
@@ -43,6 +44,10 @@ string PostPage::serve( vector<string> args, vector<header> &headers ) const{
 	
 	Styler s( api, "Post: TODO: add tags here" );
 	headers.push_back( content_type() );
+	
+	//Quick link to image
+	//TODO: change behaviour once we have pools
+	s.head( link(s.doc, REL("next"), HREF( url.image_url( post, Image::ORIGINAL ) ) ) );
 	
 	s.nav( s.main_navigation( "" ) );
 	
