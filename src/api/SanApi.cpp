@@ -187,8 +187,8 @@ Tag parse_tag( const xml_node &node ){
 }
 
 Post SanApi::get_post( unsigned id ){
-	Post post = post_handler.get( id );
-	if( post.id != 0 )
+	Post post;
+	if( post_handler.get_checked( id, post ) )
 		return post;
 	
 	string url = get_url() + "post/show/" + to_string( id );

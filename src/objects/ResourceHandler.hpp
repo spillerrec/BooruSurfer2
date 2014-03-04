@@ -40,6 +40,15 @@ class ResourceHandler{
 			else
 				return object( id );
 		}
+		
+		bool get_checked( indentifier id, object& obj ){
+			auto it = list.find( id );
+			if( it != list.end() ){
+				obj = it->second;
+				return true;
+			}
+			return false;
+		}
 };
 
 #endif
