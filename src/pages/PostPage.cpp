@@ -42,7 +42,7 @@ string PostPage::serve( vector<string> args, vector<header> &headers ) const{
 	cout << "Post: " << id << "\n";
 	Post post = api->get_post( id );
 	
-	Styler s( api, "Post: TODO: add tags here" );
+	Styler s( api, "Post: " + url.image_tags( post, 128 ) );
 	headers.push_back( content_type() );
 	
 	//Quick link to image

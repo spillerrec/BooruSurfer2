@@ -67,6 +67,22 @@ string tags_to_name( Api* api, const Post& p, Tag::Type type, int limit ){
 	return s.size() ? s : " ";
 }
 
+string UrlHandler::image_tags( const Post& p, int lenght ){
+	//Add tags
+	string tags;
+	tags += tags_to_name( api, p, Tag::ARTIST,    lenght - tags.size() - 3*2 ) + "- ";
+	tags += tags_to_name( api, p, Tag::COPYRIGHT, lenght - tags.size() - 2*2 ) + "- ";
+	tags += tags_to_name( api, p, Tag::CHARACTER, lenght - tags.size() - 1*2 ) + "- ";
+	tags += tags_to_name( api, p, Tag::NONE, lenght - tags.size() );
+	
+	//Remove last space, unless ending on "- "
+	if( tags.size() > 2 )
+		if( tags[tags.size()-1] == ' ' && tags[tags.size()-2] != '-' )
+			tags = tags.substr( 0, tags.size()-1 );
+	
+	return tags;
+}
+
 string UrlHandler::image_url( const Post& p, Image::Size size ){
 	if( size == Image::RESIZED && p.get_image_size( size ).url.empty() )
 		size = Image::COMPRESSED;
@@ -77,13 +93,12 @@ string UrlHandler::image_url( const Post& p, Image::Size size ){
 	string size_str = image_size_string( size );
 	string path = "/proxy/" + size_str + "/";
 	
-	string filename_start = api->get_shorthand() + " " + to_string( p.id ) + " - ";
 	string filename_end;
 	if( size != Image::ORIGINAL )
 		filename_end += "." + size_str;
 	
-	
 	string filepath = p.get_image_size( size ).url;
+	string filename_start = api->get_shorthand() + " " + to_string( p.id ) + " - ";
 	
 	//Ignore ?xxx parameters
 	int pos = filepath.find_last_of( "?" );
@@ -95,18 +110,6 @@ string UrlHandler::image_url( const Post& p, Image::Size size ){
 	if( pos != string::npos )
 		filename_end += filepath.substr( pos );
 	
-	//Add tags
-	string tags;
-	int left = 128 - filename_start.size() - filename_end.size();
-	tags += tags_to_name( api, p, Tag::ARTIST,    left - tags.size() - 3*2 ) + "- ";
-	tags += tags_to_name( api, p, Tag::COPYRIGHT, left - tags.size() - 2*2 ) + "- ";
-	tags += tags_to_name( api, p, Tag::CHARACTER, left - tags.size() - 1*2 ) + "- ";
-	tags += tags_to_name( api, p, Tag::NONE, left - tags.size() );
-	
-	//Remove last space, unless ending on "- "
-	if( tags.size() > 2 )
-		if( tags[tags.size()-1] == ' ' && tags[tags.size()-2] != '-' )
-			tags = tags.substr( 0, tags.size()-1 );
-	
+	string tags = image_tags( p, 128-filename_start.size()-filename_end.size() );
 	return path + filename_start + tags + filename_end;
 }

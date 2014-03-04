@@ -32,6 +32,7 @@ class UrlHandler{
 		std::string post_url( const Post& p ) const;
 		std::string index_url( const std::vector<Tag>& tags = std::vector<Tag>(), unsigned page=1, int amount = -1 ) const;
 		
+		std::string image_tags( const Post& p, int lenght );
 		std::string image_url( const Post& p, Image::Size size );
 };
 
