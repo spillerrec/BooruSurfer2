@@ -114,7 +114,7 @@ Node Styler::main_navigation( string search ){
 Node Styler::tag( const Tag& tag ){
 	string url = this->url.index_url( vector<Tag>{ tag } );
 	
-	string text = tag.name;
+	string text = tag.id;
 	replace( text.begin(), text.end(), '_', ' ' );
 	
 	//TODO: use real_count
@@ -172,7 +172,7 @@ Node Styler::post_thumb_info( const Post& post, bool extended ){
 	tags( em(doc)( "Tags:" ) );
 	
 	string tag_text;
-	for( auto t : post.tags.get() ){
+	for( auto t : post.tags.list ){
 		Tag tag = api->tag_handler.get( t );
 		if( tag.type != Tag::NONE )
 			tags( span(doc, CLASS("tagtype" + to_string(tag.type) ))( t, " " ) );

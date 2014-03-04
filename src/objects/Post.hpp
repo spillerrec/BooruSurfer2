@@ -20,15 +20,15 @@
 #include "Tag.hpp"
 #include "Image.hpp"
 #include "Resource.hpp"
+#include "Identity.hpp"
 #include "Note.hpp"
 #include "Comment.hpp"
 #include "Pool.hpp"
 
 #include <string>
+#include <vector>
 
-class Post{
-	typedef unsigned ID_T;
-	
+class Post : public Identity<>{
 	public:
 		enum Rating{
 			SAFE,
@@ -45,21 +45,19 @@ class Post{
 		
 	public:
 		Post(){ }
-		Post( ID_T id ) : id(id) { }
+		Post( ID_T id ){ this->id = id; }
 		
-		//Id<Site,unsigned> ?
-		unsigned id = 0;
 		std::string hash;
 		std::string author;
 		//TODO: creation_date
 		
 		
-		Resource<Tag, std::string> tags{ false };
-		Resource<Post> parents{ false };
-		Resource<Post> children{ false };
-		Resource<Note> notes{ false };
-		Resource<Comment> comments{ false };
-		Resource<Pool> pools{ false };
+		Resource<Tag> tags;
+		Resource<Post> parents;
+		Resource<Post> children;
+		Resource<Note> notes;
+		Resource<Comment> comments;
+		Resource<Pool> pools;
 		
 		std::string source;
 		

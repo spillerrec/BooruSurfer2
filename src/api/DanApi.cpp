@@ -84,7 +84,7 @@ Post DanApi::parse_post( DataNode p ) const{
 	post.score = p[ post_table()[ SCORE ] ];
 	post.source = p[ post_table()[ SOURCE ]].as_string();
 	
-	post.tags = get_resource<Tag, std::string>( p, TAGS );
+	post.tags = get_resource<Tag>( p, TAGS );
 	post.parents = get_resource<Post>( p, PARENT_ID );
 	post.children = get_resource<Post>( p, CHILDREN );
 	post.notes = get_resource<Note>( p, NOTES );

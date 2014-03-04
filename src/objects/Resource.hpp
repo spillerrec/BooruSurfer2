@@ -18,25 +18,25 @@
  *	We might have an ID (or list of them), or a boolean determining if any exists
  */
 
-#ifndef RESOURCE_H
-#define RESOURCE_H
+#ifndef RESOURCE_HPP
+#define RESOURCE_HPP
 
 #include <vector>
 
-template<class object, class indentifier = unsigned>
+template<class identity>
 class Resource{
-	private:
-		std::vector<indentifier> list;
-		bool exists; //if true, then the resource exists, even if not in the list
-		
 	public:
-		Resource( bool exists ) : exists( exists ){ }
-		Resource( std::vector<indentifier> list ) : list( list ), exists( !list.empty() ){ }
-		void add( indentifier id ){
+		typedef identity Object;
+		std::vector<typename identity::ID_T> list;
+		bool exists = true; //If true, content might exist even if list is empty
+		
+		Resource(){ }
+		Resource( bool exists ) : exists(exists){ }
+		Resource( std::vector<typename identity::ID_T> list ) : list(list){ }
+		
+		void add( typename identity::ID_T id ){
 			list.push_back( id );
 		}
-		
-		std::vector<indentifier> get() const{ return list; }
 };
 
 #endif

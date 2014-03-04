@@ -14,19 +14,6 @@
 	along with BooruSurfer2.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef POOL_HPP
-#define POOL_HPP
+#include "Index.hpp"
 
-#include "Identity.hpp"
-
-class Pool : public Identity<>{
-	private:
-		
-		
-	public:
-		
-		
-};
-
-#endif
 

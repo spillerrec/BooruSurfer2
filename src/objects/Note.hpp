@@ -14,10 +14,12 @@
 	along with BooruSurfer2.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef NOTE_H
-#define NOTE_H
+#ifndef NOTE_HPP
+#define NOTE_HPP
 
-class Note{
+#include "Identity.hpp"
+
+class Note : public Identity<>{
 	private:
 		
 		

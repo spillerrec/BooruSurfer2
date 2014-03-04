@@ -14,12 +14,13 @@
 	along with BooruSurfer2.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef TAG_H
-#define TAG_H
+#ifndef TAG_HPP
+#define TAG_HPP
 
+#include "Identity.hpp"
 #include <string>
 
-class Tag{
+class Tag : public Identity<std::string>{
 	public:
 		enum Type{
 			NONE,
@@ -32,16 +33,12 @@ class Tag{
 		};
 		
 	public:
-		unsigned id{ 0 };
-		std::string name;
 		Type type{ NONE };
 		unsigned count{ 0 };
 		
 		
 	public:
-		Tag() { }
-		Tag( std::string name ) : name(name) { }
-		
+		Tag( std::string id="" ){ this->id = id; }
 };
 
 #endif

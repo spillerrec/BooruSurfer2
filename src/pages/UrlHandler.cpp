@@ -41,7 +41,7 @@ string UrlHandler::index_url( const vector<Tag>& tags, unsigned page, int amount
 	//Query string
 	string search = "";
 	for( auto t : tags )
-		search += t.name + " ";
+		search += t.id + " ";
 	
 	return start + offset + search;
 }
@@ -58,11 +58,11 @@ string image_size_string( Image::Size size ){
 
 string tags_to_name( Api* api, const Post& p, Tag::Type type, int limit ){
 	string s;
-	for( auto raw : p.tags.get() ){
+	for( auto raw : p.tags.list ){
 		Tag tag = api->tag_handler.get( raw );
 		if( tag.type == type )
-			if( s.size() + tag.name.size() + 1 < limit )
-				s += tag.name + " ";
+			if( s.size() + tag.id.size() + 1 < limit )
+				s += tag.id + " ";
 	}
 	return s.size() ? s : " ";
 }

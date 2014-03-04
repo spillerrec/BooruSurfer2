@@ -175,13 +175,13 @@ Tag::Type parseTagType( const string& input ){
 
 Tag parse_tag( const xml_node &node ){
 	Tag tag;
-	tag.name = node.select_nodes( "./a" ).first().node().child_value();
+	tag.id = node.select_nodes( "./a" ).first().node().child_value();
 	//TODO: Japanese name?
 	tag.count = parseInt( node.select_nodes( ".//span[@class='post-count']" ).first().node().child_value(), 0 );
 	tag.type = parseTagType( node.attribute( "class" ).value() );
 	
 	//Remove spaces in tag name
-	replace( tag.name.begin(), tag.name.end(), ' ', '_' );
+	replace( tag.id.begin(), tag.id.end(), ' ', '_' );
 	
 	return tag;
 }
@@ -274,8 +274,8 @@ Post SanApi::get_post( unsigned id ){
 		//Tags
 		for( auto tag : doc.select_nodes( "//ul[@id='tag-sidebar']/li" ) ){
 			Tag t = parse_tag( tag.node() );
-			post.tags.add( t.name );
-			tag_handler.add( t.name, t );
+			post.tags.add( t.id );
+			tag_handler.add( t );
 		}
 		
 		//Favorites
@@ -290,7 +290,7 @@ Post SanApi::get_post( unsigned id ){
 		cout << "Error: " << result.description();
 	}
 	
-	post_handler.add( id, post );
+	post_handler.add( post );
 	return post;
 }
 
@@ -319,7 +319,7 @@ vector<Post> SanApi::get_index( string search, int page, int limit ){
 		xpath_node_set tags = doc.select_nodes( "//ul[@id='tag-sidebar']/li" );
 		for( xpath_node tag : tags ){
 			Tag t = parse_tag( tag.node() );
-			tag_handler.add( t.name, t );
+			tag_handler.add( t );
 			//TODO: return this somehow
 		}
 

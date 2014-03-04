@@ -30,8 +30,9 @@ class ResourceHandler{
 		std::map<indentifier,object> list;
 		
 	public:
-		void add( indentifier id, object obj ){
-			list.insert( {id, obj} );
+		void add( object obj ){
+			//TODO: check loaded state
+			list.insert( {obj.id, obj} );
 		}
 		object get( indentifier id ) const{
 			auto it = list.find( id );

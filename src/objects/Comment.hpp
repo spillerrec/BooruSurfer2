@@ -14,10 +14,12 @@
 	along with BooruSurfer2.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef COMMENT_H
-#define COMMENT_H
+#ifndef COMMENT_HPP
+#define COMMENT_HPP
 
-class Comment{
+#include "Identity.hpp"
+
+class Comment : public Identity<>{
 	private:
 		
 		

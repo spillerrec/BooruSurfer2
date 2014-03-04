@@ -58,8 +58,7 @@ string PostPage::serve( vector<string> args, vector<header> &headers ) const{
 	
 	//Temp
 	vector<Tag> tags;
-	vector<string> tag_string = post.tags.get();
-	for( string s : tag_string ){
+	for( string s : post.tags.list ){
 		Tag t = api->tag_handler.get( s );
 		tags.push_back( t );
 	}

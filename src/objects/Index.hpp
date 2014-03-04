@@ -14,17 +14,27 @@
 	along with BooruSurfer2.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef POOL_HPP
-#define POOL_HPP
+#ifndef INDEX_HPP
+#define INDEX_HPP
 
-#include "Identity.hpp"
+#include "Resource.hpp"
+#include "Post.hpp"
 
-class Pool : public Identity<>{
-	private:
-		
+#include <string>
+
+struct IndexId{
+	std::string query;
+	int page;
+	int limit;
+};
+
+class Index : Resource<IndexId>{
+	public:
+		int amount = -1; //Upper bound
+		Resource<Post> posts{ false };
 		
 	public:
-		
+		Index( ID_T id ) : id(id) { }
 		
 };
 

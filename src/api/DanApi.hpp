@@ -77,18 +77,18 @@ class DanApi : public Api{
 			return converted;
 		}
 		
-		template<class T1, class T2 = unsigned>
-		Resource<T1,T2> get_resource( DataNode parent, PostItem resource ) const{
+		template<class T1>
+		Resource<T1> get_resource( DataNode parent, PostItem resource ) const{
 			const char* const name = post_table()[ resource ];
-			if( name == NULL )
-				return Resource<T1,T2>( false );
+			if( name == NULL ) //TODO: when will this be null?
+				return Resource<T1>( false );
 			
 			DataNode node = parent[ name ];
 			if( !node )
-				return Resource<T1,T2>( false );
+				return Resource<T1>( false );
 			
 			if( node.as_boolean() )
-				return Resource<T1,T2>( true );
+				return Resource<T1>( true );
 			
 			if( !node.as_string().empty() ){
 				//TODO: split string
@@ -99,10 +99,10 @@ class DanApi : public Api{
 				boost::split( list, text, boost::is_any_of( " " ) ); //TODO: avoid is_any_of() ?
 				list.erase( remove_if( list.begin(), list.end(), [](std::string arg){ return arg.empty(); } ), list.end() );
 				
-				return Resource<T1,T2>( convert_vector<T2>( list ) );
+				return Resource<T1>( convert_vector<typename T1::ID_T>( list ) );
 			}
 			
-			return Resource<T1,T2>( false );
+			return Resource<T1>( false );
 		}
 		
 		virtual Post parse_post( DataNode node ) const;

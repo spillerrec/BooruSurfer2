@@ -14,18 +14,20 @@
 	along with BooruSurfer2.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef POOL_HPP
-#define POOL_HPP
+/*	Abstract class, which links to some resource which contents is not known.
+ *	We might have an ID (or list of them), or a boolean determining if any exists
+ */
 
-#include "Identity.hpp"
+#ifndef IDENTITY_HPP
+#define IDENTITY_HPP
 
-class Pool : public Identity<>{
-	private:
-		
-		
+#include <vector>
+
+template<class identifier = unsigned>
+class Identity{
 	public:
-		
-		
+		typedef identifier ID_T;
+		identifier id;
 };
 
 #endif
