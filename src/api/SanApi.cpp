@@ -157,10 +157,17 @@ Post parse_preview( const xml_node &span ){
 
 Tag::Type parseTagType( const string& input ){
 	static const map<string,Tag::Type> function{
-			{"tag-type-character", Tag::CHARACTER}
+			{"tag-type-general", Tag::NONE}
+			
+			//Sankaku
+		,	{"tag-type-character", Tag::CHARACTER}
 		,	{"tag-type-copyright", Tag::COPYRIGHT}
 		,	{"tag-type-artist", Tag::ARTIST}
-		,	{"tag-type-general", Tag::NONE}
+			//Idol
+		,	{"tag-type-idol", Tag::ARTIST}
+		,	{"tag-type-photo_set", Tag::COPYRIGHT}
+		,	{"tag-type-medium", Tag::SPECIAL}
+		,	{"tag-type-meta", Tag::SPECIAL}
 		};
 	auto it = function.find( input );
 	return ( it != function.end() ) ? it->second : Tag::UNKNOWN;
@@ -195,8 +202,8 @@ Post SanApi::get_post( unsigned id ){
 	
 	if( result.status == status_ok ){
 		//Get ID
-		string id = doc.select_nodes( "//p[@id='hidden_post_id']" ).first().node().child_value();
-		post.id = parseInt( id, 0 );
+		string id = doc.select_nodes( "//meta[@property='og:title']" ).first().node().attribute("content").value();
+		post.id = parseInt( id.substr( 5 ), 0 );
 		
 		//Original/resized width+height+url
 		Image resized, original;

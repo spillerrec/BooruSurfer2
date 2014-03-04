@@ -14,34 +14,17 @@
 	along with BooruSurfer2.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+#ifndef IDOL_API_HPP
+#define IDOL_API_HPP
 
-#include "ApiHandler.hpp"
+#include "SanApi.hpp"
 
-#include "IdolApi.hpp"
-#include "YandereApi.hpp"
+class IdolApi : public SanApi{
+	public:
+		virtual std::string get_name() const override{ return "IdolComplex"; }
+		virtual std::string get_shorthand() const override{ return "idol"; }
+		virtual std::string get_url() const override{ return "http://idol.sankakucomplex.com/"; }
+};
 
-ApiHandler* ApiHandler::instance{ nullptr };
+#endif
 
-ApiHandler::ApiHandler() : apis{
-	//TODO: add all the apis
-	//TODO: cleanup
-		new DanApi()
-	,	new SanApi()
-	,	new IdolApi()
-	,	new KonachanApi()
-	,	new YandereApi()
-}{ }
-
-ApiHandler* ApiHandler::get_instance(){
-	//TODO: make atomic
-	if( !instance )
-		instance = new ApiHandler;
-	return instance;
-}
-
-Api* ApiHandler::get_by_shorthand( std::string shorthand ) const{
-	for( auto api : apis )
-		if( api->get_shorthand() == shorthand )
-			return api;
-	return nullptr;
-}
