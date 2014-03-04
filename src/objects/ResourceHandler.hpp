@@ -38,7 +38,7 @@ class ResourceHandler{
 			if( it != list.end() )
 				return it->second;
 			else
-				return object();
+				return object( id );
 		}
 };
 

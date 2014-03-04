@@ -44,7 +44,8 @@ class Post{
 		};
 		
 	public:
-		Post() : tags( false ), parents( false ), children( false ), notes( false ), comments( false ), pools( false ){ }
+		Post(){ }
+		Post( ID_T id ) : id(id) { }
 		
 		//Id<Site,unsigned> ?
 		unsigned id = 0;
@@ -53,12 +54,12 @@ class Post{
 		//TODO: creation_date
 		
 		
-		Resource<Tag, std::string> tags;
-		Resource<Post> parents;
-		Resource<Post> children;
-		Resource<Note> notes;
-		Resource<Comment> comments;
-		Resource<Pool> pools;
+		Resource<Tag, std::string> tags{ false };
+		Resource<Post> parents{ false };
+		Resource<Post> children{ false };
+		Resource<Note> notes{ false };
+		Resource<Comment> comments{ false };
+		Resource<Pool> pools{ false };
 		
 		std::string source;
 		
