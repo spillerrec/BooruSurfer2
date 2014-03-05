@@ -72,6 +72,9 @@ Image DanApi::get_image( DataNode parent, DanApi::PostItem url, DanApi::PostItem
 	if( post_table()[ size ] )
 		img.size = parent[ post_table()[ size ] ].as_int();
 	
+	if( img.url.size() > 0 && img.url[0] == '/' )
+		img.url.replace( 0, 1, get_url() );
+	
 	return img;
 }
 
