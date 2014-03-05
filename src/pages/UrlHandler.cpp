@@ -18,6 +18,8 @@
 
 #include "../api/Api.hpp"
 
+#include <algorithm>
+
 using namespace std;
 
 string UrlHandler::post_url( const Post& p ) const{
@@ -110,6 +112,20 @@ string UrlHandler::image_url( const Post& p, Image::Size size ){
 	if( pos != string::npos )
 		filename_end += filepath.substr( pos );
 	
+	//Create tags and remove special characters
 	string tags = image_tags( p, 128-filename_start.size()-filename_end.size() );
+	replace( tags.begin(), tags.end(), '/', '-' );
+	
+	//Windows reserved characters:
+	// http://msdn.microsoft.com/en-us/library/windows/desktop/aa365247(v=vs.85).aspx#naming_conventions
+	replace( tags.begin(), tags.end(), '<', '-' );
+	replace( tags.begin(), tags.end(), '>', '-' );
+	replace( tags.begin(), tags.end(), ':', '-' );
+	replace( tags.begin(), tags.end(), '"', '-' );
+	replace( tags.begin(), tags.end(), '\\', '-' );
+	replace( tags.begin(), tags.end(), '|', '-' );
+	replace( tags.begin(), tags.end(), '?', '-' );
+	replace( tags.begin(), tags.end(), '*', '-' );
+	
 	return path + filename_start + tags + filename_end;
 }
