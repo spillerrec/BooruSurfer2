@@ -23,6 +23,7 @@
 #include "../objects/ResourceHandler.hpp"
 #include "../objects/Post.hpp"
 #include "../objects/Tag.hpp"
+#include "../objects/Index.hpp"
 
 class Api{
 	public:
@@ -39,7 +40,7 @@ class Api{
 		virtual std::string get_url() const = 0;
 		
 		virtual Post get_post( unsigned id ) = 0;
-		virtual std::vector<Post> get_index( std::string search, int page, int limit=-1 ) = 0;
+		virtual Index get_index( std::string search, int page, int limit=-1 ) = 0;
 		
 		virtual ~Api(){ }
 };

@@ -110,7 +110,8 @@ Post DanApi::get_post( unsigned id ){
 		return Post();
 }
 
-std::vector<Post> DanApi::get_index( std::string search, int page, int limit ){
+Index DanApi::get_index( std::string search, int page, int limit ){
+	Index index({ search, page, limit });
 	std::string url = get_url() + "post/index.json?tags=" + search;
 	if( page > 1 )
 		url += "&page=" + std::to_string( page );
@@ -121,11 +122,9 @@ std::vector<Post> DanApi::get_index( std::string search, int page, int limit ){
 	
 	DataNode data = JsonDataNode::from_string( get_from_url( url ) );
 	
-	std::vector<Post> list;
-	
 	for( DataNode node : data )
-		list.push_back( parse_post( node ) );
+		index.posts.push_back( parse_post( node ) );
 	
-	return list;
+	return index;
 }
 

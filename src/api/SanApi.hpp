@@ -30,7 +30,7 @@ class SanApi : public Api{
 		
 		
 		Post get_post( unsigned id );
-		std::vector<Post> get_index( std::string search, int page, int limit=-1 );
+		Index get_index( std::string search, int page, int limit=-1 );
 };
 
 #endif

@@ -294,7 +294,8 @@ Post SanApi::get_post( unsigned id ){
 	return post;
 }
 
-vector<Post> SanApi::get_index( string search, int page, int limit ){
+Index SanApi::get_index( string search, int page, int limit ){
+	Index index({ search, page, limit });
 	string url = get_url() + "?tags=" + search;
 	if( page > 1 )
 		url += "&page=" + to_string( page );
@@ -303,8 +304,6 @@ vector<Post> SanApi::get_index( string search, int page, int limit ){
 	xml_document doc;
 	xml_parse_result result = doc.load( html.c_str() );
 	
-	vector<Post> posts;
-	
 	if( result.status == status_ok ){
 		
 		//div.content div span.thumb
@@ -312,7 +311,7 @@ vector<Post> SanApi::get_index( string search, int page, int limit ){
 		xpath_node_set spans = doc.select_nodes( "//div[@class='content']/div/span[contains(concat(' ', normalize-space(@class), ' '), ' thumb ')]" );
 		cout << "Spans: " << spans.size() << "\n";
 		for( xpath_node f : spans ){
-			posts.push_back( parse_preview( f.node() ) );
+			index.posts.push_back( parse_preview( f.node() ) );
 		}
 		
 		
@@ -323,12 +322,13 @@ vector<Post> SanApi::get_index( string search, int page, int limit ){
 			//TODO: return this somehow
 		}
 
+		index.amount = -1;
 	}
 	else{
 		cout << "XHTML parsing failed!\n";
 		cout << "Error: " << result.description();
 	}
 	
-	return posts;
+	return index;
 }
 

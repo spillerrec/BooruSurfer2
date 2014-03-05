@@ -17,10 +17,11 @@
 #ifndef INDEX_HPP
 #define INDEX_HPP
 
-#include "Resource.hpp"
+#include "Identity.hpp"
 #include "Post.hpp"
 
 #include <string>
+#include <vector>
 
 struct IndexId{
 	std::string query;
@@ -28,13 +29,14 @@ struct IndexId{
 	int limit;
 };
 
-class Index : Resource<IndexId>{
+class Index : public Identity<IndexId>{
 	public:
 		int amount = -1; //Upper bound
-		Resource<Post> posts{ false };
+		//Resource<Post> posts{ true };
+		std::vector<Post> posts;
 		
 	public:
-		Index( ID_T id ) : id(id) { }
+		Index( ID_T id ){ this->id = id; }
 		
 };
 

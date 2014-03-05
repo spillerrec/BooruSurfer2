@@ -55,15 +55,17 @@ string IndexPage::serve( vector<string> args, vector<header> &headers ) const{
 		
 		search = args[3];
 	}
-	vector<Post> posts = api->get_index( search, page );
+	
+	Index index = api->get_index( search, page );
+	vector<Post>& posts = index.posts;
 	
 	if( posts.size() ){
 		//TODO: page amount;
-		int page_amount = 9999;
+		int page_amount = index.amount != -1 ? index.amount*index.id.limit : index.id.page+1;
 		Styler styler( api, "Index: " + search );
 		
 		//Add navigation
-		if( page+1 < page_amount )
+		if( page < page_amount )
 			styler.head( link(styler.doc, REL("next"), HREF( UrlHandler(api).index_url( {{search}}, page+1, limit ) )) );
 		if( page-1 > 0 )
 			styler.head( link(styler.doc, REL("prev"), HREF( UrlHandler(api).index_url( {{search}}, page-1, limit ) )) );
@@ -78,7 +80,7 @@ string IndexPage::serve( vector<string> args, vector<header> &headers ) const{
 		styler.body( div(styler.doc, ID("container"))(
 				styler.post_list( posts )
 				//TODO: don't include index_navigation if only one page?
-			,	styler.index_navigation( search, page, limit, 9999 ) //TODO:
+			,	styler.index_navigation( search, page, limit, page_amount )
 			) );
 		cout << "Post amount: " << posts.size() << endl;
 		
