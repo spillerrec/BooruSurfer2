@@ -319,7 +319,7 @@ Index SanApi::get_index( string search, int page, int limit ){
 		for( xpath_node tag : tags ){
 			Tag t = parse_tag( tag.node() );
 			tag_handler.add( t );
-			//TODO: return this somehow
+			index.related_tags.add( t.id );
 		}
 
 		index.amount = -1;

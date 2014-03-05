@@ -76,11 +76,17 @@ string IndexPage::serve( vector<string> args, vector<header> &headers ) const{
 		styler.nav( styler.main_navigation( search ) );
 		
 	//TODO:	element( styler.container, "aside", "class", "post_list_info" ).text().set( " " );
+		vector<Tag> tags;
+		for( auto t : index.related_tags.list )
+			tags.push_back( api->tag_handler.get( t ) );
 		
+		auto sidebar = aside(styler.doc, CLASS("post_list_info"));
+		styler.tag_list( sidebar, tags, "Related tags" );
 		styler.body( div(styler.doc, ID("container"))(
-				styler.post_list( posts )
-				//TODO: don't include index_navigation if only one page?
-			,	styler.index_navigation( search, page, limit, page_amount )
+				styler.post_list( posts )(
+						styler.index_navigation( search, page, limit, page_amount )
+					)
+			,	sidebar
 			) );
 		cout << "Post amount: " << posts.size() << endl;
 		

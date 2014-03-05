@@ -34,6 +34,7 @@ class Index : public Identity<IndexId>{
 		int amount = -1; //Upper bound
 		//Resource<Post> posts{ true };
 		std::vector<Post> posts;
+		Resource<Tag> related_tags{ true };
 		
 	public:
 		Index( ID_T id ){ this->id = id; }
