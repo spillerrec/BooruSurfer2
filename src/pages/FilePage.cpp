@@ -65,6 +65,7 @@ string FilePage::serve( vector<string> args, vector<header> &headers ) const{
 		ext = filepath.substr( pos + 1 );
 	
 	headers.push_back( header( "Content-Type", get_mime( ext ) ) );
+	headers.push_back( header( "Cache-Control", "max-age=31536000" ) );
 	
 	cout << filepath << "\n";
 	fstream fs( filepath, fstream::in | fstream::binary );
