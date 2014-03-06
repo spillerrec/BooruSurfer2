@@ -105,10 +105,14 @@ class DanApi : public Api{
 			return Resource<T1>( false );
 		}
 		
+		virtual Tag::Type tag_type_id( int id ) const;
+		virtual Tag parse_tag( DataNode node ) const;
 		virtual Post parse_post( DataNode node ) const;
 		virtual Image get_image( DataNode parent, PostItem url, PostItem width, PostItem height, PostItem size ) const;
 		
 	public:
+		void load_tag_file();
+		
 		virtual std::string get_name() const{ return "Danbooru"; }
 		virtual std::string get_shorthand() const{ return "dan"; }
 		virtual std::string get_url() const{ return "http://danbooru.donmai.us/"; }

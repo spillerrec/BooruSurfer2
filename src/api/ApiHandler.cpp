@@ -30,7 +30,11 @@ ApiHandler::ApiHandler() : apis{
 	,	new IdolApi()
 	,	new KonachanApi()
 	,	new YandereApi()
-}{ }
+}{
+	//TODO: avoid this shit
+	((DanApi*)get_by_shorthand( "kona" ))->load_tag_file();
+	((DanApi*)get_by_shorthand( "yandere" ))->load_tag_file();
+}
 
 ApiHandler* ApiHandler::get_instance(){
 	//TODO: make atomic

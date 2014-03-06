@@ -19,6 +19,9 @@
 #include "../parsing/JsonDataNode.hpp"
 #include "../parsing/NullDataNode.hpp"
 
+#include <fstream>
+using namespace std;
+
 const char* const DanApi::post_strings[] = {
 	"id",
 	"md5",
@@ -55,6 +58,15 @@ const char* const DanApi::post_strings[] = {
 	NULL,
 	NULL
 };
+
+void DanApi::load_tag_file(){
+	DataNode data = JsonDataNode::from_file( "tags/" + get_shorthand() + ".json" );
+	if( data )
+		for( auto d : data )
+			tag_handler.add( parse_tag( d ) );
+	else
+		cout << "Could not load tags for " << get_shorthand() << endl;
+}
 
 Image DanApi::get_image( DataNode parent, DanApi::PostItem url, DanApi::PostItem width, DanApi::PostItem height, DanApi::PostItem size ) const{
 	Image img;
@@ -102,13 +114,37 @@ Post DanApi::parse_post( DataNode p ) const{
 	return post;
 }
 
+Tag::Type DanApi::tag_type_id( int id ) const{
+	switch( id ){
+		case 0: return Tag::NONE;
+		case 1: return Tag::ARTIST;
+		case 3: return Tag::COPYRIGHT;
+		case 4: return Tag::CHARACTER;
+		default: return Tag::UNKNOWN;
+	}
+}
+
+Tag DanApi::parse_tag( DataNode node ) const{
+	Tag t;
+	t.id = node[ "name" ].as_string();
+	t.type = tag_type_id( node[ "type" ].as_int() );
+	t.count = node[ "count" ].as_int();
+	return t;
+}
 
 Post DanApi::get_post( unsigned id ){
+	Post post;
+	if( post_handler.get_checked( id, post ) )
+		return post;
+	
 	std::string url = get_url() + "post/index.json?tags=id:" + std::to_string( id );
 	DataNode data = JsonDataNode::from_string( get_from_url( url ) );
 	
-	if( data.size() > 0 )
-		return parse_post( data[0] );
+	if( data.size() > 0 ){
+		post = parse_post( data[0] );
+		post_handler.add( post );
+		return post;
+	}
 	else
 		return Post();
 }

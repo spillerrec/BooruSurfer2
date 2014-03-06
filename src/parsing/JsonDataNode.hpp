@@ -33,6 +33,10 @@ class JsonDataNode : public DataNodeInterface{
 			json_t* parsed = json_loads( str.c_str(), 0, NULL );
 			return DataNode( parsed, parsed ? get_instance() : NullDataNode::get_instance() );
 		}
+		static DataNode from_file( std::string path ){
+			json_t* parsed = json_load_file( path.c_str(), 0, NULL );
+			return DataNode( parsed, parsed ? get_instance() : NullDataNode::get_instance() );
+		}
 		
 		virtual bool is_valid( void* p ) const{ return !json_is_null( (json_t*)p ); }
 		
