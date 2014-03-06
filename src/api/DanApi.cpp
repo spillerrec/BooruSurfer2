@@ -137,7 +137,7 @@ Post DanApi::get_post( unsigned id ){
 	if( post_handler.get_checked( id, post ) )
 		return post;
 	
-	std::string url = get_url() + "post/index.json?tags=id:" + std::to_string( id );
+	string url = get_url() + "post/index.json?tags=id:" + to_string( id );
 	DataNode data = JsonDataNode::from_string( get_from_url( url ) );
 	
 	if( data.size() > 0 ){
@@ -149,20 +149,48 @@ Post DanApi::get_post( unsigned id ){
 		return Post();
 }
 
-Index DanApi::get_index( std::string search, int page, int limit ){
+Index DanApi::get_index( string search, int page, int limit ){
 	Index index({ search, page, limit });
-	std::string url = get_url() + "post/index.json?tags=" + search;
+	string url = get_url() + "post/index.json?tags=" + search;
 	if( page > 1 )
-		url += "&page=" + std::to_string( page );
+		url += "&page=" + to_string( page );
 	
 	if( limit < 1 )
 		limit = 25;
-	url += "&limit=" + std::to_string( limit );
+	url += "&limit=" + to_string( limit );
 	
 	DataNode data = JsonDataNode::from_string( get_from_url( url ) );
 	
 	for( DataNode node : data )
 		index.posts.push_back( parse_post( node ) );
+	
+	
+	//Related tags
+	if( search.empty() ){
+		string related_url = get_url() + "tag/index.json?order=count";
+		DataNode related_data = JsonDataNode::from_string( get_from_url( related_url ) );
+		
+		for( auto related : related_data ){
+			Tag t = parse_tag( related );
+			tag_handler.add( t );
+			index.related_tags.add( t.id );
+		}
+	}
+	else{
+		string related_url = get_url() + "tag/related.json?tags=" + search;
+		DataNode related_data = JsonDataNode::from_string( get_from_url( related_url ) );
+		
+		//Determine first tag
+		string first_tag = search;
+		int pos = first_tag.find( ' ' );
+		if( pos != string::npos )
+			first_tag = first_tag.substr( 0, pos );
+		
+		//Get data
+		//TODO: related[1] contains the count, support?
+		for( auto related : related_data[first_tag] )
+			index.related_tags.add( related[0].as_string() );
+	}
 	
 	return index;
 }
