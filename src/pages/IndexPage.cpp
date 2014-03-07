@@ -73,6 +73,7 @@ string IndexPage::serve( vector<string> args, vector<header> &headers ) const{
 			styler.head( link(styler.doc, REL("up"), HREF( UrlHandler(api).index_url( {{""}}, 1, limit ) )) );
 		
 		
+		styler.head( link(styler.doc, REL("shortcut icon"), HREF( "/favicon/" + api->get_shorthand() + "/index" ) ) );
 		styler.nav( styler.main_navigation( search ) );
 		
 	//TODO:	element( styler.container, "aside", "class", "post_list_info" ).text().set( " " );

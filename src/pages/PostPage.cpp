@@ -49,6 +49,7 @@ string PostPage::serve( vector<string> args, vector<header> &headers ) const{
 	//TODO: change behaviour once we have pools
 	s.head( link(s.doc, REL("next"), HREF( url.image_url( post, Image::ORIGINAL ) ) ) );
 	
+	s.head( link(s.doc, REL("shortcut icon"), HREF( "/favicon/" + api->get_shorthand() + "/post" ) ) );
 	s.nav( s.main_navigation( "" ) );
 	
 	//Post info

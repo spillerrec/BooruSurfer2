@@ -24,6 +24,9 @@ class IdolApi : public SanApi{
 		virtual std::string get_name() const override{ return "IdolComplex"; }
 		virtual std::string get_shorthand() const override{ return "idol"; }
 		virtual std::string get_url() const override{ return "http://idol.sankakucomplex.com/"; }
+		
+		virtual ThemeColor main_color() override{ return {0xFF,0x76,0x1C}; }
+		virtual ThemeColor secondary_color() override{ return {0xFF,0xFF,0xFF}; }
 };
 
 #endif

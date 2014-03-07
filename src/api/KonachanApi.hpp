@@ -29,6 +29,9 @@ class KonachanApi : public DanApi{
 		virtual std::string get_url() const override{ return "http://konachan.com/"; }
 		
 		const char* const* post_table() const{ return kona_post_strings; }
+		
+		virtual ThemeColor main_color() override{ return {0x71,0x57,0x5A}; }
+		virtual ThemeColor secondary_color() override{ return {0xFF,0xEC,0xCE}; }
 };
 
 #endif

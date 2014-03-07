@@ -27,6 +27,9 @@
 
 class Api{
 	public:
+		struct ThemeColor{
+			int red, green, blue;
+		};
 		ResourceHandler<Tag,std::string> tag_handler;
 		ResourceHandler<Post> post_handler;
 	public:
@@ -41,6 +44,9 @@ class Api{
 		
 		virtual Post get_post( unsigned id ) = 0;
 		virtual Index get_index( std::string search, int page, int limit=-1 ) = 0;
+		
+		virtual ThemeColor main_color(){ return {255,255,255}; }
+		virtual ThemeColor secondary_color(){ return {0,0,0}; }
 		
 		virtual ~Api(){ }
 };

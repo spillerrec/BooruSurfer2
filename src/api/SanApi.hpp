@@ -31,6 +31,9 @@ class SanApi : public Api{
 		
 		Post get_post( unsigned id );
 		Index get_index( std::string search, int page, int limit=-1 );
+		
+		virtual ThemeColor main_color() override{ return {0xFF,0xFF,0xFF}; }
+		virtual ThemeColor secondary_color() override{ return {0xFF,0x76,0x1C}; }
 };
 
 #endif

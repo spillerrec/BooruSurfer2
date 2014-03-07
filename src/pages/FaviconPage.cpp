@@ -15,6 +15,7 @@
 */
 
 #include "FaviconPage.hpp"
+#include "../api/Api.hpp"
 #include "../api/ApiHandler.hpp"
 
 #include "png++/png.hpp"
@@ -27,11 +28,11 @@ using namespace std;
 using namespace png;
 
 
-rgb_pixel colorize( rgb_pixel c1, rgb_pixel c2, gray_pixel from ){
+rgb_pixel colorize( Api::ThemeColor c1, Api::ThemeColor c2, gray_pixel from ){
 	return rgb_pixel(
-			(c1.red   * from  +  c2.red   * (255-from)) / 255
-		,	(c1.green * from  +  c2.green * (255-from)) / 255
-		,	(c1.blue  * from  +  c2.blue  * (255-from)) / 255
+			(c2.red   * from  +  c1.red   * (255-from)) / 255
+		,	(c2.green * from  +  c1.green * (255-from)) / 255
+		,	(c2.blue  * from  +  c1.blue  * (255-from)) / 255
 		);
 }
 
@@ -63,6 +64,7 @@ string FaviconPage::serve( vector<string> args, vector<header> &headers ) const{
 		return to_string( img_fail );
 	
 	try{
+		auto main = api->main_color(), secondary = api->secondary_color();
 		image<gray_pixel> img_template( image_path( args[2] ) );
 		image<rgb_pixel> img_out( 16, 16 );
 		if( img_template.get_width() != img_out.get_width()
@@ -71,7 +73,7 @@ string FaviconPage::serve( vector<string> args, vector<header> &headers ) const{
 		
 		for( int iy=0; iy<img_out.get_height(); iy++ )
 			for( int ix=0; ix<img_out.get_width(); ix++ )
-				img_out.set_pixel( ix,iy, colorize( {255,0,0},{0,255,0}, img_template.get_pixel( ix, iy ) ) );
+				img_out.set_pixel( ix,iy, colorize( main,secondary, img_template.get_pixel( ix, iy ) ) );
 		
 		headers.push_back( header( "Cache-Control", "max-age=31536000" ) );
 		return to_string( img_out );

@@ -24,6 +24,9 @@ class YandereApi : public KonachanApi{
 		virtual std::string get_name() const override{ return "Yandere"; }
 		virtual std::string get_shorthand() const override{ return "yandere"; }
 		virtual std::string get_url() const override{ return "https://yande.re/"; }
+		
+		virtual ThemeColor main_color() override{ return {0xFA,0xB0,0xB1}; }
+		virtual ThemeColor secondary_color() override{ return {0xFF,0xF3,0xE4}; }
 };
 
 #endif
