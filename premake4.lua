@@ -12,6 +12,7 @@ solution( "BooruSurfer2" )
 		links( {
 				"tidy"
 			,	"jansson"
+			,	"png"
 			
 			,	"PocoNetSSL"
 			,	"PocoCrypto"

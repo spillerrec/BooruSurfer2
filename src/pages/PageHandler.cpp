@@ -22,6 +22,7 @@
 #include "FilePage.hpp"
 #include "ProxyPage.hpp"
 #include "NotFoundPage.hpp"
+#include "FaviconPage.hpp"
 
 using namespace std;
 
@@ -33,6 +34,7 @@ PageHandler::PageHandler()
 	add( "post", new PostPage() );
 	add( "file", new FilePage() );
 	add( "proxy", new ProxyPage() );
+	add( "favicon", new FaviconPage() );
 }
 
 
