@@ -3,10 +3,12 @@ solution( "BooruSurfer2" )
 	
 	project( "Server" )
 		kind( "ConsoleApp" )
+		targetname( "BooruSurfer" )
 		language( "C++" )
 		location( "build" )
 		files( { "./src/**.h", "./src/**.cpp" } )
 		
+		-- Enable C++11 support
 		buildoptions{ "-std=c++11" }
 		
 		links( {
@@ -14,6 +16,7 @@ solution( "BooruSurfer2" )
 			,	"jansson"
 			,	"png"
 			
+			-- Poco libraries and dependencies
 			,	"PocoNetSSL"
 			,	"PocoCrypto"
 			,	"PocoNet"
@@ -27,12 +30,30 @@ solution( "BooruSurfer2" )
 			,	"iphlpapi"
 			} )
 		
+		
 		configuration( "debug" )
-			targetdir( "bin/debug" )
+			build_dir = "debug"
+			targetdir( "bin/" .. build_dir )
 			defines( { "DEBUG" } )
 			flags { "Symbols" }
 		
 		configuration( "release" )
-			targetdir( "bin/release" )
+			build_dir = "release"
+			targetdir( "bin/" .. build_dir )
 			defines( { "RELEASE" } )
 			flags { "Optimize" }
+		
+		
+		-- Copy data files
+		os.mkdir( "bin/" .. build_dir .. "/data" )
+		files = os.matchfiles( "data/*.*" );
+		for k, f in pairs( files ) do
+			os.copyfile( f, "bin/" .. build_dir .. "/data/" .. path.getname(f) );
+		end
+		
+		-- Copy resource files
+		os.mkdir( "bin/" .. build_dir .. "/data" )
+		files = os.matchfiles( "resources/*.*" );
+		for k, f in pairs( files ) do
+			os.copyfile( f, "bin/" .. build_dir .. "/resources/" .. path.getname(f) );
+		end
