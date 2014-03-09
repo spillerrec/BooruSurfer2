@@ -23,6 +23,7 @@
 #include "ProxyPage.hpp"
 #include "NotFoundPage.hpp"
 #include "FaviconPage.hpp"
+#include "RssPage.hpp"
 
 using namespace std;
 
@@ -35,6 +36,7 @@ PageHandler::PageHandler()
 	add( "file", new FilePage() );
 	add( "proxy", new ProxyPage() );
 	add( "favicon", new FaviconPage() );
+	add( "rss", new RssPage() );
 }
 
 
