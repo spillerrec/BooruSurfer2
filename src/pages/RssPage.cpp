@@ -17,10 +17,13 @@
 #include "RssPage.hpp"
 
 #include <boost/algorithm/string.hpp>
+#include <algorithm>
+#include <iostream>
 
 #include "../api/Api.hpp"
 #include "../api/ApiHandler.hpp"
 #include "../parsing/Rss.hpp"
+#include "UrlHandler.hpp"
 
 using namespace std;
 using namespace pugi;
@@ -32,20 +35,30 @@ string RssPage::serve( vector<string> args, vector<header> &headers ) const{
 	Api *api = ApiHandler::get_instance()->get_by_shorthand( args[1] );
 	if( !api )
 		return "no such site!";
-	/*
+	UrlHandler url( api );
+	
 	string search = "";
 	if( args.size() == 3 )
 		search = args[2];
 	
-	Index index = api->get_index( search, page );
+	Index index = api->get_index( search, 1 );
 	vector<Post>& posts = index.posts;
-	*/
+	
+	Rss rss;
+	rss.title.value = api->get_name() + " - " + search;
+	rss.link.value = url.index_url( {{search}} );
+	
+	for( auto post : posts ){
+		Rss::Item item{ "item" };
+		item.title.value = url.image_tags( post, 128 );
+		item.link.value = url.post_url( post.id );
+		item.description.value = "<img src=\"" + post.thumbnail.url + "\"/>";
+		item.media_thumbnail.url.value = post.thumbnail.url;
+		item.media_content.url.value = post.full.url;
+		rss.items.push_back( item );
+	}
 	
 	headers.push_back( header( "Content-Type", "application/rss+xml" ) );
-	
-	xml_document doc_in, doc_out;
-	doc_in.load( api->get_from_url( "http://konachan.com/post/piclens?page=1&tags=" ).c_str() );
-	Rss rss( doc_in );
 	return rss.save();
 }
 

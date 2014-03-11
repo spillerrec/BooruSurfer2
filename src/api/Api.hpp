@@ -48,6 +48,9 @@ class Api{
 		virtual ThemeColor main_color(){ return {255,255,255}; }
 		virtual ThemeColor secondary_color(){ return {0,0,0}; }
 		
+		virtual std::string original_post_url( unsigned id ) = 0;
+		virtual std::string original_index_url( std::string search ) = 0;
+		
 		virtual ~Api(){ }
 };
 

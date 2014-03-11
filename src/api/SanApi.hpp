@@ -34,6 +34,13 @@ class SanApi : public Api{
 		
 		virtual ThemeColor main_color() override{ return {0xFF,0xFF,0xFF}; }
 		virtual ThemeColor secondary_color() override{ return {0xFF,0x76,0x1C}; }
+		
+		virtual std::string original_post_url( unsigned id ) override{
+			return get_url() + "post/show/" + std::to_string( id );
+		}
+		virtual std::string original_index_url( std::string search ) override{
+			return get_url() + "?tags=" + search;
+		}
 };
 
 #endif

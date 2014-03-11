@@ -60,9 +60,6 @@ string ProxyPage::serve( vector<string> args, vector<header> &headers ) const{
 		headers.push_back( header( "Content-Type", get_mime( img.url.substr( pos + 1 ) ) ) );
 	headers.push_back( header( "Cache-Control", "max-age=31536000" ) );
 	
-	string referer = api->get_url();
-	if( api->get_shorthand() == "san" )
-		referer += "post/show/" + to_string( id );
-	return api->get_from_url( img.url, { { "Referer", referer } } );
+	return api->get_from_url( img.url, { { "Referer", api->original_post_url( id ) } } );
 }
 
