@@ -229,8 +229,8 @@ Node Styler::post_info( Node& parent, const Post& post, bool extended ){
 		parent( add( "Rating:", to_string( post.rating ) ) );
 	if( extended && !post.source.empty() )
 		parent( add( "Source:", post.source ) );
-	
-	parent( p(doc)( a(doc, HREF(api->original_post_url(post.id)))( "Site link" ) ) );
+	if( extended )
+		parent( p(doc)( a(doc, HREF(api->original_post_url(post.id)))( "Site link" ) ) );
 }
 
 Node Styler::post_list( std::vector<Post> posts ){
