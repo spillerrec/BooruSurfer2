@@ -182,6 +182,7 @@ Tag parse_tag( const xml_node &node ){
 	
 	//Remove spaces in tag name
 	replace( tag.id.begin(), tag.id.end(), ' ', '_' );
+	replace( tag.id.begin(), tag.id.end(), '\n', '_' );
 	
 	return tag;
 }
