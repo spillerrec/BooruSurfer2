@@ -55,6 +55,8 @@ string RssPage::serve( vector<string> args, vector<header> &headers ) const{
 		item.description.value = "<img src=\"" + post.thumbnail.url + "\"/>";
 		item.media_thumbnail.url.value = post.thumbnail.url;
 		item.media_content.url.value = post.full.url;
+		item.guid.value = item.link.value;
+		item.guid_isPermaLink = true;
 		rss.items.push_back( item );
 	}
 	
