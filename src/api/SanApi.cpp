@@ -14,6 +14,9 @@
 	along with BooruSurfer2.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+#include <Poco/DateTimeParser.h>
+#include <Poco/DateTimeFormat.h>
+
 #include "SanApi.hpp"
 
 #include "../parsing/pugixml.hpp"
@@ -187,6 +190,14 @@ Tag parse_tag( const xml_node &node ){
 	return tag;
 }
 
+Poco::Timestamp parse_date_time( string time ){
+	Poco::DateTime datetime;
+	int timezone;
+	
+	Poco::DateTimeParser::parse( Poco::DateTimeFormat::SORTABLE_FORMAT, time, datetime, timezone );
+	return datetime.timestamp();
+}
+
 Post SanApi::get_post( unsigned id ){
 	Post post;
 	if( post_handler.get_checked( id, post ) )
@@ -261,8 +272,7 @@ Post SanApi::get_post( unsigned id ){
 				auto links = tag.node().child( "a" );
 				
 				string date = links.attribute( "title" ).value();
-				cout << "Date: " << date << "\n";
-				//TODO: parse
+				post.creation_time = parse_date_time( date );
 				
 				//User-name
 				if( (links = links.next_sibling( "a" )) )

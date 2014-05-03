@@ -14,6 +14,8 @@
 	along with BooruSurfer2.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+#include <Poco/Timestamp.h>
+
 #include "PostPage.hpp"
 #include "../api/Api.hpp"
 #include "../api/ApiHandler.hpp"

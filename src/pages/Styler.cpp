@@ -14,6 +14,10 @@
 	along with BooruSurfer2.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+#include <Poco/DateTime.h>
+#include <Poco/DateTimeFormatter.h>
+#include <Poco/DateTimeFormat.h>
+
 #include "Styler.hpp"
 
 using namespace std;
@@ -65,8 +69,12 @@ string Styler::format_filesize( unsigned filesize ) const{
 	return "will crash your computer";
 }
 
-string Styler::format_date( unsigned unix_time ) const{
-	return "unimplemented";
+string Styler::format_date( Poco::Timestamp timestamp ) const{
+	//TODO: write how long time ago it was
+	if( timestamp.epochMicroseconds() != 0 )
+		return Poco::DateTimeFormatter::format( timestamp, Poco::DateTimeFormat::SORTABLE_FORMAT );
+	else
+		return "Unknown";
 }
 
 
@@ -218,7 +226,7 @@ Node Styler::post_info( Node& parent, const Post& post, bool extended ){
 				);
 		};
 	
-	parent( add( "Posted:", "TODO" ) );
+	parent( add( "Posted:", format_date( post.creation_time ) ) );
 	if( extended && !post.author.empty() )
 		parent( add( "By:", post.author ) );
 	if( post.full.width && post.full.height )

@@ -14,6 +14,10 @@
 	along with BooruSurfer2.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+#include <Poco/Timestamp.h>
+#include <Poco/DateTimeFormatter.h>
+#include <Poco/DateTimeFormat.h>
+
 #include "RssPage.hpp"
 
 #include <boost/algorithm/string.hpp>
@@ -57,6 +61,8 @@ string RssPage::serve( vector<string> args, vector<header> &headers ) const{
 		item.media_content.url.value = post.full.url;
 		item.guid.value = item.link.value;
 		item.guid_isPermaLink = true;
+		if( post.creation_time.epochMicroseconds() != 0 )
+			item.pubDate.value = Poco::DateTimeFormatter::format( post.creation_time, Poco::DateTimeFormat::RFC1123_FORMAT );
 		rss.items.push_back( item );
 	}
 	

@@ -15,6 +15,8 @@
 */
 
 
+#include <Poco/Timestamp.h>
+
 #include "ApiHandler.hpp"
 
 #include "IdolApi.hpp"
