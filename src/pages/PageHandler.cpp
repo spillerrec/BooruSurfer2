@@ -21,6 +21,7 @@
 #include "IndexPage.hpp"
 #include "FilePage.hpp"
 #include "ProxyPage.hpp"
+#include "SavePage.hpp"
 #include "NotFoundPage.hpp"
 #include "FaviconPage.hpp"
 #include "RssPage.hpp"
@@ -35,6 +36,7 @@ PageHandler::PageHandler()
 	add( "post", new PostPage() );
 	add( "file", new FilePage() );
 	add( "proxy", new ProxyPage() );
+	add( "save", new SavePage() );
 	add( "favicon", new FaviconPage() );
 	add( "rss", new RssPage() );
 }

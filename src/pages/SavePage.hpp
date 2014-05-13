@@ -14,26 +14,15 @@
 	along with BooruSurfer2.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef URL_HANDLER_H
-#define URL_HANDLER_H
+#ifndef SAVE_PAGE_H
+#define SAVE_PAGE_H
 
-#include "../objects/Post.hpp"
-#include <string>
-#include <vector>
+#include "FilePage.hpp"
 
-class Api;
 
-class UrlHandler{
-	private:
-		Api* api;
+class SavePage : public FilePage{
 	public:
-		UrlHandler( Api* api ) : api(api) { }
-		
-		std::string post_url( const Post& p ) const;
-		std::string index_url( const std::vector<Tag>& tags = std::vector<Tag>(), unsigned page=1, int amount = -1 ) const;
-		
-		std::string image_tags( const Post& p, int lenght );
-		std::string image_url( const Post& p, Image::Size size, bool save=false );
+		virtual std::string serve( std::vector<std::string> args, std::vector<header> &headers ) const override;
 };
 
 #endif

@@ -85,7 +85,7 @@ string UrlHandler::image_tags( const Post& p, int lenght ){
 	return tags;
 }
 
-string UrlHandler::image_url( const Post& p, Image::Size size ){
+string UrlHandler::image_url( const Post& p, Image::Size size, bool save ){
 	if( size == Image::RESIZED && p.get_image_size( size ).url.empty() )
 		size = Image::COMPRESSED;
 	if( size == Image::COMPRESSED && p.get_image_size( size ).url.empty() )
@@ -93,7 +93,7 @@ string UrlHandler::image_url( const Post& p, Image::Size size ){
 	
 	//TODO: change size depending on post
 	string size_str = image_size_string( size );
-	string path = "/proxy/" + size_str + "/";
+	string path = (save ? "/save/" : "/proxy/") + size_str + "/";
 	
 	string filename_end;
 	if( size != Image::ORIGINAL )

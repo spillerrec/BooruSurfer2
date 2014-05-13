@@ -60,15 +60,17 @@ string Api::get_from_url( string url, vector<pair<string,string> > headers ) con
 	
 	try{
 		URI uri( url );
-		cout << "Url: " << url << " - " << uri.getPathAndQuery() << "\n";
+		cout << "Url: " << url << "\n";
 		
 		HTTPRequest req(HTTPRequest::HTTP_GET, uri.getPathAndQuery(), HTTPMessage::HTTP_1_1);
 		HTTPResponse res;
 		
 		//Add headers
 		//TODO: do something with the user-agent
-		req.add( "User-Agent", "Opera/9.80 (Windows NT 6.2; Win64; x64) Presto/2.12.388 Version/12.16" );
-		req.add( "Accept-Language", "en" );
+		req.add( "Accept", "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8" );
+	//	req.add( "Accept-Encoding", "gzip,deflate" );
+		req.add( "Accept-Language", "en-US,en;q=0.6" );
+		req.add( "User-Agent", "Mozilla/5.0 (Windows NT 6.3; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/33.0.1750.117 Safari/537.36" );
 		for( auto h : headers )
 			req.add( h.first, h.second );
 		
