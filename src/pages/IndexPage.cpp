@@ -81,6 +81,12 @@ string IndexPage::serve( vector<string> args, vector<header> &headers ) const{
 			,	REL("alternate"), TYPE("application/rss+xml")
 			,	HREF( UrlHandler(api).rss_url( {{search}}, page-1, limit ) )
 			,	TITLE( "Feed: " + search ) ) );
+		//OpenSearch meta tag
+		styler.head( link(styler.doc
+			,	REL("search"), TYPE("application/opensearchdescription+xml")
+			,	HREF( "/search/" + api->get_shorthand() )
+			,	TITLE( api->get_name() + " search" ) ) );
+		//<link rel="search" type="application/opensearchdescription+xml" href="/opensearch.xml" title="Twitter Search">
 		styler.nav( styler.main_navigation( search ) );
 		
 	//TODO:	element( styler.container, "aside", "class", "post_list_info" ).text().set( " " );

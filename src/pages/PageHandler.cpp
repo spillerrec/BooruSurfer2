@@ -20,6 +20,7 @@
 #include "PostPage.hpp"
 #include "IndexPage.hpp"
 #include "FilePage.hpp"
+#include "OpenSearchPage.hpp"
 #include "ProxyPage.hpp"
 #include "SavePage.hpp"
 #include "NotFoundPage.hpp"
@@ -39,6 +40,7 @@ PageHandler::PageHandler()
 	add( "save", new SavePage() );
 	add( "favicon", new FaviconPage() );
 	add( "rss", new RssPage() );
+	add( "search", new OpenSearchPage() );
 }
 
 
