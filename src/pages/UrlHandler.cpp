@@ -25,8 +25,8 @@ using namespace std;
 string UrlHandler::post_url( const Post& p ) const{
 	return "/post/" + api->get_shorthand() + "/" + to_string( p.id ) + "/";
 }
-string UrlHandler::index_url( const vector<Tag>& tags, unsigned page, int amount ) const{
-	string start( "/index/" + api->get_shorthand() + "/" );
+string UrlHandler::search_url( string type, const vector<Tag>& tags, unsigned page, int amount ) const{
+	string start( "/" + type + "/" + api->get_shorthand() + "/" );
 	
 	//Page and post-amount
 	string offset;

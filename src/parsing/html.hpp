@@ -251,6 +251,7 @@ namespace HTML{
 	HTML_ATTRIBUTE( SRC, "src" )
 	HTML_ATTRIBUTE( ALT, "alt" )
 	HTML_ATTRIBUTE( REL, "rel" )
+	HTML_ATTRIBUTE( TITLE, "title" )
 	HTML_ATTRIBUTE( TYPE, "type" )
 	HTML_ATTRIBUTE( NAME, "name" )
 	HTML_ATTRIBUTE( PLACEHOLDER, "placeholder" )

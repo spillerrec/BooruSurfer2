@@ -26,13 +26,22 @@ class Api;
 class UrlHandler{
 	private:
 		Api* api;
+		
+		std::string search_url( std::string type, const std::vector<Tag>& tags, unsigned page, int amount ) const;
+		
 	public:
 		UrlHandler( Api* api ) : api(api) { }
 		
 		std::string post_url( const Post& p ) const;
-		std::string index_url( const std::vector<Tag>& tags = std::vector<Tag>(), unsigned page=1, int amount = -1 ) const;
+		
+		std::string index_url( const std::vector<Tag>& tags = std::vector<Tag>(), unsigned page=1, int amount = -1 ) const
+			{ return search_url( "index", tags, page, amount ); }
+		
+		std::string rss_url( const std::vector<Tag>& tags = std::vector<Tag>(), unsigned page=1, int amount = -1 ) const
+			{ return search_url( "rss", tags, page, amount ); }
 		
 		std::string image_tags( const Post& p, int lenght );
+		
 		std::string image_url( const Post& p, Image::Size size, bool save=false );
 };
 

@@ -76,6 +76,11 @@ string IndexPage::serve( vector<string> args, vector<header> &headers ) const{
 		
 		
 		styler.head( link(styler.doc, REL("shortcut icon"), HREF( "/favicon/" + api->get_shorthand() + "/index" ) ) );
+		//Rss meta tag
+		styler.head( link(styler.doc
+			,	REL("alternate"), TYPE("application/rss+xml")
+			,	HREF( UrlHandler(api).rss_url( {{search}}, page-1, limit ) )
+			,	TITLE( "Feed: " + search ) ) );
 		styler.nav( styler.main_navigation( search ) );
 		
 	//TODO:	element( styler.container, "aside", "class", "post_list_info" ).text().set( " " );
