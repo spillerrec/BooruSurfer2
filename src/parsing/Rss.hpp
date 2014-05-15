@@ -162,6 +162,7 @@ class Rss : Structure{
 			Value<> title{ "title" };
 			Value<> link{ "link" };
 			Value<> description{ "description" };
+			Value<> content{ "content:encoded" };
 			Value<> author{ "author" };
 			Value<> category{ "category" };
 			//Value<> category_domain{ "" };
@@ -178,10 +179,10 @@ class Rss : Structure{
 			
 			Item( const char* const name ) : Structure( name ) { }
 			void load( pugi::xml_node& node ){
-				load_internal_vector( node, title, link, description, author, category, comments, guid, pubDate, source, media_thumbnail, media_content );
+				load_internal_vector( node, title, link, description, content, author, category, comments, guid, pubDate, source, media_thumbnail, media_content );
 			}
 			void save( pugi::xml_node& node ) const{
-				save_internal( node, title, link, description, author, category, comments, guid, pubDate, source, media_thumbnail, media_content );
+				save_internal( node, title, link, description, content, author, category, comments, guid, pubDate, source, media_thumbnail, media_content );
 			}
 		};
 		
