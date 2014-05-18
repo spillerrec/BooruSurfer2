@@ -1,0 +1,138 @@
+/*	This file is part of rss2rss.
+
+	rss2rss is free software: you can redistribute it and/or modify
+	it under the terms of the GNU General Public License as published by
+	the Free Software Foundation, either version 3 of the License, or
+	(at your option) any later version.
+
+	rss2rss is distributed in the hope that it will be useful,
+	but WITHOUT ANY WARRANTY; without even the implied warranty of
+	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+	GNU General Public License for more details.
+
+	You should have received a copy of the GNU General Public License
+	along with rss2rss.  If not, see <http://www.gnu.org/licenses/>.
+*/
+
+#include "Booru.hpp"
+
+
+Booru::Booru( std::string site ) : db( "cache.sqlite" ){
+	std::string query_tags = "CREATE TABLE IF NOT EXISTS " + site + "_tags ( "
+			+	"id TEXT PRIMARY KEY, "
+			+	"count INTEGER, "
+			+	"type INTEGER, "
+			+	"ambiguous INTEGER "
+			+	")";
+	std::string query_index_post = "CREATE TABLE IF NOT EXISTS " + site + "_index_post ( "
+			+	"list, offset, post )";
+	std::string query_index_list = "CREATE TABLE IF NOT EXISTS " + site + "_index_list ( "
+			+	"id INTEGER PRIMARY KEY, "
+			+	"search TEXT, "
+			+	"count INTEGER, "
+			+	"next_update INTEGER, "
+			+	"ordered INTEGER, "
+			+	"related_tags TEXT, "
+			+	"related_counts TEXT, "
+			+	"locked INTEGER "
+			+	")";
+	std::string query_comments = "CREATE TABLE IF NOT EXISTS " + site + "_comments ( "
+			+	"id INTEGER PRIMARY KEY, "
+			+	"post_id INTEGER, "
+			+	"creator TEXT, "
+			+	"created_at INTEGER, "
+			+	"score INTEGER, "
+			+	"body TEXT "
+			+	")";
+	std::string query_notes = "CREATE TABLE IF NOT EXISTS " + site + "_notes ( "
+			+	"id INTEGER PRIMARY KEY, "
+			+	"post_id INTEGER, "
+			+	"x INTEGER, "
+			+	"y INTEGER, "
+			+	"width INTEGER, "
+			+	"height INTEGER, "
+			+	"body TEXT, "
+			+	"created_at INTEGER, "
+			+	"updated_at INTEGER, "
+			+	"version INTEGER "
+			+	")";
+	std::string query_posts = "CREATE TABLE IF NOT EXISTS " + site + "_posts ( "
+			+	"id INTEGER PRIMARY KEY, "
+			+	"hash TEXT, "
+			+	"created_at INTEGER, "
+			+	"uploader TEXT, "
+			+	"source TEXT, "
+			+	"rating INTEGER, "
+			+	"parent_id INTEGER, "
+			+	"children_updated INTEGER, "
+			+	"pools TEXT, "
+			+	"notes_updated INTEGER, "
+			+	"comments_updated INTEGER, "
+			+	"score NUMERIC, "
+			+	"score_count INTEGER, "
+			+	"status INTEGER, "
+			+	"tags TEXT, "
+			+	"post_updated INTEGER, "
+			
+			+	"url TEXT, "
+			+	"width INTEGER, "
+			+	"height INTEGER, "
+			+	"filesize INTEGER, "
+			
+			+	"preview_url TEXT, "
+			+	"preview_width INTEGER, "
+			+	"preview_height INTEGER, "
+			+	"preview_filesize INTEGER, "
+			
+			+	"thumb_url TEXT, "
+			+	"thumb_width INTEGER, "
+			+	"thumb_height INTEGER, "
+			+	"thumb_filesize INTEGER, "
+			
+			+	"reduced_url TEXT, "
+			+	"reduced_width INTEGER, "
+			+	"reduced_height INTEGER, "
+			+	"reduced_filesize INTEGER, "
+			
+			+	"local INTEGER "
+			+	")";
+	Statement( db, query_tags.c_str() ).next();
+	Statement( db, query_index_post.c_str() ).next();
+	Statement( db, query_index_list.c_str() ).next();
+	Statement( db, query_comments.c_str() ).next();
+	Statement( db, query_notes.c_str() ).next();
+	Statement( db, query_posts.c_str() ).next();
+}
+
+
+Booru::~Booru(){
+	delete load_tags;
+	delete save_tags;
+	delete load_posts;
+	delete save_posts;
+}
+
+Statement& Booru::loadTags(){
+	if( !load_tags )
+		load_tags = new Statement( db, "" );
+	return *load_tags;
+}
+
+Statement& Booru::saveTags(){
+	if( !save_tags )
+		save_tags = new Statement( db, "" );
+	return *save_tags;
+}
+
+
+Statement& Booru::loadPosts(){
+	if( !load_posts )
+		load_posts = new Statement( db, "" );
+	return *load_posts;
+}
+
+Statement& Booru::savePosts(){
+	if( !save_posts )
+		save_posts = new Statement( db, "" );
+	return *save_posts;
+}

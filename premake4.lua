@@ -15,6 +15,7 @@ solution( "BooruSurfer2" )
 				"tidy"
 			,	"jansson"
 			,	"png"
+			,	"sqlite3"
 			
 			-- Poco libraries and dependencies
 			,	"PocoNetSSL"
