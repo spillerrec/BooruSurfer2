@@ -8,6 +8,8 @@
 
 #include <boost/lexical_cast.hpp>
 
+#include "../Server.hpp"
+
 namespace HTML{
 	class Node;
 	
@@ -247,7 +249,6 @@ namespace HTML{
 	
 	HTML_ATTRIBUTE( ID, "id" )
 	HTML_ATTRIBUTE( CLASS, "class" )
-	HTML_ATTRIBUTE( HREF, "href" )
 	HTML_ATTRIBUTE( SRC, "src" )
 	HTML_ATTRIBUTE( ALT, "alt" )
 	HTML_ATTRIBUTE( REL, "rel" )
@@ -255,6 +256,13 @@ namespace HTML{
 	HTML_ATTRIBUTE( TYPE, "type" )
 	HTML_ATTRIBUTE( NAME, "name" )
 	HTML_ATTRIBUTE( PLACEHOLDER, "placeholder" )
+	
+	//HTML_ATTRIBUTE( HREF, "href" )
+	//Property encode url
+	template<typename T>
+	inline std::pair<const char* const, std::string> HREF ( T value_real ){
+		return std::pair<const char* const, std::string>( "href" , Server::encode_str( value_real ) );
+	}
 }
 
 

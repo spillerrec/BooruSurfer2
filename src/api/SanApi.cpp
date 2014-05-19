@@ -307,7 +307,7 @@ Post SanApi::get_post( unsigned id ){
 
 Index SanApi::get_index( string search, int page, int limit ){
 	Index index({ search, page, limit });
-	string url = get_url() + "?tags=" + search;
+	string url = get_url() + "?tags=" + Server::encode_str( search );
 	if( page > 1 )
 		url += "&page=" + to_string( page );
 	string html = CleanHTML( get_from_url( url ) );

@@ -18,6 +18,7 @@
 #define DAN_API_H
 
 #include "Api.hpp"
+#include "../Server.hpp"
 
 #include <string>
 #include <vector>
@@ -129,7 +130,7 @@ class DanApi : public Api{
 			return get_url() + "posts/" + std::to_string( id );
 		}
 		virtual std::string original_index_url( std::string search ) override{
-			return get_url() + "posts/?tags=" + search;
+			return get_url() + "posts/?tags=" + Server::encode_str( search );
 		}
 };
 

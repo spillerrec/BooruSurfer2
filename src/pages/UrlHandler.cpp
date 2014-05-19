@@ -44,6 +44,8 @@ string UrlHandler::search_url( string type, const vector<Tag>& tags, unsigned pa
 	string search = "";
 	for( auto t : tags )
 		search += t.id + " ";
+	if( tags.size() > 0 )
+		search.pop_back();
 	
 	return start + offset + search;
 }

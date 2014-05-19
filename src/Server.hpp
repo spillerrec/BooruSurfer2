@@ -22,6 +22,10 @@
 class Server : public Poco::Util::ServerApplication{
 	protected:
 		int main( const std::vector<std::string>& unknown );
+	
+	public:
+		static std::string encode_str( const std::string& input );
+		static std::string unencode_str( const std::string& input );
 };
 
 #endif

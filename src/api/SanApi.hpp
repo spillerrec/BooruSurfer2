@@ -18,6 +18,7 @@
 #define SAN_API_H
 
 #include "Api.hpp"
+#include "../Server.hpp"
 
 class SanApi : public Api{
 	protected:
@@ -39,7 +40,7 @@ class SanApi : public Api{
 			return get_url() + "post/show/" + std::to_string( id );
 		}
 		virtual std::string original_index_url( std::string search ) override{
-			return get_url() + "?tags=" + search;
+			return get_url() + "?tags=" + Server::encode_str( search );
 		}
 };
 
