@@ -25,6 +25,7 @@
 #include "pages/PageHandler.hpp"
 
 #include <boost/algorithm/string.hpp>
+#include <boost/algorithm/string/replace.hpp>
 
 #include <iostream>
 #include <algorithm>
@@ -33,6 +34,20 @@ using namespace Poco;
 using namespace Poco::Net;
 using namespace std;
 
+string Server::remove_reserved( const string& input ){
+	string output = input;
+	boost::replace_all( output, "$", "%24" );
+	boost::replace_all( output, "&", "%26" );
+	boost::replace_all( output, "+", "%2B" );
+	boost::replace_all( output, ",", "%2C" );
+	boost::replace_all( output, "/", "%2F" );
+	boost::replace_all( output, ":", "%3A" );
+	boost::replace_all( output, ";", "%3B" );
+	boost::replace_all( output, "=", "%3D" );
+	boost::replace_all( output, "?", "%3F" );
+	boost::replace_all( output, "@", "%40" );
+	return output;
+}
 string Server::encode_str( const string& input ){
 	string output, reserved; //TODO: reserved, wtf?
 	URI::encode( input, reserved, output );

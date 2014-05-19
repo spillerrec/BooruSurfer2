@@ -130,7 +130,7 @@ class DanApi : public Api{
 			return get_url() + "posts/" + std::to_string( id );
 		}
 		virtual std::string original_index_url( std::string search ) override{
-			return get_url() + "posts/?tags=" + Server::encode_str( search );
+			return get_url() + "posts/?tags=" + Server::remove_reserved( Server::encode_str( search ) );
 		}
 };
 

@@ -40,7 +40,7 @@ class SanApi : public Api{
 			return get_url() + "post/show/" + std::to_string( id );
 		}
 		virtual std::string original_index_url( std::string search ) override{
-			return get_url() + "?tags=" + Server::encode_str( search );
+			return get_url() + "?tags=" + Server::remove_reserved( Server::encode_str( search ) );
 		}
 };
 

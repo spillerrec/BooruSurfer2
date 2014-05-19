@@ -257,12 +257,7 @@ namespace HTML{
 	HTML_ATTRIBUTE( NAME, "name" )
 	HTML_ATTRIBUTE( PLACEHOLDER, "placeholder" )
 	
-	//HTML_ATTRIBUTE( HREF, "href" )
-	//Property encode url
-	template<typename T>
-	inline std::pair<const char* const, std::string> HREF ( T value_real ){
-		return std::pair<const char* const, std::string>( "href" , Server::encode_str( value_real ) );
-	}
+	HTML_ATTRIBUTE( HREF, "href" )
 }
 
 

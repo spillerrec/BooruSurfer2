@@ -154,7 +154,7 @@ Post DanApi::get_post( unsigned id ){
 
 Index DanApi::get_index( string search, int page, int limit ){
 	Index index({ search, page, limit });
-	string url = get_url() + "post/index.json?tags=" + Server::encode_str( search );
+	string url = get_url() + "post/index.json?tags=" + Server::remove_reserved( Server::encode_str( search ) );
 	if( page > 1 )
 		url += "&page=" + to_string( page );
 	
@@ -180,7 +180,7 @@ Index DanApi::get_index( string search, int page, int limit ){
 		}
 	}
 	else{
-		string related_url = get_url() + "tag/related.json?tags=" + Server::encode_str( search );
+		string related_url = get_url() + "tag/related.json?tags=" + Server::remove_reserved( Server::encode_str( search ) );
 		DataNode related_data = JsonDataNode::from_string( get_from_url( related_url ) );
 		
 		//Determine first tag

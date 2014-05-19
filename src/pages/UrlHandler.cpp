@@ -17,6 +17,7 @@
 #include "UrlHandler.hpp"
 
 #include "../api/Api.hpp"
+#include "../Server.hpp"
 
 #include <algorithm>
 
@@ -43,7 +44,7 @@ string UrlHandler::search_url( string type, const vector<Tag>& tags, unsigned pa
 	//Query string
 	string search = "";
 	for( auto t : tags )
-		search += t.id + " ";
+		search += Server::remove_reserved( t.id ) + " ";
 	if( tags.size() > 0 )
 		search.pop_back();
 	
