@@ -225,11 +225,11 @@ header nav li form{ float:right; }
 .post_list_details li a{
 	border:none; margin:0;
 }
-.post_list_details li section.details{
+.post_list_details li div.details{
 	display:block;
 	padding: 5px;
 }
-.post_list_details li section p{
+.post_list_details li div p{
 	padding:0;
 	margin:0 0 3px 0;
 }

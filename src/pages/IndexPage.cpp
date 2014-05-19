@@ -71,8 +71,6 @@ string IndexPage::serve( vector<string> args, vector<header> &headers ) const{
 			styler.head( link(styler.doc, REL("next"), HREF( UrlHandler(api).index_url( {{search}}, page+1, limit ) )) );
 		if( page-1 > 0 )
 			styler.head( link(styler.doc, REL("prev"), HREF( UrlHandler(api).index_url( {{search}}, page-1, limit ) )) );
-		if( !search.empty() )
-			styler.head( link(styler.doc, REL("up"), HREF( UrlHandler(api).index_url( {{""}}, 1, limit ) )) );
 		
 		
 		styler.head( link(styler.doc, REL("shortcut icon"), HREF( "/favicon/" + api->get_shorthand() + "/index" ) ) );

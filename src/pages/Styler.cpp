@@ -173,7 +173,7 @@ Node Styler::post_thumb( const Post& post ){
 }
 
 Node Styler::post_thumb_info( const Post& post, bool extended ){
-	auto node = section( doc, CLASS("details") );
+	auto node = div( doc, CLASS("details") );
 	post_info( node, post, extended );
 	
 	auto tags = p(doc);
