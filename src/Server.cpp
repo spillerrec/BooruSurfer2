@@ -55,7 +55,9 @@ string Server::encode_str( const string& input ){
 }
 string Server::unencode_str( const string& input ){
 	string output;
-	URI::decode( input, output );
+	string temp = input;
+	boost::replace_all( temp, "+", "%20" );
+	URI::decode( temp, output );
 	return output;
 }
 
