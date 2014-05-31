@@ -43,6 +43,7 @@ static string CleanHTML(const string &html){
 	bool ok = tidyOptSetBool( doc, TidyXmlOut, yes );
 	ok &= tidyOptSetBool( doc, TidyQuiet, yes );
 	ok &= tidyOptSetBool( doc, TidyShowWarnings, no );
+	ok &= tidyOptSetValue( doc, TidyCharEncoding, "utf8" );
 	
 	int result = -1;
 	if( ok ){
