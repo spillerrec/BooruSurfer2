@@ -245,6 +245,18 @@ bool get_video( xml_document& doc, Post& p ){
 	return true;
 }
 
+bool get_flash( xml_document& doc, Post& p ){
+	xml_node flash = doc.select_nodes( "//div[@id='non-image-content']/object/embed" ).first().node();
+	if( !flash )
+		return false;
+	
+	p.full.width = flash.attribute( "width" ).as_int();
+	p.full.height = flash.attribute( "height" ).as_int();
+	p.full.url = flash.attribute( "src" ).value();
+	
+	return true;
+}
+
 Post SanApi::get_post( unsigned id ){
 	Post post;
 	if( post_handler.get_checked( id, post ) )
@@ -266,7 +278,8 @@ Post SanApi::get_post( unsigned id ){
 		
 		if( !get_image( doc, post ) )
 			if( !get_video( doc, post ) )
-				return Post(); //TODO: throw error
+				if( !get_flash( doc, post ) )
+					return Post(); //TODO: throw error
 		
 		//Parent
 		xml_node parent = doc.select_nodes( "//div[@id='parent-preview']/span" ).first().node();
