@@ -258,6 +258,10 @@ namespace HTML{
 	HTML_ATTRIBUTE( PLACEHOLDER, "placeholder" )
 	
 	HTML_ATTRIBUTE( HREF, "href" )
+	
+	HTML_ATTRIBUTE( LOOP, "loop" )
+	HTML_ATTRIBUTE( CONTROLS, "controls" )
+	HTML_ATTRIBUTE( AUTOPLAY, "autoplay" )
 }
 
 

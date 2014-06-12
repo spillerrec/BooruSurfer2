@@ -195,6 +195,18 @@ Node Styler::post_details( const Post& post ){
 	return p(doc)( "unimplemented" );
 }
 
+Node previewPost( string url ){
+	
+}
+
+bool isVideo( string url ){
+	//Determine file extension from url, which may contain arguments
+	auto end = url.find( "?" );
+	auto start = url.rfind( ".", end );
+	auto ext = url.substr( start+1, end - start );
+	cout << "Extension: " << ext << endl;
+	return ext == "webm";
+}
 
 Node Styler::post( Post post ){
 	string url_org = url.image_url( post, Image::ORIGINAL );
@@ -202,9 +214,11 @@ Node Styler::post( Post post ){
 	
 	return section( doc, CLASS("post") )(
 			div( doc, CLASS("container") )(
-					a( doc, HREF(url_org) )(
-						img( doc, SRC(url_show), ALT("preview") )
-					)
+					isVideo( url_org )
+					?	video( doc, SRC(url_org), LOOP("loop"), CONTROLS("controls"), AUTOPLAY("autoplay") )
+					:	a( doc, HREF(url_org) )(
+							img( doc, SRC(url_show), ALT("preview") )
+						)	
 				)
 		);
 }

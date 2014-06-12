@@ -199,6 +199,47 @@ Poco::Timestamp parse_date_time( string time ){
 	return datetime.timestamp();
 }
 
+bool get_image( xml_document& doc, Post& p ){
+	//Original/resized width+height+url
+	Image resized, original;
+	xml_node link = doc.select_nodes( "//a[@id='image-link']" ).first().node();
+	xml_node image = link.child( "img" );
+	
+	if( !image )
+		return false;
+	
+	original.width = image.attribute( "org_width" ).as_int();
+	original.height = image.attribute( "orig_height" ).as_int();
+	original.url = link.attribute( "href" ).value();
+	cout << "org url: " << original.url << endl;
+	
+	resized.width = image.attribute( "width" ).as_int();
+	resized.height = image.attribute( "height" ).as_int();
+	resized.url = image.attribute( "src" ).value();
+	
+	//It might not be resized, in that case the image is the original
+	if( original.url.empty() )
+		p.full = resized;
+	else{
+		p.preview = resized;
+		p.full = original;
+	}
+	
+	return true;
+}
+
+bool get_video( xml_document& doc, Post& p ){
+	xml_node video = doc.select_nodes( "//video[@id='image']" ).first().node();
+	if( !video )
+		return false;
+	
+	p.full.width = video.attribute( "width" ).as_int();
+	p.full.height = video.attribute( "height" ).as_int();
+	p.full.url = video.attribute( "src" ).value();
+	
+	return true;
+}
+
 Post SanApi::get_post( unsigned id ){
 	Post post;
 	if( post_handler.get_checked( id, post ) )
@@ -218,26 +259,9 @@ Post SanApi::get_post( unsigned id ){
 		string id = doc.select_nodes( "//meta[@property='og:title']" ).first().node().attribute("content").value();
 		post.id = parseInt( id.substr( 5 ), 0 );
 		
-		//Original/resized width+height+url
-		Image resized, original;
-		xml_node link = doc.select_nodes( "//a[@id='image-link']" ).first().node();
-		xml_node image = link.child( "img" );
-		
-		original.width = image.attribute( "org_width" ).as_int();
-		original.height = image.attribute( "orig_height" ).as_int();
-		original.url = link.attribute( "href" ).value();
-		
-		resized.width = image.attribute( "width" ).as_int();
-		resized.height = image.attribute( "height" ).as_int();
-		resized.url = image.attribute( "src" ).value();
-		
-		//It might not be resized, in that case the image is the original
-		if( original.url.empty() )
-			post.full = resized;
-		else{
-			post.preview = resized;
-			post.full = original;
-		}
+		if( !get_image( doc, post ) )
+			if( !get_video( doc, post ) )
+				return Post(); //TODO: throw error
 		
 		//Parent
 		xml_node parent = doc.select_nodes( "//div[@id='parent-preview']/span" ).first().node();
