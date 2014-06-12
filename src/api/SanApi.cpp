@@ -208,10 +208,15 @@ bool get_image( xml_document& doc, Post& p ){
 	if( !image )
 		return false;
 	
-	original.width = image.attribute( "org_width" ).as_int();
-	original.height = image.attribute( "orig_height" ).as_int();
+	//Get image link, but overwrite it with highres to work with svg.
 	original.url = link.attribute( "href" ).value();
+	string highres = doc.select_nodes( "//a[@id='highres']" ).first().node().attribute( "href" ).value();
+	if( highres.size() != 0 )
+		original.url = highres;
 	cout << "org url: " << original.url << endl;
+	
+	original.width = image.attribute( "orig_width" ).as_int();
+	original.height = image.attribute( "orig_height" ).as_int();
 	
 	resized.width = image.attribute( "width" ).as_int();
 	resized.height = image.attribute( "height" ).as_int();

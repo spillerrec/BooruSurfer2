@@ -262,6 +262,11 @@ namespace HTML{
 	HTML_ATTRIBUTE( LOOP, "loop" )
 	HTML_ATTRIBUTE( CONTROLS, "controls" )
 	HTML_ATTRIBUTE( AUTOPLAY, "autoplay" )
+	
+	HTML_ATTRIBUTE( DATA, "data" )
+	HTML_ATTRIBUTE( VALUE, "value" )
+	HTML_ATTRIBUTE( WIDTH, "width" )
+	HTML_ATTRIBUTE( HEIGHT, "height" )
 }
 
 

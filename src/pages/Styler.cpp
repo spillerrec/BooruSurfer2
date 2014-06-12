@@ -199,26 +199,36 @@ Node previewPost( string url ){
 	
 }
 
-bool isVideo( string url ){
+Node postInternal( Document& doc, Post& p, UrlHandler& url ){
+	string url_org = url.image_url( p, Image::ORIGINAL );
+	string url_show = url.image_url( p, Image::RESIZED );
+	
 	//Determine file extension from url, which may contain arguments
-	auto end = url.find( "?" );
-	auto start = url.rfind( ".", end );
-	auto ext = url.substr( start+1, end - start );
-	cout << "Extension: " << ext << endl;
-	return ext == "webm";
+	auto end = url_org.find( "?" );
+	auto start = url_org.rfind( ".", end );
+	auto ext = url_org.substr( start+1, end - start );
+	
+	if( ext == "webm" || ext == "flv" || ext == "mp4" || ext == "mkv" ) //NOTE: perhaps a bit too much...
+		return video( doc, SRC(url_org), LOOP("loop"), CONTROLS("controls"), AUTOPLAY("autoplay") );
+	
+	if( ext == "svg" )
+		url_show = url_org; //Just use img tag, but do use the SVG, as it is usually smaller
+	
+	if( ext == "swf" )
+		return object( doc, TYPE( "application/x-shockwave-flash" ), DATA( url_org )
+				, WIDTH( to_string( p.full.width ) ), HEIGHT( to_string( p.full.height ) )
+				)(	param( doc, NAME( "movie" ), VALUE( url_org ) ) );
+	
+	return a( doc, HREF(url_org) )(
+			img( doc, SRC(url_show), ALT("preview") )
+		);
 }
 
 Node Styler::post( Post post ){
-	string url_org = url.image_url( post, Image::ORIGINAL );
-	string url_show = url.image_url( post, Image::RESIZED );
 	
 	return section( doc, CLASS("post") )(
 			div( doc, CLASS("container") )(
-					isVideo( url_org )
-					?	video( doc, SRC(url_org), LOOP("loop"), CONTROLS("controls"), AUTOPLAY("autoplay") )
-					:	a( doc, HREF(url_org) )(
-							img( doc, SRC(url_show), ALT("preview") )
-						)	
+					postInternal( doc, post, url )
 				)
 		);
 }

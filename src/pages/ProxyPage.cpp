@@ -58,8 +58,13 @@ string ProxyPage::serve( vector<string> args, vector<header> &headers ) const{
 	
 	//Detect mime-type
 	int pos = img.url.find_last_of( "." );
-	if( pos != string::npos )
-		headers.push_back( header( "Content-Type", get_mime( img.url.substr( pos + 1 ) ) ) );
+	
+	//Determine file extension from url, which may contain arguments
+	auto end = img.url.find( "?" );
+	auto start = img.url.rfind( ".", end );
+	auto ext = img.url.substr( start+1, end - start - 1 );
+	
+	headers.push_back( header( "Content-Type", get_mime( ext ) ) );
 	headers.push_back( header( "Cache-Control", "max-age=31536000" ) );
 	
 	return api->get_from_url( img.url, { { "Referer", api->original_post_url( id ) } } );

@@ -277,6 +277,9 @@ header nav li form{ float:right; }
 	position:relative;
 	max-width:100%;
 }
+.post .container video{
+	max-width:100%;
+}
 .post_info em{
 	font-weight:bold;
 	margin-right: 4px;
