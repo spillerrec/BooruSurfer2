@@ -52,6 +52,7 @@ string RssPage::serve( vector<string> args, vector<header> &headers ) const{
 	rss.title.value = api->get_name() + " - " + search;
 	rss.link.value = url.index_url( {{search}} );
 	
+	Poco::Timestamp current;
 	for( auto post : posts ){
 		Rss::Item item{ "item" };
 		item.title.value = url.image_tags( post, 128 );
@@ -61,8 +62,13 @@ string RssPage::serve( vector<string> args, vector<header> &headers ) const{
 		item.media_content.url.value = post.full.url;
 		item.guid.value = item.link.value;
 		item.guid_isPermaLink = true;
+		
 		if( post.creation_time.epochMicroseconds() != 0 )
-			item.pubDate.value = Poco::DateTimeFormatter::format( post.creation_time, Poco::DateTimeFormat::RFC1123_FORMAT );
+			current = post.creation_time;
+		
+		item.pubDate.value = Poco::DateTimeFormatter::format( current, Poco::DateTimeFormat::RFC1123_FORMAT );
+		current -= 1000000; //Decrease it with a second
+		
 		rss.items.push_back( item );
 	}
 	
