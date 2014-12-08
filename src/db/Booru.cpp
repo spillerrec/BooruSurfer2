@@ -17,7 +17,7 @@
 #include "Booru.hpp"
 
 
-Booru::Booru( std::string site ) : db( "cache.sqlite" ){
+Booru::Booru( std::string site ) : db( "cache.sqlite" ), site(site){
 	std::string query_tags = "CREATE TABLE IF NOT EXISTS " + site + "_tags ( "
 			+	"id TEXT PRIMARY KEY, "
 			+	"count INTEGER, "
@@ -113,26 +113,90 @@ Booru::~Booru(){
 }
 
 Statement& Booru::loadTags(){
-	if( !load_tags )
-		load_tags = new Statement( db, "" );
+	if( !load_tags ){
+		load_tags = new Statement( db, "SELECT * FROM ?2 WHERE id = ?1" );
+		load_tags->bind( site + "_tags", 2 );
+	}
 	return *load_tags;
 }
 
 Statement& Booru::saveTags(){
-	if( !save_tags )
-		save_tags = new Statement( db, "" );
+	if( !save_tags ){
+		save_tags = new Statement( db, "INSERT INTO ?99 VALUES( ?1, ?2, ?3, ?4 )" );
+		save_tags->bind( site + "_tags", 99 );
+	}
 	return *save_tags;
 }
 
 
 Statement& Booru::loadPosts(){
-	if( !load_posts )
-		load_posts = new Statement( db, "" );
+	if( !load_posts ){
+		load_posts = new Statement( db, "SELECT * FROM ?2 WHERE id = ?1" );
+		load_posts->bind( site + "_posts", 2 );
+	}
 	return *load_posts;
 }
 
 Statement& Booru::savePosts(){
-	if( !save_posts )
-		save_posts = new Statement( db, "" );
+	if( !save_posts ){
+		save_posts = new Statement( db, "INSERT INTO ?99 VALUES( "
+				" ?1,  ?2,  ?3,  ?4,  ?5,  ?6,  ?7,  ?8,  ?9, ?10,"
+				"?11, ?12, ?13, ?14, ?15, ?16, ?17, ?18, ?19, ?20,"
+				"?21, ?22, ?23, ?24, ?25, ?26, ?27, ?28, ?29, ?30,"
+				"?31, ?32, ?33 )"
+			);
+		save_posts->bind( site + "_posts", 99 );
+	}
 	return *save_posts;
 }
+
+
+		
+bool Booru::load( Post& p ){
+	return false;
+/*	auto stmt = loadPosts();
+	stmt.reset();
+	stmt.bind( p.id, 1 );
+	stmt.bind( site + "_posts", 2 );
+	
+	if( stmt.next() )
+		return false;
+	
+	p.hash = stmt.text( 1 );
+	p.creation_time = stmt.integer64( 2 );
+	p.author = stmt.text( 3 );
+		std::string source;
+		Rating rating = UNRATED;
+		Resource<Post> parents;
+	
+		
+		
+		Resource<Tag> tags;
+		Resource<Post> children;
+		Resource<Note> notes;
+		Resource<Comment> comments;
+		Resource<Pool> pools;
+		
+		
+		int score = 0;
+		
+		Image full;
+		Image reduced;
+		Image preview;
+		Image thumbnail;
+	
+	return true;*/
+}
+
+bool Booru::load( Tag& p ){
+	
+}
+
+void Booru::save( Post& p ){
+	
+}
+
+void Booru::save( Tag& p ){
+	
+}
+

@@ -20,26 +20,38 @@
 #include "Database.hpp"
 #include "Statement.hpp"
 
+#include "../objects/Post.hpp"
+#include "../objects/Tag.hpp"
+
+#include <string>
 
 class Booru{
 	private:
 		Database db;
+		std::string site;
 		
 		Statement* load_tags{ nullptr };
 		Statement* save_tags{ nullptr };
 		
 		Statement* load_posts{ nullptr };
 		Statement* save_posts{ nullptr };
-	
-	public:
-		Booru( std::string site );
-		~Booru();
 		
+	private:
 		Statement& loadTags();
 		Statement& saveTags();
 		
 		Statement& loadPosts();
 		Statement& savePosts();
+	
+	public:
+		Booru( std::string site );
+		~Booru();
+		
+		bool load( Post& p );
+		bool load( Tag& p );
+		
+		void save( Post& p );
+		void save( Tag& p );
 };
 
 #endif

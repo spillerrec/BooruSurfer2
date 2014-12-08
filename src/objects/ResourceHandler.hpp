@@ -21,34 +21,26 @@
 #ifndef RESOURCE_HANDLER_HPP
 #define RESOURCE_HANDLER_HPP
 
-#include <map>
+#include "../db/Booru.hpp"
 
 template<class object, class indentifier = unsigned>
 class ResourceHandler{
 	private:
-		//TODO: do mutex
-		std::map<indentifier,object> list;
+		Booru& booru;
 		
 	public:
+		ResourceHandler( Booru& booru ) : booru(booru) { }
 		void add( object obj ){
-			//TODO: check loaded state
-			list.insert( {obj.id, obj} );
+			booru.save( obj );
 		}
 		object get( indentifier id ) const{
-			auto it = list.find( id );
-			if( it != list.end() )
-				return it->second;
-			else
-				return object( id );
+			object temp( id );
+			return booru.load( temp ) ? temp : object( id );
 		}
 		
 		bool get_checked( indentifier id, object& obj ){
-			auto it = list.find( id );
-			if( it != list.end() ){
-				obj = it->second;
-				return true;
-			}
-			return false;
+			obj.id = id;
+			return booru.load( obj );
 		}
 };
 

@@ -25,9 +25,10 @@ class SanApi : public Api{
 		
 		
 	public:
+		SanApi( std::string short_hand="san" ) : Api( short_hand ) { }
+		
 		virtual std::string get_name() const{ return "Sankaku-chan"; }
-		virtual std::string get_shorthand() const{ return "san"; }
-		virtual std::string get_url() const{ return "http://chan.sankakucomplex.com/"; }
+		virtual std::string get_url() const{ return "https://chan.sankakucomplex.com/"; }
 		
 		
 		Post get_post( unsigned id );

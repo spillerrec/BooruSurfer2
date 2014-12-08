@@ -26,20 +26,25 @@
 #include "../objects/Index.hpp"
 
 class Api{
+	protected:
+		std::string site_name;
+		Booru booru{ site_name };
+		
 	public:
 		struct ThemeColor{
 			int red, green, blue;
 		};
-		ResourceHandler<Tag,std::string> tag_handler;
-		ResourceHandler<Post> post_handler;
+		ResourceHandler<Tag,std::string> tag_handler{ booru };
+		ResourceHandler<Post> post_handler{ booru };
 	public:
 		std::string get_from_url( std::string url
 			,	std::vector<std::pair<std::string,std::string> > headers = std::vector<std::pair<std::string,std::string> >()
 			) const; //temporary
 		
 	public:
+		Api( std::string site_name ) : site_name(site_name) { }
 		virtual std::string get_name() const = 0;
-		virtual std::string get_shorthand() const = 0;
+		virtual std::string get_shorthand() const{ return site_name; }
 		virtual std::string get_url() const = 0;
 		
 		virtual Post get_post( unsigned id ) = 0;

@@ -46,7 +46,7 @@ class Post : public Identity<>{
 		};
 		
 	public:
-		Post(){ }
+		Post(){ id = 0; }
 		Post( ID_T id ){ this->id = id; }
 		
 		std::string hash;

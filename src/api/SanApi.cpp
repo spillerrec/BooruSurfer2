@@ -199,6 +199,14 @@ Poco::Timestamp parse_date_time( string time ){
 	return datetime.timestamp();
 }
 
+std::string parse_url( std::string url ){
+	if( boost::starts_with( url, "//" ) )
+		return "https:" + url;
+	if( boost::starts_with( url, "/" ) )
+		return "https://chan.sankakucomplex.com" + url;
+	return url;
+}
+
 bool get_image( xml_document& doc, Post& p ){
 	//Original/resized width+height+url
 	Image resized, original;
@@ -209,8 +217,8 @@ bool get_image( xml_document& doc, Post& p ){
 		return false;
 	
 	//Get image link, but overwrite it with highres to work with svg.
-	original.url = link.attribute( "href" ).value();
-	string highres = doc.select_nodes( "//a[@id='highres']" ).first().node().attribute( "href" ).value();
+	original.url = parse_url( link.attribute( "href" ).value() );
+	string highres = parse_url( doc.select_nodes( "//a[@id='highres']" ).first().node().attribute( "href" ).value() );
 	if( highres.size() != 0 )
 		original.url = highres;
 	cout << "org url: " << original.url << endl;
@@ -220,7 +228,7 @@ bool get_image( xml_document& doc, Post& p ){
 	
 	resized.width = image.attribute( "width" ).as_int();
 	resized.height = image.attribute( "height" ).as_int();
-	resized.url = image.attribute( "src" ).value();
+	resized.url = parse_url( image.attribute( "src" ).value() );
 	
 	//It might not be resized, in that case the image is the original
 	if( original.url.empty() )
@@ -240,7 +248,7 @@ bool get_video( xml_document& doc, Post& p ){
 	
 	p.full.width = video.attribute( "width" ).as_int();
 	p.full.height = video.attribute( "height" ).as_int();
-	p.full.url = video.attribute( "src" ).value();
+	p.full.url = parse_url( video.attribute( "src" ).value() );
 	
 	return true;
 }
@@ -252,7 +260,7 @@ bool get_flash( xml_document& doc, Post& p ){
 	
 	p.full.width = flash.attribute( "width" ).as_int();
 	p.full.height = flash.attribute( "height" ).as_int();
-	p.full.url = flash.attribute( "src" ).value();
+	p.full.url = parse_url( flash.attribute( "src" ).value() );
 	
 	return true;
 }
