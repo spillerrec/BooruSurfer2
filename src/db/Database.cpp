@@ -16,6 +16,8 @@
 
 #include "Database.hpp"
 
+#include "Statement.hpp"
+
 #include <sqlite3.h>
 
 #include <utility>
@@ -30,6 +32,7 @@ Database::Database( string file_path ){
 		sqlite3_close( db );
 		exit( -1 );
 	}
+//	Statement( *this, "PRAGMA journal_mode=WAL;" ).next();
 }
 
 Database::~Database(){

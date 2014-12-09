@@ -21,6 +21,7 @@
 
 #include <string>
 #include <cstdint>
+#include <iostream>
 
 struct sqlite3;
 struct sqlite3_stmt;
@@ -46,6 +47,26 @@ class Statement{
 		void bind( int64_t value, unsigned column );
 		void bind( double value, unsigned column );
 		
+};
+
+class Transaction{
+	private:
+		Database* db;
+		bool commit{ true };
+		
+	public:
+		Transaction( Database& db ) : db(&db) { std::cout << "opening\n"; Statement( db, "BEGIN TRANSACTION" ).next(); }
+		~Transaction(){ if( commit ){std::cout << "Closing\n"; Statement( *db, "COMMIT TRANSACTION" ).next();} }
+		Transaction( Transaction&& other ) : db( other.db ){ other.commit = false; }
+		
+		Transaction& operator=( Transaction&& other ){
+			db = other.db;
+			commit = other.commit;
+			other.commit = false;
+		}
+		
+		Transaction( const Transaction& ) = delete;
+		Transaction& operator=( const Transaction& other ) = delete;
 };
 
 #endif

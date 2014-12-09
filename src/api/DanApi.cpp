@@ -64,27 +64,20 @@ const char* const DanApi::post_strings[] = {
 void DanApi::load_tag_file(){
 	DataNode data = JsonDataNode::from_file( "tags/" + get_shorthand() + ".json" );
 	if( data )
-		for( auto d : data )
-			tag_handler.add( parse_tag( d ) );
+		tag_handler.addAll( data.begin(), data.end(), [&](DataNode n){ return parse_tag(n); } );
 	else
 		cout << "Could not load tags for " << get_shorthand() << endl;
 }
 
 Image DanApi::get_image( DataNode parent, DanApi::PostItem url, DanApi::PostItem width, DanApi::PostItem height, DanApi::PostItem size ) const{
-	Image img;
-	img.url = "";
-	img.width = 0;
-	img.height = 0;
-	img.size = 0;
+	auto asInt = [&]( PostItem item )
+		{ return post_table()[ item ] ? parent[ post_table()[ item ] ].as_int() : 0; };
 	
-	if( post_table()[ url ] )
-		img.url = parent[ post_table()[ url ] ].as_string();
-	if( post_table()[ width ] )
-		img.width = parent[ post_table()[ width ] ].as_int();
-	if( post_table()[ height ] )
-		img.height = parent[ post_table()[ height ] ].as_int();
-	if( post_table()[ size ] )
-		img.size = parent[ post_table()[ size ] ].as_int();
+	Image img;
+	img.url = post_table()[ url ] ? parent[ post_table()[ url ] ].as_string() : "";
+	img.width  = asInt( width );
+	img.height = asInt( height );
+	img.size   = asInt( size );
 	
 	if( img.url.size() > 0 && img.url[0] == '/' )
 		img.url.replace( 0, 1, get_url() );

@@ -47,6 +47,8 @@ class Booru{
 		Booru( std::string site );
 		~Booru();
 		
+		Transaction beginBatch(){ return db; }
+		
 		bool load( Post& p );
 		bool load( Tag& p );
 		

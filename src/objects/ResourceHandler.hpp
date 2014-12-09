@@ -33,6 +33,16 @@ class ResourceHandler{
 		void add( object obj ){
 			booru.save( obj );
 		}
+		
+		template<typename Iter, typename Func>
+		void addAll( Iter begin, Iter end, Func f ){
+			auto transaction = booru.beginBatch();
+			for( auto start=begin; start!=end; ++start ){
+				auto obj = f( *start );
+				booru.save( obj );
+			}
+		}
+		
 		object get( indentifier id ) const{
 			object temp( id );
 			return booru.load( temp ) ? temp : object( id );

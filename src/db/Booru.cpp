@@ -113,18 +113,17 @@ Booru::~Booru(){
 }
 
 Statement& Booru::loadTags(){
-	if( !load_tags ){
-		load_tags = new Statement( db, "SELECT * FROM ?2 WHERE id = ?1" );
-		load_tags->bind( site + "_tags", 2 );
-	}
+	if( !load_tags )
+		load_tags = new Statement( db, ("SELECT * FROM " + site + "_tags WHERE id = ?1").c_str() );
+	load_tags->reset();
 	return *load_tags;
 }
 
 Statement& Booru::saveTags(){
 	if( !save_tags ){
-		save_tags = new Statement( db, "INSERT INTO ?99 VALUES( ?1, ?2, ?3, ?4 )" );
-		save_tags->bind( site + "_tags", 99 );
+		save_tags = new Statement( db, ("INSERT OR REPLACE INTO " + site + "_tags VALUES( ?1, ?2, ?3, ?4 )").c_str() );
 	}
+	save_tags->reset();
 	return *save_tags;
 }
 
@@ -151,6 +150,7 @@ Statement& Booru::savePosts(){
 }
 
 
+#include <iostream>
 		
 bool Booru::load( Post& p ){
 	return false;
@@ -189,7 +189,17 @@ bool Booru::load( Post& p ){
 }
 
 bool Booru::load( Tag& p ){
-	
+	std::cout << "opening tag: " << p.id << std::endl;
+	auto stmt = loadTags();
+	stmt.bind( p.id, 1 );
+	if( stmt.next() ){
+		p.count = stmt.integer( 1 );
+		p.type = (Tag::Type)stmt.integer( 2 );
+		return true;
+	}
+	else
+		return false;
+	std::cout << "closing tag: " << p.id << std::endl;
 }
 
 void Booru::save( Post& p ){
@@ -197,6 +207,12 @@ void Booru::save( Post& p ){
 }
 
 void Booru::save( Tag& p ){
-	
+	auto stmt = saveTags();
+	std::cout << p.id << std::endl;
+	stmt.bind( p.id, 1 );
+	stmt.bind( (int)p.count, 2 );
+	stmt.bind( p.type, 3 );
+	stmt.bind( false, 4 );
+	stmt.next();
 }
 

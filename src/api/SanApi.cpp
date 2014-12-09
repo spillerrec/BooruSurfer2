@@ -334,10 +334,12 @@ Post SanApi::get_post( unsigned id ){
 		}
 		
 		//Tags
-		for( auto tag : doc.select_nodes( "//ul[@id='tag-sidebar']/li" ) ){
-			Tag t = parse_tag( tag.node() );
-			post.tags.add( t.id );
-			tag_handler.add( t );
+		{ auto batch = booru.beginBatch();
+			for( auto tag : doc.select_nodes( "//ul[@id='tag-sidebar']/li" ) ){
+				Tag t = parse_tag( tag.node() );
+				post.tags.add( t.id );
+				tag_handler.add( t );
+			}
 		}
 		
 		//Favorites
@@ -378,10 +380,12 @@ Index SanApi::get_index( string search, int page, int limit ){
 		
 		
 		xpath_node_set tags = doc.select_nodes( "//ul[@id='tag-sidebar']/li" );
-		for( xpath_node tag : tags ){
-			Tag t = parse_tag( tag.node() );
-			tag_handler.add( t );
-			index.related_tags.add( t.id );
+		{ auto batch = booru.beginBatch();
+			for( xpath_node tag : tags ){
+				Tag t = parse_tag( tag.node() );
+				tag_handler.add( t );
+				index.related_tags.add( t.id );
+			}
 		}
 
 		index.amount = -1;
