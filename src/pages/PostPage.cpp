@@ -59,13 +59,7 @@ string PostPage::serve( vector<string> args, vector<header> &headers ) const{
 	info( h3(s.doc)( "Info:" ) );
 	s.post_info( info, post, true );
 	
-	//Temp
-	vector<Tag> tags;
-	for( string s : post.tags.list ){
-		Tag t = api->tag_handler.get( s );
-		tags.push_back( t );
-	}
-	s.tag_list( info, tags, "Tags:" );
+	s.tag_list( info, api->tag_handler.getAll( post.tags ), "Tags:" );
 	
 	s.body(
 			div( s.doc, ID("container") )(

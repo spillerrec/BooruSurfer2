@@ -23,11 +23,11 @@ solution( "BooruSurfer2" )
 			,	"PocoNet"
 			,	"PocoUtil"
 			,	"PocoXML"
+			,	"PocoFoundation"
 			,	"Ws2_32"
 			,	"wsock32"
 			,	"ssl"
 			,	"crypto"
-			,	"PocoFoundation"
 			,	"iphlpapi"
 			} )
 		

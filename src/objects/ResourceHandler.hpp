@@ -22,6 +22,7 @@
 #define RESOURCE_HANDLER_HPP
 
 #include "../db/Booru.hpp"
+#include "Resource.hpp"
 
 template<class object, class indentifier = unsigned>
 class ResourceHandler{
@@ -46,6 +47,17 @@ class ResourceHandler{
 		object get( indentifier id ) const{
 			object temp( id );
 			return booru.load( temp ) ? temp : object( id );
+		}
+		
+		std::vector<object> getAll( const Resource<object>& resource ){
+			std::vector<object> list;
+			list.reserve( resource.list.size() );
+			
+			auto transaction = booru.beginBatch();
+			for( auto id : resource.list )
+				list.emplace_back( get( id ) );
+			
+			return list;
 		}
 		
 		bool get_checked( indentifier id, object& obj ){

@@ -16,6 +16,7 @@
 
 #include "Booru.hpp"
 
+#include <boost/algorithm/string.hpp>
 
 Booru::Booru( std::string site ) : db( "cache.sqlite" ), site(site){
 	std::string query_tags = "CREATE TABLE IF NOT EXISTS " + site + "_tags ( "
@@ -112,6 +113,8 @@ Booru::~Booru(){
 	delete save_posts;
 }
 
+//TODO: make a method for all these
+
 Statement& Booru::loadTags(){
 	if( !load_tags )
 		load_tags = new Statement( db, ("SELECT * FROM " + site + "_tags WHERE id = ?1").c_str() );
@@ -120,76 +123,95 @@ Statement& Booru::loadTags(){
 }
 
 Statement& Booru::saveTags(){
-	if( !save_tags ){
+	if( !save_tags )
 		save_tags = new Statement( db, ("INSERT OR REPLACE INTO " + site + "_tags VALUES( ?1, ?2, ?3, ?4 )").c_str() );
-	}
 	save_tags->reset();
 	return *save_tags;
 }
 
 
 Statement& Booru::loadPosts(){
-	if( !load_posts ){
-		load_posts = new Statement( db, "SELECT * FROM ?2 WHERE id = ?1" );
-		load_posts->bind( site + "_posts", 2 );
-	}
+	if( !load_posts )
+		load_posts = new Statement( db, ("SELECT * FROM " + site + "_posts WHERE id = ?1").c_str() );
+	load_posts->reset();
 	return *load_posts;
 }
 
 Statement& Booru::savePosts(){
-	if( !save_posts ){
-		save_posts = new Statement( db, "INSERT INTO ?99 VALUES( "
+	if( !save_posts )
+		save_posts = new Statement( db, ("INSERT OR REPLACE INTO " + site + "_posts VALUES( "
 				" ?1,  ?2,  ?3,  ?4,  ?5,  ?6,  ?7,  ?8,  ?9, ?10,"
 				"?11, ?12, ?13, ?14, ?15, ?16, ?17, ?18, ?19, ?20,"
 				"?21, ?22, ?23, ?24, ?25, ?26, ?27, ?28, ?29, ?30,"
-				"?31, ?32, ?33 )"
+				"?31, ?32, ?33 )").c_str()
 			);
-		save_posts->bind( site + "_posts", 99 );
-	}
+	save_posts->reset();
 	return *save_posts;
 }
 
 
 #include <iostream>
-		
+
+std::vector<std::string> splitIds( std::string str ){
+	std::vector<std::string> ids;
+	boost::split( ids, str, boost::is_any_of( " " ) ); //TODO: avoid is_any_of() ?
+	
+	std::vector<std::string> output;
+	output.reserve( ids.size() );
+	for( auto id : ids )
+		if( !id.empty() )
+			output.emplace_back( id );
+	return output;
+}
+
+template<typename In>
+std::string combineIds( const std::vector<In>& input ){
+	std::string output;
+	for( auto in : input )
+		output += std::to_string( in ) + " ";
+	return output;
+}
+std::string combineIds( const std::vector<std::string>& input ){
+	std::string output;
+	for( auto in : input )
+		output += in + " ";
+	return output;
+}
+
 bool Booru::load( Post& p ){
+	auto stmt = loadPosts();
+	stmt.bind( static_cast<int>(p.id), 1 );
+	
+	if( stmt.next() ){
+		p.hash = stmt.text( 1 );
+	//	p.creation_time = Poco::Timestamp::fromEpochTime( stmt.integer64( 2 ) ); //TODO: why linker error?
+		p.author = stmt.text( 3 );
+		p.source = stmt.text( 4 );
+		p.rating = static_cast<Post::Rating>( stmt.integer( 5 ) );
+		//TODO: ...
+		p.score = stmt.integer( 11 );
+		//TODO: ...
+		p.tags.list = splitIds( stmt.text( 14 ) );
+		
+		auto loadImage = [&]( Image& img, int offset ){
+				img.url    = stmt.text   ( offset + 0 );
+				img.width  = stmt.integer( offset + 1 );
+				img.height = stmt.integer( offset + 2 );
+				img.size   = stmt.integer( offset + 3 );
+			};
+		loadImage( p.full,      16 );
+		loadImage( p.preview,   20 );
+		loadImage( p.thumbnail, 24 );
+		loadImage( p.reduced,   28 );
+		
+		return true;
+	}
+	
 	return false;
-/*	auto stmt = loadPosts();
-	stmt.reset();
-	stmt.bind( p.id, 1 );
-	stmt.bind( site + "_posts", 2 );
-	
-	if( stmt.next() )
-		return false;
-	
-	p.hash = stmt.text( 1 );
-	p.creation_time = stmt.integer64( 2 );
-	p.author = stmt.text( 3 );
-		std::string source;
-		Rating rating = UNRATED;
-		Resource<Post> parents;
-	
-		
-		
-		Resource<Tag> tags;
-		Resource<Post> children;
-		Resource<Note> notes;
-		Resource<Comment> comments;
-		Resource<Pool> pools;
-		
-		
-		int score = 0;
-		
-		Image full;
-		Image reduced;
-		Image preview;
-		Image thumbnail;
-	
-	return true;*/
 }
 
 bool Booru::load( Tag& p ){
-	std::cout << "opening tag: " << p.id << std::endl;
+//	std::cout << "opening tag: " << p.id << std::endl;
 	auto stmt = loadTags();
 	stmt.bind( p.id, 1 );
 	if( stmt.next() ){
@@ -199,16 +221,48 @@ bool Booru::load( Tag& p ){
 	}
 	else
 		return false;
-	std::cout << "closing tag: " << p.id << std::endl;
 }
 
 void Booru::save( Post& p ){
+	auto stmt = savePosts();
 	
+	stmt.bind( static_cast<int>(p.id), 1 );
+	stmt.bind( p.hash, 2 );
+	stmt.bind( p.creation_time.epochMicroseconds(), 3 );
+	stmt.bind( p.author, 4 );
+	stmt.bind( p.source, 5 );
+	stmt.bind( p.rating, 6 );
+	stmt.bind( -1, 7 ); //TODO: parent_id
+	stmt.bind( 0, 8 ); //TODO: children_updated
+	stmt.bind( "", 9 ); //TODO: pools
+	stmt.bind( 0, 10 ); //TODO: notes updated
+	stmt.bind( 0, 11 ); //TODO: comments updated
+	stmt.bind( p.score, 12 );
+	stmt.bind( 1, 13 ); //TODO: score_count
+	stmt.bind( -1, 14 ); //TODO: status
+	stmt.bind( combineIds( p.tags.list ), 15 );
+	stmt.bind( 0, 16 ); //TODO: post_updated
+	
+	auto bindImage = [&]( Image img, int offset ){
+			stmt.bind( img.url,    offset + 0 );
+			stmt.bind( img.width,  offset + 1 );
+			stmt.bind( img.height, offset + 2 );
+			stmt.bind( img.size,   offset + 3 );
+		};
+	bindImage( p.full,      17 );
+	bindImage( p.preview,   21 );
+	bindImage( p.thumbnail, 25 );
+	bindImage( p.reduced,   29 );
+	
+	stmt.bind( 0, 33 ); //TODO: local
+	
+	stmt.next();
 }
 
 void Booru::save( Tag& p ){
 	auto stmt = saveTags();
-	std::cout << p.id << std::endl;
+//	std::cout << p.id << std::endl;
+	
 	stmt.bind( p.id, 1 );
 	stmt.bind( (int)p.count, 2 );
 	stmt.bind( p.type, 3 );
