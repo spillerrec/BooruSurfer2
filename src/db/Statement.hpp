@@ -21,7 +21,6 @@
 
 #include <string>
 #include <cstdint>
-#include <iostream>
 
 struct sqlite3;
 struct sqlite3_stmt;
@@ -29,9 +28,12 @@ struct sqlite3_stmt;
 class Statement{
 	private:
 		sqlite3_stmt *stmt{ nullptr };
+		Database& db;
+		const char* query;
 	
 	public:
 		Statement( Database& db, const char* query );
+		Statement( const Statement& ) = delete;
 		~Statement();
 		
 		bool next();
@@ -55,8 +57,8 @@ class Transaction{
 		bool commit{ true };
 		
 	public:
-		Transaction( Database& db ) : db(&db) { std::cout << "opening\n"; Statement( db, "BEGIN TRANSACTION" ).next(); }
-		~Transaction(){ if( commit ){std::cout << "Closing\n"; Statement( *db, "COMMIT TRANSACTION" ).next();} }
+		Transaction( Database& db ) : db(&db) { Statement( db, "BEGIN IMMEDIATE TRANSACTION" ).next(); }
+		~Transaction(){ if( commit ) Statement( *db, "COMMIT" ).next(); }
 		Transaction( Transaction&& other ) : db( other.db ){ other.commit = false; }
 		
 		Transaction& operator=( Transaction&& other ){

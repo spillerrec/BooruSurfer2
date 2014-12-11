@@ -18,7 +18,10 @@
 
 #include <boost/algorithm/string.hpp>
 
+#include <iostream>
+
 Booru::Booru( std::string site ) : db( "cache.sqlite" ), site(site){
+	std::cout << "Initializing booru: " << site << std::endl;
 	std::string query_tags = "CREATE TABLE IF NOT EXISTS " + site + "_tags ( "
 			+	"id TEXT PRIMARY KEY, "
 			+	"count INTEGER, "
@@ -118,14 +121,16 @@ Booru::~Booru(){
 Statement& Booru::loadTags(){
 	if( !load_tags )
 		load_tags = new Statement( db, ("SELECT * FROM " + site + "_tags WHERE id = ?1").c_str() );
-	load_tags->reset();
+	else
+		load_tags->reset();
 	return *load_tags;
 }
 
 Statement& Booru::saveTags(){
 	if( !save_tags )
 		save_tags = new Statement( db, ("INSERT OR REPLACE INTO " + site + "_tags VALUES( ?1, ?2, ?3, ?4 )").c_str() );
-	save_tags->reset();
+	else
+		save_tags->reset();
 	return *save_tags;
 }
 
@@ -133,7 +138,8 @@ Statement& Booru::saveTags(){
 Statement& Booru::loadPosts(){
 	if( !load_posts )
 		load_posts = new Statement( db, ("SELECT * FROM " + site + "_posts WHERE id = ?1").c_str() );
-	load_posts->reset();
+	else
+		load_posts->reset();
 	return *load_posts;
 }
 
@@ -145,12 +151,11 @@ Statement& Booru::savePosts(){
 				"?21, ?22, ?23, ?24, ?25, ?26, ?27, ?28, ?29, ?30,"
 				"?31, ?32, ?33 )").c_str()
 			);
-	save_posts->reset();
+	else
+		save_posts->reset();
 	return *save_posts;
 }
 
-
-#include <iostream>
 
 std::vector<std::string> splitIds( std::string str ){
 	std::vector<std::string> ids;
@@ -179,7 +184,7 @@ std::string combineIds( const std::vector<std::string>& input ){
 }
 
 bool Booru::load( Post& p ){
-	auto stmt = loadPosts();
+	auto& stmt = loadPosts();
 	stmt.bind( static_cast<int>(p.id), 1 );
 	
 	if( stmt.next() ){
@@ -212,7 +217,7 @@ bool Booru::load( Post& p ){
 
 bool Booru::load( Tag& p ){
 //	std::cout << "opening tag: " << p.id << std::endl;
-	auto stmt = loadTags();
+	auto& stmt = loadTags();
 	stmt.bind( p.id, 1 );
 	if( stmt.next() ){
 		p.count = stmt.integer( 1 );
@@ -224,7 +229,7 @@ bool Booru::load( Tag& p ){
 }
 
 void Booru::save( Post& p ){
-	auto stmt = savePosts();
+	auto& stmt = savePosts();
 	
 	stmt.bind( static_cast<int>(p.id), 1 );
 	stmt.bind( p.hash, 2 );
@@ -260,7 +265,7 @@ void Booru::save( Post& p ){
 }
 
 void Booru::save( Tag& p ){
-	auto stmt = saveTags();
+	auto& stmt = saveTags();
 //	std::cout << p.id << std::endl;
 	
 	stmt.bind( p.id, 1 );

@@ -77,15 +77,22 @@ class RequestHandler : public HTTPRequestHandler {
 			//Create content
 			string contents;
 			vector<APage::header> headers;
-			if( args.size() == 0 )
-				contents = pages.get_root()->serve( args, headers );
-			else
-				contents = pages.get( args[0] )->serve( args, headers );
-			
-			//Add headers
-			response.setStatus( HTTPResponse::HTTP_OK );
-			for( APage::header h : headers )
-				response.add( h.first, h.second );
+			try{
+				if( args.size() == 0 )
+					contents = pages.get_root()->serve( args, headers );
+				else
+					contents = pages.get( args[0] )->serve( args, headers );
+				
+				//Add headers
+				response.setStatus( HTTPResponse::HTTP_OK );
+				for( APage::header h : headers )
+					response.add( h.first, h.second );
+			}
+			catch( std::exception e ){
+				contents = "Exception happened during processing the page: ";
+				contents += e.what();
+				response.setStatus( HTTPResponse::HTTP_INTERNAL_SERVER_ERROR );
+			}
 			
 			//Send content
 			response.sendBuffer( contents.c_str(), contents.size() );

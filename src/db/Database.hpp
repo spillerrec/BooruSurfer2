@@ -28,6 +28,7 @@ class Database{
 	
 	public:
 		Database( std::string file_path );
+		Database( const Database& ) = delete;
 		~Database();
 		
 		operator sqlite3*() const{ return db; }
