@@ -22,90 +22,86 @@
 
 Booru::Booru( std::string site ) : db( "cache.sqlite" ), site(site){
 	std::cout << "Initializing booru: " << site << std::endl;
-	std::string query_tags = "CREATE TABLE IF NOT EXISTS " + site + "_tags ( "
-			+	"id TEXT PRIMARY KEY, "
-			+	"count INTEGER, "
-			+	"type INTEGER, "
-			+	"ambiguous INTEGER "
-			+	")";
-	std::string query_index_post = "CREATE TABLE IF NOT EXISTS " + site + "_index_post ( "
-			+	"list, offset, post )";
-	std::string query_index_list = "CREATE TABLE IF NOT EXISTS " + site + "_index_list ( "
-			+	"id INTEGER PRIMARY KEY, "
-			+	"search TEXT, "
-			+	"count INTEGER, "
-			+	"next_update INTEGER, "
-			+	"ordered INTEGER, "
-			+	"related_tags TEXT, "
-			+	"related_counts TEXT, "
-			+	"locked INTEGER "
-			+	")";
-	std::string query_comments = "CREATE TABLE IF NOT EXISTS " + site + "_comments ( "
-			+	"id INTEGER PRIMARY KEY, "
-			+	"post_id INTEGER, "
-			+	"creator TEXT, "
-			+	"created_at INTEGER, "
-			+	"score INTEGER, "
-			+	"body TEXT "
-			+	")";
-	std::string query_notes = "CREATE TABLE IF NOT EXISTS " + site + "_notes ( "
-			+	"id INTEGER PRIMARY KEY, "
-			+	"post_id INTEGER, "
-			+	"x INTEGER, "
-			+	"y INTEGER, "
-			+	"width INTEGER, "
-			+	"height INTEGER, "
-			+	"body TEXT, "
-			+	"created_at INTEGER, "
-			+	"updated_at INTEGER, "
-			+	"version INTEGER "
-			+	")";
-	std::string query_posts = "CREATE TABLE IF NOT EXISTS " + site + "_posts ( "
-			+	"id INTEGER PRIMARY KEY, "
-			+	"hash TEXT, "
-			+	"created_at INTEGER, "
-			+	"uploader TEXT, "
-			+	"source TEXT, "
-			+	"rating INTEGER, "
-			+	"parent_id INTEGER, "
-			+	"children_updated INTEGER, "
-			+	"pools TEXT, "
-			+	"notes_updated INTEGER, "
-			+	"comments_updated INTEGER, "
-			+	"score NUMERIC, "
-			+	"score_count INTEGER, "
-			+	"status INTEGER, "
-			+	"tags TEXT, "
-			+	"post_updated INTEGER, "
+	auto create = [&](const char* values)
+		{ Statement( db, ("CREATE TABLE IF NOT EXISTS " + site + values).c_str() ).next(); };
+	
+	create( "_tags ("
+			"id TEXT PRIMARY KEY, "
+			"count INTEGER, "
+			"type INTEGER, "
+			"ambiguous INTEGER)"
+		);
+	create( "_index_post ( list, offset, post )" );
+	create( "_index_list ("
+			"id INTEGER PRIMARY KEY, "
+			"search TEXT, "
+			"count INTEGER, "
+			"next_update INTEGER, "
+			"ordered INTEGER, "
+			"related_tags TEXT, "
+			"related_counts TEXT, "
+			"locked INTEGER)"
+		);
+	create( "_comments ("
+			"id INTEGER PRIMARY KEY, "
+			"post_id INTEGER, "
+			"creator TEXT, "
+			"created_at INTEGER, "
+			"score INTEGER, "
+			"body TEXT)"
+		);
+	create( "_notes ("
+			"id INTEGER PRIMARY KEY, "
+			"post_id INTEGER, "
+			"x INTEGER, "
+			"y INTEGER, "
+			"width INTEGER, "
+			"height INTEGER, "
+			"body TEXT, "
+			"created_at INTEGER, "
+			"updated_at INTEGER, "
+			"version INTEGER)"
+		);
+	create( "_posts ("
+			"id INTEGER PRIMARY KEY, "
+			"hash TEXT, "
+			"created_at INTEGER, "
+			"uploader TEXT, "
+			"source TEXT, "
+			"rating INTEGER, "
+			"parent_id INTEGER, "
+			"children_updated INTEGER, "
+			"pools TEXT, "
+			"notes_updated INTEGER, "
+			"comments_updated INTEGER, "
+			"score NUMERIC, "
+			"score_count INTEGER, "
+			"status INTEGER, "
+			"tags TEXT, "
+			"post_updated INTEGER, "
 			
-			+	"url TEXT, "
-			+	"width INTEGER, "
-			+	"height INTEGER, "
-			+	"filesize INTEGER, "
+			"url TEXT, "
+			"width INTEGER, "
+			"height INTEGER, "
+			"filesize INTEGER, "
 			
-			+	"preview_url TEXT, "
-			+	"preview_width INTEGER, "
-			+	"preview_height INTEGER, "
-			+	"preview_filesize INTEGER, "
+			"preview_url TEXT, "
+			"preview_width INTEGER, "
+			"preview_height INTEGER, "
+			"preview_filesize INTEGER, "
 			
-			+	"thumb_url TEXT, "
-			+	"thumb_width INTEGER, "
-			+	"thumb_height INTEGER, "
-			+	"thumb_filesize INTEGER, "
+			"thumb_url TEXT, "
+			"thumb_width INTEGER, "
+			"thumb_height INTEGER, "
+			"thumb_filesize INTEGER, "
 			
-			+	"reduced_url TEXT, "
-			+	"reduced_width INTEGER, "
-			+	"reduced_height INTEGER, "
-			+	"reduced_filesize INTEGER, "
+			"reduced_url TEXT, "
+			"reduced_width INTEGER, "
+			"reduced_height INTEGER, "
+			"reduced_filesize INTEGER, "
 			
-			+	"local INTEGER "
-			+	")";
-	Statement( db, query_tags.c_str() ).next();
-	Statement( db, query_index_post.c_str() ).next();
-	Statement( db, query_index_list.c_str() ).next();
-	Statement( db, query_comments.c_str() ).next();
-	Statement( db, query_notes.c_str() ).next();
-	Statement( db, query_posts.c_str() ).next();
+			"local INTEGER)"
+		);
 }
 
 
@@ -116,44 +112,32 @@ Booru::~Booru(){
 	delete save_posts;
 }
 
-//TODO: make a method for all these
-
-Statement& Booru::loadTags(){
-	if( !load_tags )
-		load_tags = new Statement( db, ("SELECT * FROM " + site + "_tags WHERE id = ?1").c_str() );
+//Singleton initialization of prepared statement, with automatic reset
+static Statement& prepareInstance( Database& db, Statement* stmt, std::string query ){
+	if( !stmt )
+		stmt = new Statement( db, query.c_str() );
 	else
-		load_tags->reset();
-	return *load_tags;
+		stmt->reset();
+	return *stmt;
 }
 
-Statement& Booru::saveTags(){
-	if( !save_tags )
-		save_tags = new Statement( db, ("INSERT OR REPLACE INTO " + site + "_tags VALUES( ?1, ?2, ?3, ?4 )").c_str() );
-	else
-		save_tags->reset();
-	return *save_tags;
-}
+Statement& Booru::loadTags()
+	{ return prepareInstance( db, load_tags, "SELECT * FROM " + site + "_tags WHERE id = ?1" ); }
 
+Statement& Booru::saveTags()
+	{ return prepareInstance( db, save_tags, "INSERT OR REPLACE INTO " + site + "_tags VALUES( ?1, ?2, ?3, ?4 )" ); }
 
-Statement& Booru::loadPosts(){
-	if( !load_posts )
-		load_posts = new Statement( db, ("SELECT * FROM " + site + "_posts WHERE id = ?1").c_str() );
-	else
-		load_posts->reset();
-	return *load_posts;
-}
+Statement& Booru::loadPosts()
+	{ return prepareInstance( db, load_posts, "SELECT * FROM " + site + "_posts WHERE id = ?1" ); }
 
 Statement& Booru::savePosts(){
-	if( !save_posts )
-		save_posts = new Statement( db, ("INSERT OR REPLACE INTO " + site + "_posts VALUES( "
-				" ?1,  ?2,  ?3,  ?4,  ?5,  ?6,  ?7,  ?8,  ?9, ?10,"
-				"?11, ?12, ?13, ?14, ?15, ?16, ?17, ?18, ?19, ?20,"
-				"?21, ?22, ?23, ?24, ?25, ?26, ?27, ?28, ?29, ?30,"
-				"?31, ?32, ?33 )").c_str()
-			);
-	else
-		save_posts->reset();
-	return *save_posts;
+	return prepareInstance( db, save_posts,
+			"INSERT OR REPLACE INTO " + site + "_posts VALUES( "
+			" ?1,  ?2,  ?3,  ?4,  ?5,  ?6,  ?7,  ?8,  ?9, ?10,"
+			"?11, ?12, ?13, ?14, ?15, ?16, ?17, ?18, ?19, ?20,"
+			"?21, ?22, ?23, ?24, ?25, ?26, ?27, ?28, ?29, ?30,"
+			"?31, ?32, ?33 )"
+		);
 }
 
 
