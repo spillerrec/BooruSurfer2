@@ -18,9 +18,82 @@
 
 #include <boost/algorithm/string.hpp>
 
+#include <Poco/Mutex.h>
 #include <iostream>
 
-Booru::Booru( std::string site ) : db( "cache.sqlite" ), site(site){
+//Singleton initialization of prepared statement, with automatic reset
+static Statement& prepareInstance( Database& db, Statement* stmt, std::string query ){
+	if( !stmt ){
+		//NOTE: Leak!!
+		auto copy = new char[query.size()+1];
+		stmt = new Statement( db, strcpy( copy, query.c_str() ) );
+	}
+	else
+		stmt->reset();
+	return *stmt;
+}
+
+class SiteQueries{
+	private:
+		Database& db;
+		std::string site;
+		Statement* load_tags{ nullptr };
+		Statement* save_tags{ nullptr };
+		
+		Statement* load_posts{ nullptr };
+		Statement* save_posts{ nullptr };
+	
+	public:
+		SiteQueries( Database& db, std::string site ) : db(db), site(site) { }
+		bool isSite( std::string wanted_site ) const { return site == wanted_site; }
+		
+		Statement& loadTags()
+			{ return prepareInstance( db, load_tags, "SELECT * FROM " + site + "_tags WHERE id = ?1" ); }
+			
+		Statement& saveTags()
+			{ return prepareInstance( db, save_tags, "INSERT OR REPLACE INTO " + site + "_tags VALUES( ?1, ?2, ?3, ?4 )" ); }
+			
+		Statement& loadPosts()
+			{ return prepareInstance( db, load_posts, "SELECT * FROM " + site + "_posts WHERE id = ?1" ); }
+			
+		Statement& savePosts(){
+			return prepareInstance( db, save_posts,
+					"INSERT OR REPLACE INTO " + site + "_posts VALUES( "
+					" ?1,  ?2,  ?3,  ?4,  ?5,  ?6,  ?7,  ?8,  ?9, ?10,"
+					"?11, ?12, ?13, ?14, ?15, ?16, ?17, ?18, ?19, ?20,"
+					"?21, ?22, ?23, ?24, ?25, ?26, ?27, ?28, ?29, ?30,"
+					"?31, ?32, ?33 )"
+				);
+		}
+};
+
+class DbConnection{
+	private:
+		Database db;
+		std::vector<SiteQueries> sites;
+		Poco::Mutex site_lock;
+	
+	public:
+		DbConnection() : db( "cache.sqlite" ) { }
+		SiteQueries& getSite( std::string site );
+		Database& getDb(){ return db; }
+};
+
+SiteQueries& DbConnection::getSite( std::string site ){
+	Poco::ScopedLock<Poco::Mutex> locker( site_lock );
+	for( auto& query : sites )
+		if( query.isSite( site ) )
+			return query;
+	
+	//Construct a new one
+	sites.emplace_back( db, site );
+	return sites.back();
+}
+
+thread_local DbConnection connection;
+
+Booru::Booru( std::string site ) : site(site){
+	Database db( "cache.sqlite" );
 	std::cout << "Initializing booru: " << site << std::endl;
 	auto create = [&](const char* values)
 		{ Statement( db, ("CREATE TABLE IF NOT EXISTS " + site + values).c_str() ).next(); };
@@ -104,41 +177,7 @@ Booru::Booru( std::string site ) : db( "cache.sqlite" ), site(site){
 		);
 }
 
-
-Booru::~Booru(){
-	delete load_tags;
-	delete save_tags;
-	delete load_posts;
-	delete save_posts;
-}
-
-//Singleton initialization of prepared statement, with automatic reset
-static Statement& prepareInstance( Database& db, Statement* stmt, std::string query ){
-	if( !stmt )
-		stmt = new Statement( db, query.c_str() );
-	else
-		stmt->reset();
-	return *stmt;
-}
-
-Statement& Booru::loadTags()
-	{ return prepareInstance( db, load_tags, "SELECT * FROM " + site + "_tags WHERE id = ?1" ); }
-
-Statement& Booru::saveTags()
-	{ return prepareInstance( db, save_tags, "INSERT OR REPLACE INTO " + site + "_tags VALUES( ?1, ?2, ?3, ?4 )" ); }
-
-Statement& Booru::loadPosts()
-	{ return prepareInstance( db, load_posts, "SELECT * FROM " + site + "_posts WHERE id = ?1" ); }
-
-Statement& Booru::savePosts(){
-	return prepareInstance( db, save_posts,
-			"INSERT OR REPLACE INTO " + site + "_posts VALUES( "
-			" ?1,  ?2,  ?3,  ?4,  ?5,  ?6,  ?7,  ?8,  ?9, ?10,"
-			"?11, ?12, ?13, ?14, ?15, ?16, ?17, ?18, ?19, ?20,"
-			"?21, ?22, ?23, ?24, ?25, ?26, ?27, ?28, ?29, ?30,"
-			"?31, ?32, ?33 )"
-		);
-}
+Transaction Booru::beginBatch(){ return connection.getDb(); }
 
 
 std::vector<std::string> splitIds( std::string str ){
@@ -168,7 +207,7 @@ std::string combineIds( const std::vector<std::string>& input ){
 }
 
 bool Booru::load( Post& p ){
-	auto& stmt = loadPosts();
+	auto& stmt = connection.getSite(site).loadPosts();
 	stmt.bind( static_cast<int>(p.id), 1 );
 	
 	if( stmt.next() ){
@@ -201,7 +240,7 @@ bool Booru::load( Post& p ){
 
 bool Booru::load( Tag& p ){
 //	std::cout << "opening tag: " << p.id << std::endl;
-	auto& stmt = loadTags();
+	auto& stmt = connection.getSite(site).loadTags();
 	stmt.bind( p.id, 1 );
 	if( stmt.next() ){
 		p.count = stmt.integer( 1 );
@@ -213,7 +252,7 @@ bool Booru::load( Tag& p ){
 }
 
 void Booru::save( Post& p ){
-	auto& stmt = savePosts();
+	auto& stmt = connection.getSite(site).savePosts();
 	
 	stmt.bind( static_cast<int>(p.id), 1 );
 	stmt.bind( p.hash, 2 );
@@ -249,7 +288,7 @@ void Booru::save( Post& p ){
 }
 
 void Booru::save( Tag& p ){
-	auto& stmt = saveTags();
+	auto& stmt = connection.getSite(site).saveTags();
 //	std::cout << p.id << std::endl;
 	
 	stmt.bind( p.id, 1 );

@@ -9,7 +9,7 @@ solution( "BooruSurfer2" )
 		files( { "./src/**.h", "./src/**.cpp" } )
 		
 		-- Enable C++11 support
-		buildoptions{ "-std=c++11" }
+		buildoptions{ "-std=c++11 -mthreads" }
 		
 		links( {
 				"tidy"
@@ -31,6 +31,7 @@ solution( "BooruSurfer2" )
 			,	"iphlpapi"
 			} )
 		
+		defines { "POCO_STATIC" }
 		
 		configuration( "debug" )
 			build_dir = "debug"

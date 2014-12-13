@@ -27,27 +27,12 @@
 
 class Booru{
 	private:
-		Database db;
 		std::string site;
-		
-		Statement* load_tags{ nullptr };
-		Statement* save_tags{ nullptr };
-		
-		Statement* load_posts{ nullptr };
-		Statement* save_posts{ nullptr };
-		
-	private:
-		Statement& loadTags();
-		Statement& saveTags();
-		
-		Statement& loadPosts();
-		Statement& savePosts();
 	
 	public:
 		Booru( std::string site );
-		~Booru();
 		
-		Transaction beginBatch(){ return db; }
+		Transaction beginBatch();
 		
 		bool load( Post& p );
 		bool load( Tag& p );
