@@ -92,7 +92,7 @@ SiteQueries& DbConnection::getSite( std::string site ){
 
 thread_local DbConnection connection;
 
-Booru::Booru( std::string site ) : site(site){
+Booru::Booru( std::string site ) : site(site) {
 	Database db( "cache.sqlite" );
 	std::cout << "Initializing booru: " << site << std::endl;
 	auto create = [&](const char* values)
@@ -212,7 +212,7 @@ bool Booru::load( Post& p ){
 	
 	if( stmt.next() ){
 		p.hash = stmt.text( 1 );
-	//	p.creation_time = Poco::Timestamp::fromEpochTime( stmt.integer64( 2 ) ); //TODO: why linker error?
+		p.creation_time = Poco::Timestamp::fromEpochTime( stmt.integer64( 2 ) );
 		p.author = stmt.text( 3 );
 		p.source = stmt.text( 4 );
 		p.rating = static_cast<Post::Rating>( stmt.integer( 5 ) );
@@ -256,7 +256,7 @@ void Booru::save( Post& p ){
 	
 	stmt.bind( static_cast<int>(p.id), 1 );
 	stmt.bind( p.hash, 2 );
-	stmt.bind( p.creation_time.epochMicroseconds(), 3 );
+	stmt.bind( p.creation_time.epochTime(), 3 );
 	stmt.bind( p.author, 4 );
 	stmt.bind( p.source, 5 );
 	stmt.bind( p.rating, 6 );
