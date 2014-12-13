@@ -33,7 +33,7 @@ Database::Database( string file_path ){
 		exit( -1 );
 	}
 	sqlite3_busy_timeout( db, 100 );
-	Statement( *this, "PRAGMA journal_mode=WAL;" ).next();
+//	Statement( *this, "PRAGMA journal_mode=WAL;" ).next();
 }
 
 Database::~Database(){

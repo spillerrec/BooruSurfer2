@@ -17,6 +17,7 @@
 #include "Statement.hpp"
 
 #include <sqlite3.h>
+#include <Poco/Thread.h>
 
 #include <utility>
 #include <iostream>
@@ -24,12 +25,8 @@
 
 using namespace std;
 
-struct SQLiteError : std::exception {
-	string error;
-	SQLiteError( string error ) : error(error) { }
-	const char* what() const noexcept {
-		return ("SQLiteError: " + error).c_str();
-	}
+struct SQLiteError : runtime_error {
+	SQLiteError( string error ) : runtime_error("SQLiteError: " + error) { }
 };
 
 template<typename T>
@@ -48,9 +45,10 @@ static int validateError( int result, const char* query, int code=SQLITE_OK ){
 }
 
 Statement::Statement( Database& db, const char* query ) : db(db), query(query){
-	if( sqlite3_prepare_v2( db, query, -1, &stmt, NULL ) != SQLITE_OK )
+	if( sqlite3_prepare_v2( db, query, -1, &stmt, NULL ) != SQLITE_OK ){
 		cout << "Prepare failed: " << sqlite3_errmsg( db ) << endl; //TODO: correct?
-		//TODO: throw exception
+		throw SQLiteError( string("Prepare failed during: ") + query );
+	}
 }
 
 Statement::~Statement(){ sqlite3_finalize( stmt ); } //TODO: use shared_ptr
@@ -65,10 +63,13 @@ static void check_type( sqlite3_stmt* stmt, int column, int type ){
 }
 
 bool Statement::next(){
-	auto result = sqlite3_step( stmt );
-	while( result == SQLITE_BUSY ){
-		std::cout << "DB busy, retrying\n";
-		result = sqlite3_step( stmt );
+	int result, i=1;
+	while( (result = sqlite3_step( stmt )) == SQLITE_BUSY ){
+		if( ++i >= 30 ){
+			std::cout << std::string("DB busy, giving up with: ") + query + "\n";
+			throw SQLiteError( "Time out during execution of statement" );
+		}
+		Poco::Thread::sleep( 50 );
 	}
 	
 	return validateError( result, query
@@ -76,6 +77,7 @@ bool Statement::next(){
 		) == SQLITE_ROW;
 }
 bool Statement::reset(){
+	std::cout << "Resetting: " << query << std::endl;
 	return validateError( sqlite3_reset( stmt ), query );
 }
 

@@ -57,7 +57,7 @@ class Transaction{
 		bool commit{ true };
 		
 	public:
-		Transaction( Database& db ) : db(&db) { Statement( db, "BEGIN IMMEDIATE TRANSACTION" ).next(); }
+		Transaction( Database& db ) : db(&db) { Statement( db, "BEGIN TRANSACTION" ).next(); }
 		~Transaction(){ if( commit ) Statement( *db, "COMMIT" ).next(); }
 		Transaction( Transaction&& other ) : db( other.db ){ other.commit = false; }
 		
