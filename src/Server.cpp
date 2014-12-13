@@ -88,7 +88,7 @@ class RequestHandler : public HTTPRequestHandler {
 				for( APage::header h : headers )
 					response.add( h.first, h.second );
 			}
-			catch( std::exception e ){
+			catch( std::exception& e ){
 				contents = "Exception happened during processing the page: ";
 				contents += e.what();
 				response.setStatus( HTTPResponse::HTTP_INTERNAL_SERVER_ERROR );
