@@ -18,7 +18,6 @@
 
 #include <boost/algorithm/string.hpp>
 
-#include <Poco/Mutex.h>
 #include <iostream>
 
 //Singleton initialization of prepared statement, with automatic reset
@@ -32,6 +31,33 @@ static Statement& prepareInstance( Database& db, Statement* stmt, std::string qu
 		stmt->reset();
 	return *stmt;
 }
+
+std::vector<std::string> splitIds( std::string str ){
+	std::vector<std::string> ids;
+	boost::split( ids, str, boost::is_any_of( " " ) ); //TODO: avoid is_any_of() ?
+	
+	std::vector<std::string> output;
+	output.reserve( ids.size() );
+	for( auto id : ids )
+		if( !id.empty() )
+			output.emplace_back( id );
+	return output;
+}
+
+template<typename In>
+std::string combineIds( const std::vector<In>& input ){
+	std::string output;
+	for( auto in : input )
+		output += std::to_string( in ) + " ";
+	return output;
+}
+std::string combineIds( const std::vector<std::string>& input ){
+	std::string output;
+	for( auto in : input )
+		output += in + " ";
+	return output;
+}
+
 
 class SiteQueries{
 	private:
@@ -179,36 +205,106 @@ Booru::Booru( std::string site ) : site(site) {
 
 Transaction Booru::beginBatch(){ return connection.getDb(); }
 
+bool Booru::getPost( Post& p ){
+	Poco::ScopedLock<Poco::Mutex> locker( postMutex );
+	for( auto& post : postCache )
+		if( post.value.id == p.id ){
+			p = post.value;
+			return true;
+		}
+	return false;
+}
 
-std::vector<std::string> splitIds( std::string str ){
-	std::vector<std::string> ids;
-	boost::split( ids, str, boost::is_any_of( " " ) ); //TODO: avoid is_any_of() ?
+bool Booru::getTag( Tag& t ){
+	Poco::ScopedLock<Poco::Mutex> locker( tagMutex );
+	for( auto& tag : tagCache )
+		if( tag.value.id == t.id ){
+			t = tag.value;
+			return true;
+		}
+	return false;
+}
+
+void Booru::insertPost( Post& p ){
+	Poco::ScopedLock<Poco::Mutex> locker( postMutex );
+	postCache.emplace_back( p, false );
+}
+void Booru::insertTag( Tag& t ){
+	Poco::ScopedLock<Poco::Mutex> locker( tagMutex );
+	tagCache.emplace_back( t, false );
+}
+
+void Booru::flushPosts(){
+	Poco::ScopedLock<Poco::Mutex> locker( postMutex );
 	
-	std::vector<std::string> output;
-	output.reserve( ids.size() );
-	for( auto id : ids )
-		if( !id.empty() )
-			output.emplace_back( id );
-	return output;
+	auto batch = beginBatch();
+	for( auto& p : postCache ){
+		if( !p.saved ){
+			auto& stmt = connection.getSite(site).savePosts();
+			
+			stmt.bind( static_cast<int>(p.value.id), 1 );
+			stmt.bind( p.value.hash, 2 );
+			stmt.bind( p.value.creation_time.epochTime(), 3 );
+			stmt.bind( p.value.author, 4 );
+			stmt.bind( p.value.source, 5 );
+			stmt.bind( p.value.rating, 6 );
+			stmt.bind( -1, 7 ); //TODO: parent_id
+			stmt.bind( 0, 8 ); //TODO: children_updated
+			stmt.bind( "", 9 ); //TODO: pools
+			stmt.bind( 0, 10 ); //TODO: notes updated
+			stmt.bind( 0, 11 ); //TODO: comments updated
+			stmt.bind( p.value.score, 12 );
+			stmt.bind( 1, 13 ); //TODO: score_count
+			stmt.bind( -1, 14 ); //TODO: status
+			stmt.bind( combineIds( p.value.tags.list ), 15 );
+			stmt.bind( 0, 16 ); //TODO: post_updated
+			
+			auto bindImage = [&]( Image img, int offset ){
+					stmt.bind( img.url,    offset + 0 );
+					stmt.bind( img.width,  offset + 1 );
+					stmt.bind( img.height, offset + 2 );
+					stmt.bind( img.size,   offset + 3 );
+				};
+			bindImage( p.value.full,      17 );
+			bindImage( p.value.preview,   21 );
+			bindImage( p.value.thumbnail, 25 );
+			bindImage( p.value.reduced,   29 );
+			
+			stmt.bind( 0, 33 ); //TODO: local
+			
+			stmt.next();
+			p.saved = true;
+		}
+	}
 }
 
-template<typename In>
-std::string combineIds( const std::vector<In>& input ){
-	std::string output;
-	for( auto in : input )
-		output += std::to_string( in ) + " ";
-	return output;
-}
-std::string combineIds( const std::vector<std::string>& input ){
-	std::string output;
-	for( auto in : input )
-		output += in + " ";
-	return output;
+void Booru::flushTags(){
+	Poco::ScopedLock<Poco::Mutex> locker( tagMutex );
+	
+	auto batch = beginBatch();
+	for( auto& t : tagCache ){
+		if( !t.saved ){
+			auto& stmt = connection.getSite(site).saveTags();
+			std::cout << "Saving Tag: " << t.value.id << std::endl;
+			
+			stmt.bind( t.value.id, 1 );
+			stmt.bind( (int)t.value.count, 2 );
+			stmt.bind( t.value.type, 3 );
+			stmt.bind( false, 4 );
+			
+			stmt.next();
+			t.saved = true;
+		}
+	}
 }
 
 bool Booru::load( Post& p ){
+	if( getPost( p ) )
+		return true;
+	
 	auto& stmt = connection.getSite(site).loadPosts();
 	stmt.bind( static_cast<int>(p.id), 1 );
+	std::cout << "Loading post: " << p.id << std::endl;
 	
 	if( stmt.next() ){
 		p.hash = stmt.text( 1 );
@@ -232,6 +328,7 @@ bool Booru::load( Post& p ){
 		loadImage( p.thumbnail, 24 );
 		loadImage( p.reduced,   28 );
 		
+		insertPost( p );
 		return true;
 	}
 	
@@ -239,12 +336,17 @@ bool Booru::load( Post& p ){
 }
 
 bool Booru::load( Tag& p ){
+	if( getTag( p ) )
+		return true;
+	
 //	std::cout << "opening tag: " << p.id << std::endl;
 	auto& stmt = connection.getSite(site).loadTags();
+	std::cout << "Loading tag: " << p.id << std::endl;
 	stmt.bind( p.id, 1 );
 	if( stmt.next() ){
 		p.count = stmt.integer( 1 );
 		p.type = (Tag::Type)stmt.integer( 2 );
+		insertTag( p );
 		return true;
 	}
 	else
@@ -252,49 +354,36 @@ bool Booru::load( Tag& p ){
 }
 
 void Booru::save( Post& p ){
-	auto& stmt = connection.getSite(site).savePosts();
-	
-	stmt.bind( static_cast<int>(p.id), 1 );
-	stmt.bind( p.hash, 2 );
-	stmt.bind( p.creation_time.epochTime(), 3 );
-	stmt.bind( p.author, 4 );
-	stmt.bind( p.source, 5 );
-	stmt.bind( p.rating, 6 );
-	stmt.bind( -1, 7 ); //TODO: parent_id
-	stmt.bind( 0, 8 ); //TODO: children_updated
-	stmt.bind( "", 9 ); //TODO: pools
-	stmt.bind( 0, 10 ); //TODO: notes updated
-	stmt.bind( 0, 11 ); //TODO: comments updated
-	stmt.bind( p.score, 12 );
-	stmt.bind( 1, 13 ); //TODO: score_count
-	stmt.bind( -1, 14 ); //TODO: status
-	stmt.bind( combineIds( p.tags.list ), 15 );
-	stmt.bind( 0, 16 ); //TODO: post_updated
-	
-	auto bindImage = [&]( Image img, int offset ){
-			stmt.bind( img.url,    offset + 0 );
-			stmt.bind( img.width,  offset + 1 );
-			stmt.bind( img.height, offset + 2 );
-			stmt.bind( img.size,   offset + 3 );
-		};
-	bindImage( p.full,      17 );
-	bindImage( p.preview,   21 );
-	bindImage( p.thumbnail, 25 );
-	bindImage( p.reduced,   29 );
-	
-	stmt.bind( 0, 33 ); //TODO: local
-	
-	stmt.next();
+	auto copy = p;
+	if( getPost( copy ) ){
+		if( copy.tags.list != p.tags.list ){
+			//TODO: move to separate function
+			Poco::ScopedLock<Poco::Mutex> locker( postMutex );
+			for( auto& cache : postCache )
+				if( cache.value.id == p.id ){
+					cache.value = p;
+					cache.saved = false;
+				}
+		}
+	}
+	else
+		insertPost( p );
 }
 
-void Booru::save( Tag& p ){
-	auto& stmt = connection.getSite(site).saveTags();
-//	std::cout << p.id << std::endl;
-	
-	stmt.bind( p.id, 1 );
-	stmt.bind( (int)p.count, 2 );
-	stmt.bind( p.type, 3 );
-	stmt.bind( false, 4 );
-	stmt.next();
+void Booru::save( Tag& t ){
+	auto copy = t;
+	if( getTag( copy ) ){
+		if( copy.count < t.count ){
+			//TODO: move to separate function
+			Poco::ScopedLock<Poco::Mutex> locker( tagMutex );
+			for( auto& cache : tagCache )
+				if( cache.value.id == t.id ){
+					cache.value = t;
+					cache.saved = false;
+				}
+		}
+	}
+	else
+		insertTag( t );
 }
 

@@ -23,11 +23,32 @@
 #include "../objects/Post.hpp"
 #include "../objects/Tag.hpp"
 
+#include <Poco/Mutex.h>
+
 #include <string>
+#include <vector>
 
 class Booru{
 	private:
 		std::string site;
+		
+		template<typename T>
+		struct Cache{
+			T value;
+			bool saved;
+			Cache( T value, bool saved ) : value(value), saved(saved) { }
+		};
+		
+		std::vector<Cache<Post>> postCache;
+		std::vector<Cache<Tag>>   tagCache;
+		
+		bool getPost( Post& p );
+		bool  getTag( Tag&  t );
+		void insertPost( Post& p );
+		void insertTag ( Tag&  t );
+		
+		Poco::Mutex postMutex;
+		Poco::Mutex  tagMutex;
 	
 	public:
 		Booru( std::string site );
@@ -39,6 +60,9 @@ class Booru{
 		
 		void save( Post& p );
 		void save( Tag& p );
+		
+		void flushPosts();
+		void flushTags();
 };
 
 #endif

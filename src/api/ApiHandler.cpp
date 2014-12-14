@@ -34,8 +34,8 @@ ApiHandler::ApiHandler() : apis{
 	,	new YandereApi()
 }{
 	//TODO: avoid this shit
-	((DanApi*)get_by_shorthand( "kona" ))->load_tag_file();
-	((DanApi*)get_by_shorthand( "yandere" ))->load_tag_file();
+//	((DanApi*)get_by_shorthand( "kona" ))->load_tag_file();
+//	((DanApi*)get_by_shorthand( "yandere" ))->load_tag_file();
 }
 
 ApiHandler* ApiHandler::get_instance(){
@@ -50,4 +50,9 @@ Api* ApiHandler::get_by_shorthand( std::string shorthand ) const{
 		if( api->get_shorthand() == shorthand )
 			return api;
 	return nullptr;
+}
+
+void ApiHandler::flush(){
+	for( auto api : apis )
+		api->flush();
 }

@@ -36,6 +36,7 @@ class Api{
 		};
 		ResourceHandler<Tag,std::string> tag_handler{ booru };
 		ResourceHandler<Post> post_handler{ booru };
+		void flush();
 	public:
 		std::string get_from_url( std::string url
 			,	std::vector<std::pair<std::string,std::string> > headers = std::vector<std::pair<std::string,std::string> >()

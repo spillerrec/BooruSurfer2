@@ -33,6 +33,7 @@ class ApiHandler{
 		
 		std::vector<Api*> get_apis(){ return apis; }
 		Api* get_by_shorthand( std::string shorthand ) const;
+		void flush();
 };
 
 #endif

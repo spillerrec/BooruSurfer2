@@ -33,6 +33,11 @@ using namespace Poco::Net;
 using namespace Poco;
 using namespace std;
 
+void Api::flush(){
+//	booru.flushPosts();
+//	booru.flushTags();
+}
+
 static string istream2string( const istream& stream ){
 	return string(static_cast<stringstream const&>(stringstream() << stream.rdbuf()).str());
 }
