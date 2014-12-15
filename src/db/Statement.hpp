@@ -58,7 +58,7 @@ class Transaction{
 		
 	public:
 		Transaction( Database& db ) : db(&db) { Statement( db, "BEGIN TRANSACTION" ).next(); }
-		~Transaction(){ if( commit ) Statement( *db, "COMMIT" ).next(); }
+		~Transaction(){ close(); }
 		Transaction( Transaction&& other ) : db( other.db ){ other.commit = false; }
 		
 		Transaction& operator=( Transaction&& other ){
@@ -69,6 +69,8 @@ class Transaction{
 		
 		Transaction( const Transaction& ) = delete;
 		Transaction& operator=( const Transaction& other ) = delete;
+		
+		void close();
 };
 
 #endif

@@ -114,4 +114,10 @@ void Statement::bind( double value, unsigned column ){
 	validateError( sqlite3_bind_double( stmt, column, value ), "binding double" );;
 }
 
+void Transaction::close(){
+	if( commit )
+		try{ Statement( *db, "COMMIT" ).next(); }
+		catch(...){ Statement( *db, "ROLLBACK" ).next(); }
+	commit = false;
+}
 
