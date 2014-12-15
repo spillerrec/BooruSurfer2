@@ -50,10 +50,10 @@ class Booru{
 		Poco::Mutex postMutex;
 		Poco::Mutex  tagMutex;
 	
+		Transaction beginBatch();
+		
 	public:
 		Booru( std::string site );
-		
-		Transaction beginBatch();
 		
 		bool load( Post& p );
 		bool load( Tag& p );

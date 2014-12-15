@@ -37,7 +37,6 @@ class ResourceHandler{
 		
 		template<typename Iter, typename Func>
 		void addAll( Iter begin, Iter end, Func f ){
-			//auto transaction = booru.beginBatch();
 			for( auto start=begin; start!=end; ++start ){
 				auto obj = f( *start );
 				booru.save( obj );
@@ -53,7 +52,6 @@ class ResourceHandler{
 			std::vector<object> list;
 			list.reserve( resource.list.size() );
 			
-			//auto transaction = booru.beginBatch();
 			for( auto id : resource.list )
 				list.emplace_back( get( id ) );
 			

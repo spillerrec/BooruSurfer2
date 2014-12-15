@@ -36,8 +36,12 @@ class Statement{
 		Statement( const Statement& ) = delete;
 		~Statement();
 		
+		void throwError( std::string error );
+		
 		bool next();
 		bool reset();
+		
+		int columnType( unsigned column );
 		
 		std::string text( unsigned column );
 		int integer( unsigned column );

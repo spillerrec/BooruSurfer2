@@ -26,92 +26,96 @@
 using namespace std;
 
 struct SQLiteError : runtime_error {
-	SQLiteError( string error ) : runtime_error("SQLiteError: " + error) { }
+	static string message( Database& db, const char* query, string error ){
+		return "SQLiteError:\n\tWhat: " + error
+			+	"\n\tQuery: " + query
+			+	"\n\tLast SQLite error message: " + sqlite3_errmsg( db ) + "\n"
+			;
+	}
+	SQLiteError( Database& db, const char* query, string error )
+		:	runtime_error( message( db, query, error ) )
+		{ cout << what() << endl; }
 };
 
+void Statement::throwError( string error ){ throw SQLiteError( db, query, error ); }
+
 template<typename T>
-int validateError( int result, const char* query, T checker ){
+int validateError( Statement& stmt, int result, T checker ){
 	if( !checker( result ) )
-		throw SQLiteError(
-				"Unexpected sqlite error code: " + to_string( result )
-			+	" during: " + query
-			);
+		stmt.throwError( "Unexpected sqlite error code: " + to_string( result ) );
 	else
 		return result;
 }
 
-static int validateError( int result, const char* query, int code=SQLITE_OK ){
-	return validateError( result, query, [code]( int v ){ return v == code; } );
+static int validateError( Statement& stmt, int result, int code=SQLITE_OK ){
+	return validateError( stmt, result, [code]( int v ){ return v == code; } );
 }
 
 Statement::Statement( Database& db, const char* query ) : db(db), query(query){
-	if( sqlite3_prepare_v2( db, query, -1, &stmt, NULL ) != SQLITE_OK ){
-		cout << "Prepare failed: " << sqlite3_errmsg( db ) << endl; //TODO: correct?
-		throw SQLiteError( string("Prepare failed during: ") + query );
-	}
+	if( sqlite3_prepare_v2( db, query, -1, &stmt, NULL ) != SQLITE_OK )
+		throwError( "prepare" );
 }
 
 Statement::~Statement(){ sqlite3_finalize( stmt ); } //TODO: use shared_ptr
 
-static void check_type( sqlite3_stmt* stmt, int column, int type ){
-	if( sqlite3_column_type( stmt, column ) != type )
-		throw SQLiteError( "Unexpected type: "
-			+	std::to_string( sqlite3_column_type( stmt, column ) )
-			+	", expected: " + std::to_string( type )
-			+	"\n"
+static void check_type( Statement& stmt, int column, int type ){
+	auto actual = stmt.columnType( column );
+	if( actual != type )
+		stmt.throwError( "Unexpected type: " + to_string( actual )
+			+	", expected: " + to_string( type ) + "\n"
 			);
 }
 
 bool Statement::next(){
 	int result, i=1;
 	while( (result = sqlite3_step( stmt )) == SQLITE_BUSY ){
-		if( ++i >= 30 ){
-			std::cout << std::string("DB busy, giving up with: ") + query + "\n";
-			throw SQLiteError( "Time out during execution of statement" );
-		}
+		if( ++i >= 30 )
+			throwError( "Time out during execution of statement" );
 		Poco::Thread::sleep( 50 );
 	}
 	
-	return validateError( result, query
+	return validateError( *this, result
 		,	[](int i){ return i == SQLITE_ROW || i == SQLITE_DONE; }
 		) == SQLITE_ROW;
 }
 bool Statement::reset(){
-	std::cout << "Resetting: " << query << std::endl;
-	return validateError( sqlite3_reset( stmt ), query );
+	cout << "Resetting: " << query << endl;
+	return validateError( *this, sqlite3_reset( stmt ) );
 }
+
+int Statement::columnType( unsigned column ){ return sqlite3_column_type( stmt, column ); }
 
 string Statement::text( unsigned column ){
 	return string( (const char*)sqlite3_column_text( stmt, column ) );
 }
 
 int Statement::integer( unsigned column ){
-	check_type( stmt, column, SQLITE_INTEGER );
+	check_type( *this, column, SQLITE_INTEGER );
 	return sqlite3_column_int( stmt, column );
 }
 
 int64_t Statement::integer64( unsigned column ){
-	check_type( stmt, column, SQLITE_INTEGER );
+	check_type( *this, column, SQLITE_INTEGER );
 	return sqlite3_column_int64( stmt, column );
 }
 
 double Statement::floating( unsigned column ){
-	check_type( stmt, column, SQLITE_FLOAT );
+	check_type( *this, column, SQLITE_FLOAT );
 	return sqlite3_column_double( stmt, column );
 }
 
 void Statement::bind( string value, unsigned column ){
-	validateError( sqlite3_bind_text( stmt, column, value.c_str(), value.size(), SQLITE_TRANSIENT ), "binding text" );
+	validateError( *this, sqlite3_bind_text( stmt, column, value.c_str(), value.size(), SQLITE_TRANSIENT ) );
 	//TODO: enable use of SQLITE_STATIC ?
 }
 void Statement::bind( int value, unsigned column ){
-	validateError( sqlite3_bind_int( stmt, column, value ), "binding int32" );
+	validateError( *this, sqlite3_bind_int( stmt, column, value ) );
 }
 void Statement::bind( int64_t value, unsigned column ){
-	validateError( sqlite3_bind_int64( stmt, column, value ), "binding int64" );
+	validateError( *this, sqlite3_bind_int64( stmt, column, value ) );
 }
 void Statement::bind( double value, unsigned column ){
-	validateError( sqlite3_bind_double( stmt, column, value ), "binding double" );;
+	validateError( *this, sqlite3_bind_double( stmt, column, value ) );;
 }
 
 void Transaction::close(){

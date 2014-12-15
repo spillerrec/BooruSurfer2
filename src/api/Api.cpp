@@ -34,8 +34,8 @@ using namespace Poco;
 using namespace std;
 
 void Api::flush(){
-//	booru.flushPosts();
-//	booru.flushTags();
+	booru.flushPosts();
+	booru.flushTags();
 }
 
 static string istream2string( const istream& stream ){
