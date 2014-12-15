@@ -44,8 +44,8 @@ class Booru{
 		
 		bool getPost( Post& p );
 		bool  getTag( Tag&  t );
-		void insertPost( Post& p );
-		void insertTag ( Tag&  t );
+		void insertPost( Post& p, bool saved );
+		void insertTag ( Tag&  t, bool saved );
 		
 		Poco::Mutex postMutex;
 		Poco::Mutex  tagMutex;

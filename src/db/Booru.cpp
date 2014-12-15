@@ -225,13 +225,13 @@ bool Booru::getTag( Tag& t ){
 	return false;
 }
 
-void Booru::insertPost( Post& p ){
+void Booru::insertPost( Post& p, bool saved ){
 	Poco::ScopedLock<Poco::Mutex> locker( postMutex );
-	postCache.emplace_back( p, false );
+	postCache.emplace_back( p, saved );
 }
-void Booru::insertTag( Tag& t ){
+void Booru::insertTag( Tag& t, bool saved ){
 	Poco::ScopedLock<Poco::Mutex> locker( tagMutex );
-	tagCache.emplace_back( t, false );
+	tagCache.emplace_back( t, saved );
 }
 
 void Booru::flushPosts(){
@@ -328,7 +328,7 @@ bool Booru::load( Post& p ){
 		loadImage( p.thumbnail, 24 );
 		loadImage( p.reduced,   28 );
 		
-		insertPost( p );
+		insertPost( p, true );
 		return true;
 	}
 	
@@ -346,11 +346,13 @@ bool Booru::load( Tag& p ){
 	if( stmt.next() ){
 		p.count = stmt.integer( 1 );
 		p.type = (Tag::Type)stmt.integer( 2 );
-		insertTag( p );
+		insertTag( p, true );
 		return true;
 	}
-	else
+	else{
+		insertTag( p, true );
 		return false;
+	}
 }
 
 void Booru::save( Post& p ){
@@ -367,13 +369,14 @@ void Booru::save( Post& p ){
 		}
 	}
 	else
-		insertPost( p );
+		insertPost( p, false );
 }
 
 void Booru::save( Tag& t ){
 	auto copy = t;
 	if( getTag( copy ) ){
 		if( copy.count < t.count ){
+			std::cout << "Tag count is: " << copy.count << " versus " << t.count << std::endl;
 			//TODO: move to separate function
 			Poco::ScopedLock<Poco::Mutex> locker( tagMutex );
 			for( auto& cache : tagCache )
@@ -384,6 +387,6 @@ void Booru::save( Tag& t ){
 		}
 	}
 	else
-		insertTag( t );
+		insertTag( t, t.count == 0 );
 }
 
