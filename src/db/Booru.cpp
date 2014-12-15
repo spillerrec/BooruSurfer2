@@ -375,7 +375,7 @@ void Booru::save( Post& p ){
 void Booru::save( Tag& t ){
 	auto copy = t;
 	if( getTag( copy ) ){
-		if( copy.count < t.count ){
+		if( unsigned(copy.count * 1.01) < t.count ){
 			std::cout << "Tag count is: " << copy.count << " versus " << t.count << std::endl;
 			//TODO: move to separate function
 			Poco::ScopedLock<Poco::Mutex> locker( tagMutex );

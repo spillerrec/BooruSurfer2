@@ -149,7 +149,7 @@ Post parse_preview( const xml_node &span ){
 	//TODO: children: class="... has-children"
 	//TODO: flagged: class="... flagged"
 	
-	cout << "\t" << "Hash: " << hash_from_url( post.thumbnail.url ) << "\n";
+//	cout << "\t" << "Hash: " << hash_from_url( post.thumbnail.url ) << "\n";
 	//TODO: fill the other urls from this
 	
 	string meta = img.attribute( "title" ).value();
@@ -221,7 +221,7 @@ bool get_image( xml_document& doc, Post& p ){
 	string highres = parse_url( doc.select_nodes( "//a[@id='highres']" ).first().node().attribute( "href" ).value() );
 	if( highres.size() != 0 )
 		original.url = highres;
-	cout << "org url: " << original.url << endl;
+//	cout << "org url: " << original.url << endl;
 	
 	original.width = image.attribute( "orig_width" ).as_int();
 	original.height = image.attribute( "orig_height" ).as_int();
@@ -371,7 +371,7 @@ Index SanApi::get_index( string search, int page, int limit ){
 		//div.content div span.thumb
 		
 		xpath_node_set spans = doc.select_nodes( "//div[@class='content']/div/span[contains(concat(' ', normalize-space(@class), ' '), ' thumb ')]" );
-		cout << "Spans: " << spans.size() << "\n";
+	//	cout << "Spans: " << spans.size() << "\n";
 		for( xpath_node f : spans ){
 			index.posts.push_back( parse_preview( f.node() ) );
 		}
