@@ -28,27 +28,75 @@
 #include <string>
 #include <vector>
 
+void resetDatabaseConnections();
+
 class Booru{
 	private:
 		std::string site;
 		
+		void saveToDb( const Tag&  item );
+		void saveToDb( const Post& item );
+		
 		template<typename T>
-		struct Cache{
+		struct CacheItem{
 			T value;
 			bool saved;
-			Cache( T value, bool saved ) : value(value), saved(saved) { }
+			CacheItem( T value, bool saved ) : value(value), saved(saved) { }
 		};
 		
-		std::vector<Cache<Post>> postCache;
-		std::vector<Cache<Tag>>   tagCache;
+		template<typename T>
+		class Cache{
+			private:
+				Poco::Mutex lock;
+				std::vector<CacheItem<T>> items;
+				
+			public:
+				bool get( T& find ){
+					Poco::ScopedLock<Poco::Mutex> locker( lock );
+					for( auto& item : items )
+						if( item.value.id == find.id ){
+							find = item.value;
+							return true;
+						}
+					return false;
+				}
+				
+				void insert( T& item, bool saved ){
+					Poco::ScopedLock<Poco::Mutex> locker( lock );
+					items.emplace_back( item, saved );
+				}
+				
+				void replace( const T& t, bool saved = false ){
+					Poco::ScopedLock<Poco::Mutex> locker( lock );
+					for( auto& item : items )
+						if( item.value.id == t.id ){
+							item.value = t;
+							item.saved = saved;
+						}
+				}
+				
+				void flush( Booru& booru ){
+					Poco::ScopedLock<Poco::Mutex> locker( lock );
+					
+					std::vector<CacheItem<T>*> saved;
+					auto batch = booru.beginBatch();
+					for( auto& item : items ){
+						if( !item.saved ){
+							booru.saveToDb( item.value );
+							saved.emplace_back( &item );
+						}
+					}
+					
+					batch.close();
+					
+					//Commit successful, apply changes
+					for( auto& cache : saved )
+						cache->saved = true;
+				}
+		};
 		
-		bool getPost( Post& p );
-		bool  getTag( Tag&  t );
-		void insertPost( Post& p, bool saved );
-		void insertTag ( Tag&  t, bool saved );
-		
-		Poco::Mutex postMutex;
-		Poco::Mutex  tagMutex;
+		Cache<Post> posts;
+		Cache<Tag> tags;
 	
 		Transaction beginBatch();
 		
@@ -61,8 +109,8 @@ class Booru{
 		void save( Post& p );
 		void save( Tag& p );
 		
-		void flushPosts();
-		void flushTags();
+		void flushPosts(){ posts.flush( *this ); }
+		void flushTags(){ tags.flush( *this ); }
 };
 
 #endif

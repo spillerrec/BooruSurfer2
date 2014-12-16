@@ -103,6 +103,10 @@ class DbConnection{
 		DbConnection() : db( "cache.sqlite" ) { }
 		SiteQueries& getSite( std::string site );
 		Database& getDb(){ return db; }
+		void reset(){
+			Poco::ScopedLock<Poco::Mutex> locker( site_lock );
+			sites.clear();
+		}
 };
 
 SiteQueries& DbConnection::getSite( std::string site ){
@@ -117,6 +121,8 @@ SiteQueries& DbConnection::getSite( std::string site ){
 }
 
 thread_local DbConnection connection;
+
+void resetDatabaseConnections(){ connection.reset(); }
 
 Booru::Booru( std::string site ) : site(site) {
 	Database db( "cache.sqlite" );
@@ -205,101 +211,55 @@ Booru::Booru( std::string site ) : site(site) {
 
 Transaction Booru::beginBatch(){ return connection.getDb(); }
 
-bool Booru::getPost( Post& p ){
-	Poco::ScopedLock<Poco::Mutex> locker( postMutex );
-	for( auto& post : postCache )
-		if( post.value.id == p.id ){
-			p = post.value;
-			return true;
-		}
-	return false;
-}
-
-bool Booru::getTag( Tag& t ){
-	Poco::ScopedLock<Poco::Mutex> locker( tagMutex );
-	for( auto& tag : tagCache )
-		if( tag.value.id == t.id ){
-			t = tag.value;
-			return true;
-		}
-	return false;
-}
-
-void Booru::insertPost( Post& p, bool saved ){
-	Poco::ScopedLock<Poco::Mutex> locker( postMutex );
-	postCache.emplace_back( p, saved );
-}
-void Booru::insertTag( Tag& t, bool saved ){
-	Poco::ScopedLock<Poco::Mutex> locker( tagMutex );
-	tagCache.emplace_back( t, saved );
-}
-
-void Booru::flushPosts(){
-	Poco::ScopedLock<Poco::Mutex> locker( postMutex );
+void Booru::saveToDb( const Post& item ){
+	auto& stmt = connection.getSite(site).savePosts();
 	
-	auto batch = beginBatch();
-	for( auto& p : postCache ){
-		if( !p.saved ){
-			auto& stmt = connection.getSite(site).savePosts();
-			
-			stmt.bind( static_cast<int>(p.value.id), 1 );
-			stmt.bind( p.value.hash, 2 );
-			stmt.bind( p.value.creation_time.epochTime(), 3 );
-			stmt.bind( p.value.author, 4 );
-			stmt.bind( p.value.source, 5 );
-			stmt.bind( p.value.rating, 6 );
-			stmt.bind( -1, 7 ); //TODO: parent_id
-			stmt.bind( 0, 8 ); //TODO: children_updated
-			stmt.bind( "", 9 ); //TODO: pools
-			stmt.bind( 0, 10 ); //TODO: notes updated
-			stmt.bind( 0, 11 ); //TODO: comments updated
-			stmt.bind( p.value.score, 12 );
-			stmt.bind( 1, 13 ); //TODO: score_count
-			stmt.bind( -1, 14 ); //TODO: status
-			stmt.bind( combineIds( p.value.tags.list ), 15 );
-			stmt.bind( 0, 16 ); //TODO: post_updated
-			
-			auto bindImage = [&]( Image img, int offset ){
-					stmt.bind( img.url,    offset + 0 );
-					stmt.bind( img.width,  offset + 1 );
-					stmt.bind( img.height, offset + 2 );
-					stmt.bind( img.size,   offset + 3 );
-				};
-			bindImage( p.value.full,      17 );
-			bindImage( p.value.preview,   21 );
-			bindImage( p.value.thumbnail, 25 );
-			bindImage( p.value.reduced,   29 );
-			
-			stmt.bind( 0, 33 ); //TODO: local
-			
-			stmt.next();
-			p.saved = true;
-		}
-	}
+	stmt.bind( static_cast<int>(item.id), 1 );
+	stmt.bind( item.hash, 2 );
+	stmt.bind( item.creation_time.epochTime(), 3 );
+	stmt.bind( item.author, 4 );
+	stmt.bind( item.source, 5 );
+	stmt.bind( item.rating, 6 );
+	stmt.bind( -1, 7 ); //TODO: parent_id
+	stmt.bind( 0, 8 ); //TODO: children_updated
+	stmt.bind( "", 9 ); //TODO: pools
+	stmt.bind( 0, 10 ); //TODO: notes updated
+	stmt.bind( 0, 11 ); //TODO: comments updated
+	stmt.bind( item.score, 12 );
+	stmt.bind( 1, 13 ); //TODO: score_count
+	stmt.bind( -1, 14 ); //TODO: status
+	stmt.bind( combineIds( item.tags.list ), 15 );
+	stmt.bind( 0, 16 ); //TODO: post_updated
+	
+	auto bindImage = [&]( Image img, int offset ){
+			stmt.bind( img.url,    offset + 0 );
+			stmt.bind( img.width,  offset + 1 );
+			stmt.bind( img.height, offset + 2 );
+			stmt.bind( img.size,   offset + 3 );
+		};
+	bindImage( item.full,      17 );
+	bindImage( item.preview,   21 );
+	bindImage( item.thumbnail, 25 );
+	bindImage( item.reduced,   29 );
+	
+	stmt.bind( 0, 33 ); //TODO: local
+	
+	stmt.next();
 }
 
-void Booru::flushTags(){
-	Poco::ScopedLock<Poco::Mutex> locker( tagMutex );
+void Booru::saveToDb( const Tag& tag ){
+	auto& stmt = connection.getSite(site).saveTags();
+	std::cout << "Saving Tag: " << tag.id << std::endl;
 	
-	auto batch = beginBatch();
-	for( auto& t : tagCache ){
-		if( !t.saved ){
-			auto& stmt = connection.getSite(site).saveTags();
-			std::cout << "Saving Tag: " << t.value.id << std::endl;
-			
-			stmt.bind( t.value.id, 1 );
-			stmt.bind( (int)t.value.count, 2 );
-			stmt.bind( t.value.type, 3 );
-			stmt.bind( false, 4 );
-			
-			stmt.next();
-			t.saved = true;
-		}
-	}
+	stmt.bind( tag.id, 1 );
+	stmt.bind( (int)tag.count, 2 );
+	stmt.bind( tag.type, 3 );
+	stmt.bind( false, 4 );
 }
+
 
 bool Booru::load( Post& p ){
-	if( getPost( p ) )
+	if( posts.get( p ) )
 		return true;
 	
 	auto& stmt = connection.getSite(site).loadPosts();
@@ -328,7 +288,7 @@ bool Booru::load( Post& p ){
 		loadImage( p.thumbnail, 24 );
 		loadImage( p.reduced,   28 );
 		
-		insertPost( p, true );
+		posts.insert( p, true );
 		return true;
 	}
 	
@@ -336,57 +296,43 @@ bool Booru::load( Post& p ){
 }
 
 bool Booru::load( Tag& p ){
-	if( getTag( p ) )
+	if( tags.get( p ) )
 		return true;
 	
-//	std::cout << "opening tag: " << p.id << std::endl;
 	auto& stmt = connection.getSite(site).loadTags();
 	std::cout << "Loading tag: " << p.id << std::endl;
 	stmt.bind( p.id, 1 );
 	if( stmt.next() ){
 		p.count = stmt.integer( 1 );
 		p.type = (Tag::Type)stmt.integer( 2 );
-		insertTag( p, true );
+		tags.insert( p, true );
 		return true;
 	}
 	else{
-		insertTag( p, true );
+		tags.insert( p, true );
 		return false;
 	}
 }
 
 void Booru::save( Post& p ){
 	auto copy = p;
-	if( getPost( copy ) ){
-		if( copy.tags.list != p.tags.list ){
-			//TODO: move to separate function
-			Poco::ScopedLock<Poco::Mutex> locker( postMutex );
-			for( auto& cache : postCache )
-				if( cache.value.id == p.id ){
-					cache.value = p;
-					cache.saved = false;
-				}
-		}
+	if( posts.get( copy ) ){
+		if( copy.tags.list != p.tags.list )
+			posts.replace( p );
 	}
 	else
-		insertPost( p, false );
+		posts.insert( p, false );
 }
 
 void Booru::save( Tag& t ){
 	auto copy = t;
-	if( getTag( copy ) ){
+	if( tags.get( copy ) ){
 		if( unsigned(copy.count * 1.01) < t.count ){
 			std::cout << "Tag count is: " << copy.count << " versus " << t.count << std::endl;
-			//TODO: move to separate function
-			Poco::ScopedLock<Poco::Mutex> locker( tagMutex );
-			for( auto& cache : tagCache )
-				if( cache.value.id == t.id ){
-					cache.value = t;
-					cache.saved = false;
-				}
+			tags.replace( t );
 		}
 	}
 	else
-		insertTag( t, t.count == 0 );
+		tags.insert( t, t.count == 0 );
 }
 

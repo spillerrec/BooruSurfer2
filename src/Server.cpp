@@ -23,6 +23,7 @@
 
 #include "Server.hpp"
 #include "api/ApiHandler.hpp"
+#include "db/Booru.hpp"
 #include "pages/PageHandler.hpp"
 
 #include <boost/algorithm/string.hpp>
@@ -90,6 +91,7 @@ class RequestHandler : public HTTPRequestHandler {
 					response.add( h.first, h.second );
 			}
 			catch( std::exception& e ){
+				resetDatabaseConnections();
 				contents = "Exception happened during processing the page: ";
 				contents += e.what();
 				response.setStatus( HTTPResponse::HTTP_INTERNAL_SERVER_ERROR );
