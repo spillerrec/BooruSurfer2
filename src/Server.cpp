@@ -104,6 +104,7 @@ class RequestHandler : public HTTPRequestHandler {
 				ApiHandler::get_instance()->flush();
 			}
 			catch( std::exception& e ){
+				resetDatabaseConnections();
 				cout << "Flush failed\n";
 			}
 		}
