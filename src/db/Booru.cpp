@@ -213,6 +213,7 @@ Transaction Booru::beginBatch(){ return connection.getDb(); }
 
 void Booru::saveToDb( const Post& item ){
 	auto& stmt = connection.getSite(site).savePosts();
+	std::cout << "Saving Post: " << item.id << std::endl;
 	
 	stmt.bind( static_cast<int>(item.id), 1 );
 	stmt.bind( item.hash, 2 );
@@ -255,6 +256,8 @@ void Booru::saveToDb( const Tag& tag ){
 	stmt.bind( (int)tag.count, 2 );
 	stmt.bind( tag.type, 3 );
 	stmt.bind( false, 4 );
+	
+	stmt.next();
 }
 
 

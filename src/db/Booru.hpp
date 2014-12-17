@@ -78,15 +78,20 @@ class Booru{
 				void flush( Booru& booru ){
 					Poco::ScopedLock<Poco::Mutex> locker( lock );
 					
+					//Find all items to save
 					std::vector<CacheItem<T>*> saved;
-					auto batch = booru.beginBatch();
-					for( auto& item : items ){
-						if( !item.saved ){
-							booru.saveToDb( item.value );
+					for( auto& item : items )
+						if( !item.saved )
 							saved.emplace_back( &item );
-						}
-					}
 					
+					//Don't start an transaction if nothing to save
+					if( saved.size() == 0 )
+						return;
+					
+					//Save items
+					auto batch = booru.beginBatch();
+					for( auto& cache : saved )
+						booru.saveToDb( cache->value );
 					batch.close();
 					
 					//Commit successful, apply changes
