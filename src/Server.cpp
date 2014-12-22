@@ -16,7 +16,6 @@
 
 #include <Poco/Net/HTTPRequestHandler.h>
 #include <Poco/Net/HTTPServerRequest.h>
-#include <Poco/Net/HTTPServerResponse.h>
 #include <Poco/Net/HTTPServerParams.h>
 #include <Poco/Net/HTTPServer.h>
 #include <Poco/URI.h>
@@ -66,47 +65,21 @@ string Server::unencode_str( const string& input ){
 class RequestHandler : public HTTPRequestHandler {
 	public:
 		virtual void handleRequest( HTTPServerRequest& req, HTTPServerResponse& response ) override {
-			string contents;
-			try{
-				PageHandler pages;
-				
-				//Split on '/' and remove empty parts
-				vector<string> args;
-				boost::split( args, req.getURI(), boost::is_any_of( "/" ) ); //TODO: avoid is_any_of() ?
-				args.erase( remove_if( args.begin(), args.end(), [](string arg){ return arg.empty(); } ), args.end() );
-				
-				for( auto& arg : args )
-					arg = Server::unencode_str( arg );
-				
-				//Create content
-				vector<APage::header> headers;
-				if( args.size() == 0 )
-					contents = pages.get_root()->serve( args, headers );
-				else
-					contents = pages.get( args[0] )->serve( args, headers );
-				
-				//Add headers
-				response.setStatus( HTTPResponse::HTTP_OK );
-				for( APage::header h : headers )
-					response.add( h.first, h.second );
-			}
-			catch( std::exception& e ){
-				resetDatabaseConnections();
-				contents = "Exception happened during processing the page: ";
-				contents += e.what();
-				response.setStatus( HTTPResponse::HTTP_INTERNAL_SERVER_ERROR );
-			}
+			PageHandler pages;
 			
-			//Send content
-			response.sendBuffer( contents.c_str(), contents.size() );
+			//Split on '/' and remove empty parts
+			vector<string> args;
+			boost::split( args, req.getURI(), boost::is_any_of( "/" ) ); //TODO: avoid is_any_of() ?
+			args.erase( remove_if( args.begin(), args.end(), [](string arg){ return arg.empty(); } ), args.end() );
 			
-			try{
-				ApiHandler::get_instance()->flush();
-			}
-			catch( std::exception& e ){
-				resetDatabaseConnections();
-				cout << "Flush failed\n";
-			}
+			for( auto& arg : args )
+				arg = Server::unencode_str( arg );
+			
+			//Process page
+			if( args.size() == 0 )
+				pages.get_root()->handleRequest( args, response );
+			else
+				pages.get( args[0] )->handleRequest( args, response );
 		}
 };
 

@@ -43,14 +43,12 @@ static string istream2string( const istream& stream ){
 }
 
 string http_get( URI uri, HTTPRequest& req, HTTPResponse& res ){
-	cout << "http_get()\n";
 	HTTPClientSession session(uri.getHost(), uri.getPort());
 	session.sendRequest(req);
 	return istream2string( session.receiveResponse(res) );
 }
 
 string https_get( URI uri, HTTPRequest& req, HTTPResponse& res ){
-	cout << "https_get()\n";
 	const auto context = new Context( Context::CLIENT_USE, "", Context::VERIFY_NONE );
 	HTTPSClientSession session(uri.getHost(), uri.getPort(), context);
 	session.sendRequest(req);

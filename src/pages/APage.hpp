@@ -21,11 +21,18 @@
 #include <string>
 #include <utility>
 
+namespace Poco{
+	namespace Net{
+		class HTTPServerResponse;
+	}
+}
+
 class APage{
 	public:
 		typedef std::pair<std::string,std::string> header;
 		static header content_type( std::string mime="text/html; charset=utf-8" ){ return header( "Content-Type", mime ); }
 		virtual std::string serve( std::vector<std::string> args, std::vector<header> &headers ) const = 0;
+		virtual void handleRequest( std::vector<std::string> args, Poco::Net::HTTPServerResponse& response );
 		virtual ~APage(){ }
 };
 
