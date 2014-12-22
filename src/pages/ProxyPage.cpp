@@ -18,6 +18,8 @@
 
 #include "ProxyPage.hpp"
 
+#include "../exceptions/utils.hpp"
+
 #include "../api/Api.hpp"
 #include "../api/ApiHandler.hpp"
 
@@ -30,8 +32,7 @@ using namespace std;
 
 
 string ProxyPage::serve( vector<string> args, vector<header> &headers ) const{
-	if( args.size() != 3 )
-		return "fail";
+	require( args.size() == 3, "Wrong amount of arguments" );
 	
 	int pos1 = args[2].find_first_of( " " );
 	int pos2 = args[2].find_first_of( " ", pos1+1 );
@@ -39,21 +40,14 @@ string ProxyPage::serve( vector<string> args, vector<header> &headers ) const{
 		return "parsing failed";
 	
 	string site = args[2].substr( 0, pos1 );
-	int id;
-	try{
-		id = stoi( args[2].substr( pos1 + 1, pos2-pos1-1 ) );
-	}
-	catch( ... ){
-		return "Not a valid id";
-	}
-	Api *api = ApiHandler::get_instance()->get_by_shorthand( site );
-	if( !api )
-		return "Not a site";
+	int id = getInt( args[2].substr( pos1 + 1, pos2-pos1-1 ), "Not a valid id" );
+	
+	Api& api = ApiHandler::get_instance()->get_by_shorthand( site );
 	
 	//TODO: use the filename to detect image size
-	Post p = api->get_post( id );
-	if( p.id == 0 )
-		return "Could not retrive post";
+	Post p = api.get_post( id );
+	require( p.id != 0, "Could not retrive post" ); //TODO: make get_post throw
+	
 	Image img = p.get_image_size( Image::from_string( args[1] ) );
 	
 	//Detect mime-type
@@ -67,6 +61,6 @@ string ProxyPage::serve( vector<string> args, vector<header> &headers ) const{
 	headers.push_back( header( "Content-Type", get_mime( ext ) ) );
 	headers.push_back( header( "Cache-Control", "max-age=31536000" ) );
 	
-	return api->get_from_url( img.url, { { "Referer", api->original_post_url( id ) } } );
+	return api.get_from_url( img.url, { { "Referer", api.original_post_url( id ) } } );
 }
 

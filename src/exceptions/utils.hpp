@@ -14,28 +14,20 @@
 	along with BooruSurfer2.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include <Poco/Timestamp.h>
+#ifndef EXCEPTIONS__UTILS_HPP
+#define EXCEPTIONS__UTILS_HPP
 
-#include "SavePage.hpp"
-#include "ProxyPage.hpp"
-#include "../exceptions/utils.hpp"
+#include "InvalidInput.hpp"
 
-#include <fstream>
-
-using namespace std;
-
-
-string SavePage::serve( vector<string> args, vector<header> &headers ) const{
-	require( args.size() == 3, "fail" );
-	
-	ProxyPage p;
-	vector<header> fake_headers;
-	auto content = ProxyPage().serve( args, fake_headers );
-	
-	//Save file
-	ofstream file( "out/" + args[2], ios_base::out | ios_base::binary );
-	file << content;
-	
-	return "<html><head><title>Saved</title></head><body>Saved</body></html>";
+inline void require( bool valid, const std::string& error ){
+	if( !valid )
+		throw InvalidInput( error );
 }
+
+inline int getInt( const std::string& input, const std::string& error="Not an integer" ){
+	try{ return stoi( input ); }
+	catch( ... ){ throw InvalidInput( error ); }
+}
+
+#endif
 

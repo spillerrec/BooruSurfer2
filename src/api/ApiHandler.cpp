@@ -18,6 +18,7 @@
 #include <Poco/Timestamp.h>
 
 #include "ApiHandler.hpp"
+#include "../exceptions/InvalidInput.hpp"
 
 #include "IdolApi.hpp"
 #include "YandereApi.hpp"
@@ -45,11 +46,11 @@ ApiHandler* ApiHandler::get_instance(){
 	return instance;
 }
 
-Api* ApiHandler::get_by_shorthand( std::string shorthand ) const{
+Api& ApiHandler::get_by_shorthand( std::string shorthand ) const{
 	for( auto api : apis )
 		if( api->get_shorthand() == shorthand )
-			return api;
-	return nullptr;
+			return *api;
+	throw InvalidInput( shorthand + " is not a site" );
 }
 
 void ApiHandler::flush(){

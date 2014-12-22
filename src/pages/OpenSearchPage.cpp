@@ -24,6 +24,7 @@
 
 #include "../api/Api.hpp"
 #include "../api/ApiHandler.hpp"
+#include "../exceptions/utils.hpp"
 #include "../parsing/OpenSearchDescription.hpp"
 #include "UrlHandler.hpp"
 
@@ -31,13 +32,9 @@ using namespace std;
 using namespace pugi;
 
 string OpenSearchPage::serve( vector<string> args, vector<header> &headers ) const{
-	if( args.size() < 2 )
-		return "fail";
-	
-	Api *api = ApiHandler::get_instance()->get_by_shorthand( args[1] );
-	if( !api )
-		return "no such site!";
-	UrlHandler url( api );
+	require( args.size() >= 2, "Too few arguments" );
+	Api& api = ApiHandler::get_instance()->get_by_shorthand( args[1] );
+	UrlHandler url( &api );
 	
 	cout << "Attempting to load this" << endl;
 	
@@ -46,9 +43,9 @@ string OpenSearchPage::serve( vector<string> args, vector<header> &headers ) con
 		search = args[2];
 	
 	OpenSearchDescription osd;
-	osd.short_name = "Booru: " + api->get_shorthand();
-	osd.long_name = api->get_name();
-	osd.description = "Search " + api->get_name() + " for images";
+	osd.short_name = "Booru: " + api.get_shorthand();
+	osd.long_name = api.get_name();
+	osd.description = "Search " + api.get_name() + " for images";
 	osd.input_encoding = "UTF-8";
 	//TODO: image
 	osd.adult_content = false;

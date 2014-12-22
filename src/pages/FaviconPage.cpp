@@ -17,6 +17,7 @@
 #include "FaviconPage.hpp"
 #include "../api/Api.hpp"
 #include "../api/ApiHandler.hpp"
+#include "../exceptions/utils.hpp"
 
 #include "png++/png.hpp"
 
@@ -53,23 +54,21 @@ string to_string( image<rgb_pixel> img ){
 }
 
 string FaviconPage::serve( vector<string> args, vector<header> &headers ) const{
+	require( args.size() == 3, "Invalid argument size" );
+	Api& api = ApiHandler::get_instance()->get_by_shorthand( args[1] );
+	
 	headers.push_back( header( "Content-Type", "image/png" ) );
 	
 	image<rgb_pixel> img_fail( image_path( "" ) );
-	if( args.size() < 3 )
-		return to_string( img_fail );
 	
-	Api *api = ApiHandler::get_instance()->get_by_shorthand( args[1] );
-	if( !api )
-		return to_string( img_fail );
 	
 	try{
-		auto main = api->main_color(), secondary = api->secondary_color();
 		image<gray_pixel> img_template( image_path( args[2] ) );
+		auto main = api.main_color(), secondary = api.secondary_color();
 		image<rgb_pixel> img_out( 16, 16 );
 		if( img_template.get_width() != img_out.get_width()
 			&& img_template.get_height() != img_out.get_height() )
-			return to_string( img_fail );
+			throw logic_error( "Favicon template has wrong dimensions" );
 		
 		for( int iy=0; iy<img_out.get_height(); iy++ )
 			for( int ix=0; ix<img_out.get_width(); ix++ )
@@ -78,6 +77,6 @@ string FaviconPage::serve( vector<string> args, vector<header> &headers ) const{
 		headers.push_back( header( "Cache-Control", "max-age=31536000" ) );
 		return to_string( img_out );
 	}
-	catch(...){ return to_string( img_fail ); }
+	catch(...){ throw logic_error( "Unknown favicon error" ); }
 }
 

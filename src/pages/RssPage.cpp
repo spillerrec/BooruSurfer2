@@ -26,6 +26,7 @@
 
 #include "../api/Api.hpp"
 #include "../api/ApiHandler.hpp"
+#include "../exceptions/utils.hpp"
 #include "../parsing/Rss.hpp"
 #include "UrlHandler.hpp"
 
@@ -33,23 +34,19 @@ using namespace std;
 using namespace pugi;
 
 string RssPage::serve( vector<string> args, vector<header> &headers ) const{
-	if( args.size() < 2 )
-		return "fail";
-	
-	Api *api = ApiHandler::get_instance()->get_by_shorthand( args[1] );
-	if( !api )
-		return "no such site!";
-	UrlHandler url( api );
+	require( args.size() >= 2, "fail" );
+	Api& api = ApiHandler::get_instance()->get_by_shorthand( args[1] );
+	UrlHandler url( &api );
 	
 	string search = "";
 	if( args.size() == 3 )
 		search = args[2];
 	
-	Index index = api->get_index( search, 1 );
+	Index index = api.get_index( search, 1 );
 	vector<Post>& posts = index.posts;
 	
 	Rss rss;
-	rss.title.value = api->get_name() + " - " + search;
+	rss.title.value = api.get_name() + " - " + search;
 	rss.link.value = url.index_url( {{search}} );
 	
 	Poco::Timestamp current;

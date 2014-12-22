@@ -19,6 +19,7 @@
 #include "PostPage.hpp"
 #include "../api/Api.hpp"
 #include "../api/ApiHandler.hpp"
+#include "../exceptions/utils.hpp"
 
 #include "Styler.hpp"
 
@@ -26,32 +27,22 @@ using namespace std;
 using namespace HTML;
 
 string PostPage::serve( vector<string> args, vector<header> &headers ) const{
-	if( args.size() != 3 )
-		return "fail";
+	require( args.size() == 3, "fail" );
+	Api& api = ApiHandler::get_instance()->get_by_shorthand( args[1] );
+	UrlHandler url( &api );
 	
-	Api *api = ApiHandler::get_instance()->get_by_shorthand( args[1] );
-	if( !api )
-		return "Not a site";
-	UrlHandler url( api );
-	
-	unsigned id;
-	try{
-		id = stoi( args[2] );
-	}
-	catch( ... ){
-		return "Post id not an number!";
-	}
+	unsigned id = getInt( args[2], "Post id not an number!" );
 	cout << "Post: " << id << "\n";
-	Post post = api->get_post( id );
+	Post post = api.get_post( id );
 	
-	Styler s( api, "Post: " + url.image_tags( post, 128 ) );
+	Styler s( &api, "Post: " + url.image_tags( post, 128 ) );
 	headers.push_back( content_type() );
 	
 	//Quick link to image
 	//TODO: change behaviour once we have pools
 	s.head( link(s.doc, REL("next"), HREF( url.image_url( post, Image::ORIGINAL, true ) ) ) );
 	
-	s.head( link(s.doc, REL("shortcut icon"), HREF( "/favicon/" + api->get_shorthand() + "/post" ) ) );
+	s.head( link(s.doc, REL("shortcut icon"), HREF( "/favicon/" + api.get_shorthand() + "/post" ) ) );
 	s.nav( s.main_navigation( "" ) );
 	
 	//Post info
@@ -59,7 +50,7 @@ string PostPage::serve( vector<string> args, vector<header> &headers ) const{
 	info( h3(s.doc)( "Info:" ) );
 	s.post_info( info, post, true );
 	
-	s.tag_list( info, api->tag_handler.getAll( post.tags ), "Tags:" );
+	s.tag_list( info, api.tag_handler.getAll( post.tags ), "Tags:" );
 	
 	s.body(
 			div( s.doc, ID("container") )(

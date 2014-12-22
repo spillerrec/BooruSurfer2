@@ -14,28 +14,16 @@
 	along with BooruSurfer2.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include <Poco/Timestamp.h>
+#ifndef INVALID_INPUT_HPP
+#define INVALID_INPUT_HPP
 
-#include "SavePage.hpp"
-#include "ProxyPage.hpp"
-#include "../exceptions/utils.hpp"
+#include <stdexcept>
 
-#include <fstream>
+class InvalidInput : public std::runtime_error{
+	public:
+		InvalidInput( const std::string& error )
+			:	std::runtime_error( "Invalid input: " + error ) { }
+};
 
-using namespace std;
-
-
-string SavePage::serve( vector<string> args, vector<header> &headers ) const{
-	require( args.size() == 3, "fail" );
-	
-	ProxyPage p;
-	vector<header> fake_headers;
-	auto content = ProxyPage().serve( args, fake_headers );
-	
-	//Save file
-	ofstream file( "out/" + args[2], ios_base::out | ios_base::binary );
-	file << content;
-	
-	return "<html><head><title>Saved</title></head><body>Saved</body></html>";
-}
+#endif
 
