@@ -20,9 +20,9 @@
 #include "FilePage.hpp"
 
 
-class SavePage : public FilePage{
+class SavePage : public StringPage{
 	public:
-		virtual std::string serve( std::vector<std::string> args, std::vector<header> &headers ) const override;
+		virtual std::string serve( Arguments args, std::vector<header> &headers ) const override;
 };
 
 #endif

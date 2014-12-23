@@ -18,7 +18,6 @@
 
 #include <iostream>
 #include <fstream>
-#include <istream>
 #include <algorithm>
 
 using namespace std;
@@ -52,7 +51,13 @@ FilePage::FilePage(){
 	mimes[ "css" ] = "text/css";
 }
 
-string FilePage::serve( vector<string> args, vector<header> &headers ) const{
+struct FileReader : public FilePage::StreamReader{
+	fstream fs;
+	FileReader( string path )
+		:	fs( path, fstream::in | fstream::binary ), StreamReader( fs ) { }
+};
+
+FilePage::Result FilePage::getReader( vector<string> args ) const{
 	//Rebuild the filepath, as it was split appart
 	auto add_dir = [](string sum, string add){ return ( add != ".." ) ? sum + "/" + add : ""; };
 	string filepath = accumulate( args.begin()+1, args.end(), string("resources"), add_dir );
@@ -63,22 +68,16 @@ string FilePage::serve( vector<string> args, vector<header> &headers ) const{
 	int pos = filepath.find_last_of( "." );
 	if( pos != string::npos )
 		ext = filepath.substr( pos + 1 );
-	
-	headers.push_back( header( "Content-Type", get_mime( ext ) ) );
-	headers.push_back( header( "Cache-Control", "max-age=31536000" ) );
-	
 	cout << filepath << "\n";
-	fstream fs( filepath, fstream::in | fstream::binary );
 	
-	//Read entire stream into a string, using the solution by Joe Adams:
-	// http://stackoverflow.com/questions/3203452/how-to-read-entire-stream-into-a-stdstring
-	std::string ret;
-	char buffer[4096];
-	while( fs.read( buffer, sizeof(buffer) ) )
-		ret.append( buffer, sizeof(buffer) );
-	ret.append( buffer, fs.gcount() );
-	
-	return ret;
+	return make_pair( unique_ptr<Reader>( new FileReader( filepath ) ), ext );
+}
+
+unique_ptr<StreamPage::Reader> FilePage::serve( APage::Arguments args, std::vector<header>& headers ) const{
+	auto result = getReader( args );
+	headers.push_back( header( "Content-Type", get_mime( result.second ) ) );
+	headers.push_back( header( "Cache-Control", "max-age=31536000" ) );
+	return std::move( result.first );
 }
 
 string FilePage::get_mime( string ext ) const{

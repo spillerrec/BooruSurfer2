@@ -19,9 +19,9 @@
 
 #include "APage.hpp"
 
-class OpenSearchPage : public APage{
+class OpenSearchPage : public StringPage{
 	public:
-		std::string serve( std::vector<std::string> args, std::vector<header> &headers ) const;
+		std::string serve( Arguments args, std::vector<header> &headers ) const;
 };
 
 #endif

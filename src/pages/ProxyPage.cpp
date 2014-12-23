@@ -15,6 +15,7 @@
 */
 
 #include <Poco/Timestamp.h>
+#include <Poco/Net/HTTPClientSession.h>
 
 #include "ProxyPage.hpp"
 
@@ -30,14 +31,20 @@
 
 using namespace std;
 
+struct RequestReader : public FilePage::StreamReader{
+	unique_ptr<Poco::Net::HTTPClientSession> session;
+	RequestReader( Api::UrlResponse response )
+		:	session( std::move( response.first ) ), StreamReader( response.second )
+		{ }
+};
 
-string ProxyPage::serve( vector<string> args, vector<header> &headers ) const{
+FilePage::Result ProxyPage::getReader( APage::Arguments args ) const{
 	require( args.size() == 3, "Wrong amount of arguments" );
 	
 	int pos1 = args[2].find_first_of( " " );
 	int pos2 = args[2].find_first_of( " ", pos1+1 );
 	if( pos1 == string::npos || pos2 == string::npos )
-		return "parsing failed";
+		throw runtime_error( "parsing failed" );
 	
 	string site = args[2].substr( 0, pos1 );
 	int id = getInt( args[2].substr( pos1 + 1, pos2-pos1-1 ), "Not a valid id" );
@@ -45,10 +52,7 @@ string ProxyPage::serve( vector<string> args, vector<header> &headers ) const{
 	Api& api = ApiHandler::get_instance()->get_by_shorthand( site );
 	
 	//TODO: use the filename to detect image size
-	Post p = api.get_post( id );
-	require( p.id != 0, "Could not retrive post" ); //TODO: make get_post throw
-	
-	Image img = p.get_image_size( Image::from_string( args[1] ) );
+	Image img = api.get_post( id ).get_image_size( Image::from_string( args[1] ) );
 	
 	//Detect mime-type
 	int pos = img.url.find_last_of( "." );
@@ -58,9 +62,8 @@ string ProxyPage::serve( vector<string> args, vector<header> &headers ) const{
 	auto start = img.url.rfind( ".", end );
 	auto ext = img.url.substr( start+1, end - start - 1 );
 	
-	headers.push_back( header( "Content-Type", get_mime( ext ) ) );
-	headers.push_back( header( "Cache-Control", "max-age=31536000" ) );
-	
-	return api.get_from_url( img.url, { { "Referer", api.original_post_url( id ) } } );
+	auto reader = unique_ptr<Reader>(
+			new RequestReader( api.getFromUrl( img.url, { { "Referer", api.original_post_url( id ) } } ) )
+		);
+	return { std::move(reader), ext };
 }
-

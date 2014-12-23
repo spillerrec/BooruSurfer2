@@ -22,7 +22,7 @@
 
 class ProxyPage : public FilePage{
 	public:
-		virtual std::string serve( std::vector<std::string> args, std::vector<header> &headers ) const override;
+		virtual Result getReader( Arguments args ) const override;
 };
 
 #endif

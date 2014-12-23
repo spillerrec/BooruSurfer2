@@ -14,9 +14,12 @@
 	along with BooruSurfer2.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef API_H
-#define API_H
+#ifndef API_HPP
+#define API_HPP
 
+#include <iostream>
+#include <sstream>
+#include <memory>
 #include <string>
 #include <vector>
 #include <utility>
@@ -24,6 +27,10 @@
 #include "../objects/Post.hpp"
 #include "../objects/Tag.hpp"
 #include "../objects/Index.hpp"
+
+namespace Poco{ namespace Net {
+	class HTTPClientSession;
+} }
 
 class Api{
 	protected:
@@ -38,9 +45,11 @@ class Api{
 		ResourceHandler<Post> post_handler{ booru };
 		void flush();
 	public:
-		std::string get_from_url( std::string url
-			,	std::vector<std::pair<std::string,std::string> > headers = std::vector<std::pair<std::string,std::string> >()
-			) const; //temporary
+		using Headers = std::vector<std::pair<std::string,std::string>>;
+		using UrlResponse = std::pair<std::unique_ptr<Poco::Net::HTTPClientSession>,std::istream&>;
+		
+		UrlResponse getFromUrl( std::string url, Headers headers = Headers() ) const;
+		std::string get_from_url( std::string url, Headers headers = Headers() ) const; //temporary
 		
 	public:
 		Api( std::string site_name ) : site_name(site_name) { }

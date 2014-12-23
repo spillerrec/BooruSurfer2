@@ -26,7 +26,7 @@
 using namespace Poco::Net;
 using namespace std;
 
-void APage::handleRequest( std::vector<string> args, HTTPServerResponse& response ){
+void StringPage::handleRequest( Arguments args, HTTPServerResponse& response ){
 	string contents;
 	try{
 		//Create content
@@ -38,7 +38,8 @@ void APage::handleRequest( std::vector<string> args, HTTPServerResponse& respons
 		for( APage::header h : headers )
 			response.add( h.first, h.second );
 	}
-	catch( std::exception& e ){
+	catch( exception& e ){
+	
 		resetDatabaseConnections();
 		contents = "Exception happened during processing the page: ";
 		contents += e.what();
@@ -51,8 +52,40 @@ void APage::handleRequest( std::vector<string> args, HTTPServerResponse& respons
 	try{
 		ApiHandler::get_instance()->flush();
 	}
-	catch( std::exception& e ){
+	catch( exception& e ){
 		resetDatabaseConnections();
 		cout << "Flush failed\n";
+	}
+}
+
+void StreamPage::Reader::writeAll( std::ostream& out ){
+	char buffer[4096];
+	int available;
+	do{
+		available = readBuf( buffer, sizeof(buffer) );
+		out.write( buffer, available );
+	}while( available == sizeof(buffer) );
+}
+
+void StreamPage::handleRequest( Arguments args, HTTPServerResponse& response ){
+	try{
+		vector<APage::header> headers;
+		auto reader = serve( args, headers );
+		
+		//Add headers
+		response.setStatus( HTTPResponse::HTTP_OK );
+		for( APage::header h : headers )
+			response.add( h.first, h.second );
+		
+		//Write everything from the Reader
+		reader->writeAll( response.send() );
+	}
+	catch( exception& e ){
+		resetDatabaseConnections();
+		cout << "Exception occurred: " << e.what() << endl;
+		string contents = "Exception happened during processing the page: ";
+		contents += e.what();
+		response.setStatus( HTTPResponse::HTTP_INTERNAL_SERVER_ERROR );
+		response.sendBuffer( contents.c_str(), contents.size() );
 	}
 }

@@ -28,13 +28,13 @@ using namespace std;
 string SavePage::serve( vector<string> args, vector<header> &headers ) const{
 	require( args.size() == 3, "fail" );
 	
-	ProxyPage p;
 	vector<header> fake_headers;
-	auto content = ProxyPage().serve( args, fake_headers );
+	auto result = ProxyPage().getReader( args );
+	auto& reader = result.first;
 	
 	//Save file
 	ofstream file( "out/" + args[2], ios_base::out | ios_base::binary );
-	file << content;
+	reader->writeAll( file );
 	
 	return "<html><head><title>Saved</title></head><body>Saved</body></html>";
 }

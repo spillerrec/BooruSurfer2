@@ -26,9 +26,6 @@
 
 #include "Api.hpp"
 
-#include <iostream>
-#include <sstream>
-
 using namespace Poco::Net;
 using namespace Poco;
 using namespace std;
@@ -38,78 +35,61 @@ void Api::flush(){
 	booru.flushTags();
 }
 
-static string istream2string( const istream& stream ){
-	return string(static_cast<stringstream const&>(stringstream() << stream.rdbuf()).str());
+unique_ptr<HTTPClientSession> getSession( bool https, URI uri ){
+	if( https ){
+		auto context = new Context( Context::CLIENT_USE, "", Context::VERIFY_NONE );
+		return unique_ptr<HTTPClientSession>( new HTTPSClientSession( uri.getHost(), uri.getPort(), context ) );
+	}
+	else
+		return unique_ptr<HTTPClientSession>( new HTTPClientSession(  uri.getHost(), uri.getPort() ) );
 }
 
-string http_get( URI uri, HTTPRequest& req, HTTPResponse& res ){
-	HTTPClientSession session(uri.getHost(), uri.getPort());
-	session.sendRequest(req);
-	return istream2string( session.receiveResponse(res) );
-}
-
-string https_get( URI uri, HTTPRequest& req, HTTPResponse& res ){
-	const auto context = new Context( Context::CLIENT_USE, "", Context::VERIFY_NONE );
-	HTTPSClientSession session(uri.getHost(), uri.getPort(), context);
-	session.sendRequest(req);
-	return istream2string( session.receiveResponse(res) );
+Api::UrlResponse Api::getFromUrl( string url, Api::Headers headers ) const{
+	if( url.empty() )
+		throw logic_error( "Resource requested, but no url provided" );
+	
+	URI uri( url );
+	cout << "Url: " << url << "\n";
+	
+	HTTPRequest req(HTTPRequest::HTTP_GET, uri.getPathAndQuery(), HTTPMessage::HTTP_1_1);
+	HTTPResponse res;
+	
+	//Add headers
+	//TODO: do something with the user-agent
+	req.add( "Accept", "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8" );
+//	req.add( "Accept-Encoding", "gzip,deflate" );
+	req.add( "Accept-Language", "en-US,en;q=0.6" );
+	req.add( "User-Agent", "Mozilla/5.0 (Windows NT 6.3; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/33.0.1750.117 Safari/537.36" );
+	for( auto h : headers )
+		req.add( h.first, h.second );
+	
+	//Get response
+	auto session = getSession( url.find( "https://" ) == 0, uri );
+	session->sendRequest(req);
+	auto& stream = session->receiveResponse(res);
+	
+	switch( res.getStatus() ){
+		case HTTPResponse::HTTP_OK:
+			return { std::move(session), stream };
+		
+		case HTTPResponse::HTTP_MOVED_PERMANENTLY:
+		case HTTPResponse::HTTP_FOUND:
+		case HTTPResponse::HTTP_SEE_OTHER:
+			if( res.has( "Location" ) ){
+				cout << "Doing redirect, from: " << url << "\n";
+				cout << "                  to: " << res.get( "Location" ) << "\n";
+				return getFromUrl( res.get( "Location" ) );
+			}
+			else
+				throw runtime_error( "Could not find location to redirect to" );
+		
+		default:
+			throw runtime_error( "Returned with status code: " + to_string(res.getStatus()) );
+	}
 }
 
 string Api::get_from_url( string url, vector<pair<string,string> > headers ) const{
-	if( url.empty() ){
-		cout << "ERROR: no url\n";
-		return "";
-	}
-	
-	try{
-		URI uri( url );
-		cout << "Url: " << url << "\n";
-		
-		HTTPRequest req(HTTPRequest::HTTP_GET, uri.getPathAndQuery(), HTTPMessage::HTTP_1_1);
-		HTTPResponse res;
-		
-		//Add headers
-		//TODO: do something with the user-agent
-		req.add( "Accept", "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8" );
-	//	req.add( "Accept-Encoding", "gzip,deflate" );
-		req.add( "Accept-Language", "en-US,en;q=0.6" );
-		req.add( "User-Agent", "Mozilla/5.0 (Windows NT 6.3; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/33.0.1750.117 Safari/537.36" );
-		for( auto h : headers )
-			req.add( h.first, h.second );
-		
-		//Get response
-		string str = ( url.find( "https://" ) == 0 )
-			?	https_get( uri, req, res )
-			:	http_get( uri, req, res )
-			;
-		
-		switch( res.getStatus() ){
-			case HTTPResponse::HTTP_OK:
-				return str;
-			
-			case HTTPResponse::HTTP_MOVED_PERMANENTLY:
-			case HTTPResponse::HTTP_FOUND:
-			case HTTPResponse::HTTP_SEE_OTHER:
-				if( res.has( "Location" ) ){
-					cout << "Doing redirect, from: " << url << "\n";
-					cout << "                  to: " << res.get( "Location" ) << "\n";
-					return get_from_url( res.get( "Location" ) );
-				}
-				else{
-					cout << "Could not find location to redirect to\n";
-					return "";
-				}
-			
-			default:
-				cout << "Returned with status code: " << res.getStatus() << "\n";
-				cout << str;
-				return "";
-		}
-	}
-	catch( Exception &ex ){
-		cout << "Some exception happened during url request\n";
-		cout << ex.displayText() << "\n";
-		return "";
-	}
+	auto responce = getFromUrl( url, headers );
+	return static_cast<std::stringstream const&>(std::stringstream() << responce.second.rdbuf()).str();
 }
 

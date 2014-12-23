@@ -17,6 +17,7 @@
 #ifndef A_PAGE_H
 #define A_PAGE_H
 
+#include <memory>
 #include <vector>
 #include <string>
 #include <utility>
@@ -29,11 +30,30 @@ namespace Poco{
 
 class APage{
 	public:
-		typedef std::pair<std::string,std::string> header;
+		using header = std::pair<std::string,std::string>;
+		using Arguments = std::vector<std::string>;
 		static header content_type( std::string mime="text/html; charset=utf-8" ){ return header( "Content-Type", mime ); }
-		virtual std::string serve( std::vector<std::string> args, std::vector<header> &headers ) const = 0;
-		virtual void handleRequest( std::vector<std::string> args, Poco::Net::HTTPServerResponse& response );
+		virtual void handleRequest( Arguments args, Poco::Net::HTTPServerResponse& response ) = 0;
 		virtual ~APage(){ }
+};
+
+class StringPage : public APage{
+	public:
+		virtual std::string serve( Arguments args, std::vector<header> &headers ) const = 0;
+		virtual void handleRequest( Arguments args, Poco::Net::HTTPServerResponse& response ) override;
+};
+
+class StreamPage: public APage{
+	public:
+		struct Reader{
+			virtual unsigned readBuf( char* buf, unsigned size ) = 0;
+			virtual ~Reader(){ }
+			
+			void writeAll( std::ostream& out );
+		};
+		
+		virtual std::unique_ptr<Reader> serve( Arguments args, std::vector<header>& headers ) const = 0;
+		virtual void handleRequest( Arguments args, Poco::Net::HTTPServerResponse& response ) final;
 };
 
 #endif

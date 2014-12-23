@@ -19,15 +19,31 @@
 
 #include "APage.hpp"
 
+#include <istream>
 #include <unordered_map>
 
-class FilePage : public APage{
+class FilePage : public StreamPage{
 	private:
 		std::unordered_map<std::string, std::string> mimes;
 		
 	public:
+		class StreamReader : public Reader{
+			private:
+				std::istream& stream;
+				
+			public:
+				StreamReader( std::istream& stream ) : stream(stream) { }
+				unsigned readBuf( char* buf, unsigned size ) override{
+					stream.read( buf, size );
+					return stream.gcount();
+				}
+		};
+		
+	public:
+		using Result = std::pair<std::unique_ptr<Reader>, std::string>;
 		FilePage();
-		std::string serve( std::vector<std::string> args, std::vector<header> &headers ) const;
+		virtual Result getReader( Arguments args ) const;
+		virtual std::unique_ptr<Reader> serve( Arguments args, std::vector<header>& headers ) const final;
 		std::string get_mime( std::string ext ) const;
 };
 
