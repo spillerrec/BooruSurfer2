@@ -31,8 +31,8 @@
 using namespace std;
 using namespace pugi;
 
-#include <tidy/tidy.h>
-#include <tidy/buffio.h>
+#include <tidy.h>
+#include <buffio.h>
 
 //Returns an empty string on error
 static string CleanHTML(const string &html){
@@ -265,92 +265,98 @@ bool get_flash( xml_document& doc, Post& p ){
 	return true;
 }
 
-Post SanApi::get_post( unsigned id ){
+class Xhtml{
+	private:
+		xml_document document;
+		
+	public:
+		Xhtml( SanApi& api, const string& url ){
+			auto xml = CleanHTML( api.get_from_url( url ) );
+			xml_parse_result result = document.load( xml.c_str() );
+			if( result.status != status_ok )
+				throw runtime_error( string("XHTML parsing failed, ") + result.description() );
+		}
+		
+		xml_document& doc() { return document; }
+};
+
+Post SanApi::get_post( unsigned post_id ){
 	Post post;
-	if( post_handler.get_checked( id, post ) )
+	if( post_handler.get_checked( post_id, post ) )
 		return post;
 	
-	string url = get_url() + "post/show/" + to_string( id );
-	string html = CleanHTML( get_from_url( url ) );
-	xml_document doc;
-	xml_parse_result result = doc.load( html.c_str() );
-	
+	Xhtml html( *this, get_url() + "post/show/" + to_string( post_id ) );
+	auto& doc = html.doc();
 	
 	//TODO: notes
 	//TODO: comments
 	
-	if( result.status == status_ok ){
-		//Get ID
-		string id = doc.select_nodes( "//meta[@property='og:title']" ).first().node().attribute("content").value();
-		post.id = parseInt( id.substr( 5 ), 0 );
+	//Get ID
+	string id = doc.select_nodes( "//meta[@property='og:title']" ).first().node().attribute("content").value();
+	post.id = parseInt( id.substr( 5 ), 0 );
+	
+	if( !get_image( doc, post ) )
+		if( !get_video( doc, post ) )
+			if( !get_flash( doc, post ) )
+				throw logic_error( "No media found in HTML post" );
+	
+	//Parent
+	xml_node parent = doc.select_nodes( "//div[@id='parent-preview']/span" ).first().node();
+//	if( parent )
+//		post.set_parent( parse_preview( parent ) );
+	
+	//Children
+//	for( auto it : doc.select_nodes( "//div[@id='child-preview']/span" ) )
+//		post.children.push_back( parse_preview( it.node() ) );
+	
+	//Score
+	string score_query( "//span[@id='post-score-" + id + "']" );
+	string count_query( "//span[@id='post-vote-count-" + id + "']" );
+	xml_node avg_span = doc.select_nodes( score_query.c_str() ).first().node();
+	xml_node count_span = doc.select_nodes( count_query.c_str() ).first().node();
+	post.score = parseDouble( avg_span.child_value(), -1.0 ) * parseDouble( count_span.child_value(), 0.0 );
+	
+	//Parsing of the detail section of the side-bar
+	for( auto tag : doc.select_nodes( "//div[@id='stats']/ul/li" ) ){
+		string val = tag.node().child_value();
+		string start_rating = "Rating: ";
+		string start_source = "Source: ";
+		//TODO: file-sizes of images?
 		
-		if( !get_image( doc, post ) )
-			if( !get_video( doc, post ) )
-				if( !get_flash( doc, post ) )
-					return Post(); //TODO: throw error
-		
-		//Parent
-		xml_node parent = doc.select_nodes( "//div[@id='parent-preview']/span" ).first().node();
-	//	if( parent )
-	//		post.set_parent( parse_preview( parent ) );
-		
-		//Children
-	//	for( auto it : doc.select_nodes( "//div[@id='child-preview']/span" ) )
-	//		post.children.push_back( parse_preview( it.node() ) );
-		
-		//Score
-		string score_query( "//span[@id='post-score-" + id + "']" );
-		string count_query( "//span[@id='post-vote-count-" + id + "']" );
-		xml_node avg_span = doc.select_nodes( score_query.c_str() ).first().node();
-		xml_node count_span = doc.select_nodes( count_query.c_str() ).first().node();
-		post.score = parseDouble( avg_span.child_value(), -1.0 ) * parseDouble( count_span.child_value(), 0.0 );
-		
-		//Parsing of the detail section of the side-bar
-		for( auto tag : doc.select_nodes( "//div[@id='stats']/ul/li" ) ){
-			string val = tag.node().child_value();
-			string start_rating = "Rating: ";
-			string start_source = "Source: ";
-			//TODO: file-sizes of images?
+		if( boost::starts_with( val, start_rating ) )
+			//Rating
+			post.rating = parseAgeRating( val.substr( start_rating.size() ) );
+		else if( boost::starts_with( val, start_source ) )
+			//Source
+			post.source = val.substr( start_source.size() );
+		else if( boost::starts_with( val, "Posted: " ) ){
+			//Date
+			auto links = tag.node().child( "a" );
 			
-			if( boost::starts_with( val, start_rating ) )
-				//Rating
-				post.rating = parseAgeRating( val.substr( start_rating.size() ) );
-			else if( boost::starts_with( val, start_source ) )
-				//Source
-				post.source = val.substr( start_source.size() );
-			else if( boost::starts_with( val, "Posted: " ) ){
-				//Date
-				auto links = tag.node().child( "a" );
-				
-				string date = links.attribute( "title" ).value();
-				post.creation_time = parse_date_time( date );
-				
-				//User-name
-				if( (links = links.next_sibling( "a" )) )
-					post.author = links.child_value();
-				else
-					post.author = "System";
-			}
+			string date = links.attribute( "title" ).value();
+			post.creation_time = parse_date_time( date );
+			
+			//User-name
+			if( (links = links.next_sibling( "a" )) )
+				post.author = links.child_value();
+			else
+				post.author = "System";
 		}
-		
-		//Tags
-		for( auto tag : doc.select_nodes( "//ul[@id='tag-sidebar']/li" ) ){
-			Tag t = parse_tag( tag.node() );
-			post.tags.add( t.id );
-			tag_handler.add( t );
-		}
-		
-		//Favorites
-	//	for( auto it : doc.select_nodes( "//span[@id='favorited-by']/a" ) )
-	//		post.fans.push_back( it.node().child_value() );
-	//	for( auto it : doc.select_nodes( "//span[@id='remaining-favs']/a" ) )
-	//		post.fans.push_back( it.node().child_value() );
-	//	cout << "Amount of fans: " << post.fans.size() << "\n";
 	}
-	else{
-		cout << "XHTML parsing failed!\n";
-		cout << "Error: " << result.description();
+	
+	//Tags
+	for( auto tag : doc.select_nodes( "//ul[@id='tag-sidebar']/li" ) ){
+		Tag t = parse_tag( tag.node() );
+		post.tags.add( t.id );
+		tag_handler.add( t );
 	}
+	
+	//Favorites
+//	for( auto it : doc.select_nodes( "//span[@id='favorited-by']/a" ) )
+//		post.fans.push_back( it.node().child_value() );
+//	for( auto it : doc.select_nodes( "//span[@id='remaining-favs']/a" ) )
+//		post.fans.push_back( it.node().child_value() );
+//	cout << "Amount of fans: " << post.fans.size() << "\n";
 	
 	post_handler.add( post );
 	return post;
@@ -361,36 +367,25 @@ Index SanApi::get_index( string search, int page, int limit ){
 	string url = get_url() + "?tags=" + Server::remove_reserved( Server::encode_str( search ) );
 	if( page > 1 )
 		url += "&page=" + to_string( page );
-	string html = CleanHTML( get_from_url( url ) );
+	Xhtml html( *this, url );
+		
+	//div.content div span.thumb
 	
-	xml_document doc;
-	xml_parse_result result = doc.load( html.c_str() );
+	xpath_node_set spans = html.doc().select_nodes( "//div[@class='content']/div/span[contains(concat(' ', normalize-space(@class), ' '), ' thumb ')]" );
+//	cout << "Spans: " << spans.size() << "\n";
+	for( xpath_node f : spans ){
+		index.posts.push_back( parse_preview( f.node() ) );
+	}
 	
-	if( result.status == status_ok ){
-		
-		//div.content div span.thumb
-		
-		xpath_node_set spans = doc.select_nodes( "//div[@class='content']/div/span[contains(concat(' ', normalize-space(@class), ' '), ' thumb ')]" );
-	//	cout << "Spans: " << spans.size() << "\n";
-		for( xpath_node f : spans ){
-			index.posts.push_back( parse_preview( f.node() ) );
-		}
-		
-		
-		xpath_node_set tags = doc.select_nodes( "//ul[@id='tag-sidebar']/li" );
-		for( xpath_node tag : tags ){
-			Tag t = parse_tag( tag.node() );
-			tag_handler.add( t );
-			index.related_tags.add( t.id );
-		}
+	
+	xpath_node_set tags = html.doc().select_nodes( "//ul[@id='tag-sidebar']/li" );
+	for( xpath_node tag : tags ){
+		Tag t = parse_tag( tag.node() );
+		tag_handler.add( t );
+		index.related_tags.add( t.id );
+	}
 
-		index.amount = -1;
-	}
-	else{
-		cout << "XHTML parsing failed!\n";
-		cout << "Error: " << result.description();
-	}
-	
+	index.amount = -1;
 	return index;
 }
 
