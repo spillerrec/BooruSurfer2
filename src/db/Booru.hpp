@@ -84,15 +84,15 @@ class Booru{
 						if( !item.saved )
 							saved.emplace_back( &item );
 					
-					//Don't start an transaction if nothing to save
-					if( saved.size() == 0 )
-						return;
-					
-					//Save items
-					auto batch = booru.beginBatch();
-					for( auto& cache : saved )
-						booru.saveToDb( cache->value );
-					batch.close();
+					//Save items, but reduce transactions as much as possible
+					if( saved.size() == 0 ) return;
+					if( saved.size() == 1 ) booru.saveToDb( saved[0]->value );
+					else{
+						auto batch = booru.beginBatch();
+						for( auto& cache : saved )
+							booru.saveToDb( cache->value );
+						batch.close();
+					}
 					
 					//Commit successful, apply changes
 					for( auto& cache : saved )
