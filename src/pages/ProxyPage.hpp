@@ -22,7 +22,7 @@
 
 class ProxyPage : public FilePage{
 	public:
-		virtual Result getReader( Arguments args ) const override;
+		virtual Result getReader( Arguments args, bool save=false ) const override;
 };
 
 #endif

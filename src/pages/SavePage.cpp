@@ -29,7 +29,7 @@ string SavePage::serve( vector<string> args, vector<header> &headers ) const{
 	require( args.size() == 3, "fail" );
 	
 	vector<header> fake_headers;
-	auto result = ProxyPage().getReader( args );
+	auto result = ProxyPage().getReader( args, true );
 	auto& reader = result.first;
 	
 	//Save file

@@ -67,12 +67,15 @@ class Post : public Identity<>{
 		int score = 0;
 		Rating rating = UNRATED;
 		
+		bool saved{ false };
+		
 		Image full;
 		Image reduced;
 		Image preview;
 		Image thumbnail;
 		
 		Image get_image_size( Image::Size size ) const;
+		Image::Size available() const;
 		
 		
 	public:
@@ -80,6 +83,7 @@ class Post : public Identity<>{
 		std::string get_hash() const{ return hash; }
 		std::string get_author() const{ return author; }
 		
+		Post combine( const Post& other ) const;
 };
 
 #endif

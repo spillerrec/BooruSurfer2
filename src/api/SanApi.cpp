@@ -283,7 +283,8 @@ class Xhtml{
 Post SanApi::get_post( unsigned post_id ){
 	Post post;
 	if( post_handler.get_checked( post_id, post ) )
-		return post;
+		if( post.available() == Image::ORIGINAL )
+			return post;
 	
 	Xhtml html( *this, get_url() + "post/show/" + to_string( post_id ) );
 	auto& doc = html.doc();
@@ -374,7 +375,9 @@ Index SanApi::get_index( string search, int page, int limit ){
 	xpath_node_set spans = html.doc().select_nodes( "//div[@class='content']/div/span[contains(concat(' ', normalize-space(@class), ' '), ' thumb ')]" );
 //	cout << "Spans: " << spans.size() << "\n";
 	for( xpath_node f : spans ){
-		index.posts.push_back( parse_preview( f.node() ) );
+		auto post = parse_preview( f.node() );
+		post_handler.add( post );
+		index.posts.push_back( post );
 	}
 	
 	

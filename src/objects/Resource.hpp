@@ -21,6 +21,7 @@
 #ifndef RESOURCE_HPP
 #define RESOURCE_HPP
 
+#include <algorithm>
 #include <vector>
 
 template<class identity>
@@ -33,6 +34,9 @@ class Resource{
 		Resource(){ }
 		Resource( bool exists ) : exists(exists){ }
 		Resource( std::vector<typename identity::ID_T> list ) : list(list){ }
+		
+		bool contains(typename identity::ID_T id ) const
+			{ return std::find( list.begin(), list.end(), id ) != list.end(); }
 		
 		void add( typename identity::ID_T id ){
 			list.push_back( id );

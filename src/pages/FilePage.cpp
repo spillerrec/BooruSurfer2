@@ -57,7 +57,7 @@ struct FileReader : public FilePage::StreamReader{
 		:	fs( path, fstream::in | fstream::binary ), StreamReader( fs ) { }
 };
 
-FilePage::Result FilePage::getReader( vector<string> args ) const{
+FilePage::Result FilePage::getReader( vector<string> args, bool ) const{
 	//Rebuild the filepath, as it was split appart
 	auto add_dir = [](string sum, string add){ return ( add != ".." ) ? sum + "/" + add : ""; };
 	string filepath = accumulate( args.begin()+1, args.end(), string("resources"), add_dir );

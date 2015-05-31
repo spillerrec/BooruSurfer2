@@ -164,7 +164,10 @@ Node Styler::post_preview( const Post& post ){
 
 Node Styler::post_thumb( const Post& post ){
 	string url = this->url.post_url( post );
-	auto link = a( doc, HREF(url) )(
+	string classes;
+	if( post.saved )
+		classes += "saved";
+	auto link = a( doc, HREF(url), CLASS( classes ) )(
 		img( doc, SRC( this->url.image_url( post, Image::THUMB ) ), ALT( "thumbnail" ) )
 		);
 	

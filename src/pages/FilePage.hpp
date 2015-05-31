@@ -42,7 +42,7 @@ class FilePage : public StreamPage{
 	public:
 		using Result = std::pair<std::unique_ptr<Reader>, std::string>;
 		FilePage();
-		virtual Result getReader( Arguments args ) const;
+		virtual Result getReader( Arguments args, bool save=false ) const;
 		virtual std::unique_ptr<Reader> serve( Arguments args, std::vector<header>& headers ) const final;
 		std::string get_mime( std::string ext ) const;
 };

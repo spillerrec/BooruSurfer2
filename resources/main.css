@@ -198,6 +198,7 @@ header nav li form{ float:right; }
 .post_list ul li > a.has_children{ border-color:green; }
 .post_list ul li > a.is_pending{ border-color:blue; }
 .post_list ul li > a.is_flagged{ border-color:red; }
+.post_list ul li > a.saved{ background-color:blue; }
 
 .post_list ul li > a.has_parent{ border-left-color:yellow; border-top-color:yellow; }
 .post_list ul li > a.has_children{ border-left-color:green; border-bottom-color:green; }

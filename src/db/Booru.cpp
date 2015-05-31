@@ -262,8 +262,12 @@ void Booru::saveToDb( const Tag& tag ){
 
 
 bool Booru::load( Post& p ){
-	if( posts.get( p ) )
-		return true;
+	auto copy = p;
+	if( posts.get( copy ) ){
+		p = p.combine( copy );
+		if( p.available() == Image::ORIGINAL )
+			return true;
+	}
 	
 	auto& stmt = connection.getSite(site).loadPosts();
 	stmt.bind( static_cast<int>(p.id), 1 );
@@ -320,8 +324,11 @@ bool Booru::load( Tag& p ){
 void Booru::save( Post& p ){
 	auto copy = p;
 	if( posts.get( copy ) ){
-		if( copy.tags.list != p.tags.list )
-			posts.replace( p );
+	//	p = copy.saved || p.saved;
+	//	if( copy.tags.list != p.tags.list || p.saved != copy.saved )
+	//		posts.replace( p );
+		p = p.combine( copy );
+		posts.replace( p );
 	}
 	else
 		posts.insert( p, false );

@@ -38,7 +38,7 @@ struct RequestReader : public FilePage::StreamReader{
 		{ }
 };
 
-FilePage::Result ProxyPage::getReader( APage::Arguments args ) const{
+FilePage::Result ProxyPage::getReader( APage::Arguments args, bool save ) const{
 	require( args.size() == 3, "Wrong amount of arguments" );
 	
 	int pos1 = args[2].find_first_of( " " );
@@ -52,7 +52,12 @@ FilePage::Result ProxyPage::getReader( APage::Arguments args ) const{
 	Api& api = ApiHandler::get_instance()->get_by_shorthand( site );
 	
 	//TODO: use the filename to detect image size
-	Image img = api.get_post( id ).get_image_size( Image::from_string( args[1] ) );
+	auto post = api.get_post( id );
+	Image img = post.get_image_size( Image::from_string( args[1] ) );
+	if( (post.saved || save) != post.saved ){ //If changed
+		post.saved = post.saved || save;
+		api.booru.save( post );
+	}
 	
 	//Detect mime-type
 	int pos = img.url.find_last_of( "." );

@@ -31,9 +31,7 @@ class ResourceHandler{
 		
 	public:
 		ResourceHandler( Booru& booru ) : booru(booru) { }
-		void add( object obj ){
-			booru.save( obj );
-		}
+		void add( object& obj ){ booru.save( obj ); }
 		
 		template<typename Iter, typename Func>
 		void addAll( Iter begin, Iter end, Func f ){
