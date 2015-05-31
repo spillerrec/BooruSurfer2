@@ -35,9 +35,9 @@ namespace Poco{ namespace Net {
 class Api{
 	protected:
 		std::string site_name;
-		Booru booru{ site_name };
 		
 	public:
+		Booru booru{ site_name };
 		struct ThemeColor{
 			int red, green, blue;
 		};

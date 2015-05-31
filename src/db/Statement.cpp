@@ -71,7 +71,7 @@ bool Statement::next(){
 	while( (result = sqlite3_step( stmt )) == SQLITE_BUSY ){
 		if( ++i >= 30 )
 			throwError( "Time out during execution of statement" );
-		Poco::Thread::sleep( 50 );
+		Poco::Thread::sleep( 10 );
 	}
 	
 	return validateError( *this, result
