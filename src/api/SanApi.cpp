@@ -348,7 +348,8 @@ Post SanApi::get_post( unsigned post_id ){
 	//Tags
 	for( auto tag : doc.select_nodes( "//ul[@id='tag-sidebar']/li" ) ){
 		Tag t = parse_tag( tag.node() );
-		post.tags.add( t.id );
+		if( !post.tags.contains( t.id ) )
+			post.tags.add( t.id );
 		tag_handler.add( t );
 	}
 	

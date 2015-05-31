@@ -60,10 +60,10 @@ void addFolder( string dir_path ){
 					else{
 						Tag t( parts[i] );
 						switch( type ){
-							case 0: t.type = Tag::ARTIST; break;
-							case 1: t.type = Tag::COPYRIGHT; break;
-							case 2: t.type = Tag::CHARACTER; break;
-							case 3: t.type = Tag::NONE; break;
+							case 1: t.type = Tag::ARTIST; break;
+							case 2: t.type = Tag::COPYRIGHT; break;
+							case 3: t.type = Tag::CHARACTER; break;
+							case 4: t.type = Tag::NONE; break;
 							default: t.type = Tag::UNKNOWN; break;
 						}
 						//TODO: type
