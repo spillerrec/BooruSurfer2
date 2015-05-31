@@ -19,6 +19,7 @@
 
 #include "ApiHandler.hpp"
 #include "../exceptions/InvalidInput.hpp"
+#include "../db/AddLocal.hpp"
 
 #include "IdolApi.hpp"
 #include "YandereApi.hpp"
@@ -41,8 +42,10 @@ ApiHandler::ApiHandler() : apis{
 
 ApiHandler* ApiHandler::get_instance(){
 	//TODO: make atomic
-	if( !instance )
+	if( !instance ){
 		instance = new ApiHandler;
+		addFolder( "out/" );
+	}
 	return instance;
 }
 

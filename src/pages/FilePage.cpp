@@ -17,7 +17,6 @@
 #include "FilePage.hpp"
 
 #include <iostream>
-#include <fstream>
 #include <algorithm>
 
 using namespace std;
@@ -50,12 +49,6 @@ FilePage::FilePage(){
 	mimes[ "xhtml" ] = "application/xhtml+xml";
 	mimes[ "css" ] = "text/css";
 }
-
-struct FileReader : public FilePage::StreamReader{
-	fstream fs;
-	FileReader( string path )
-		:	fs( path, fstream::in | fstream::binary ), StreamReader( fs ) { }
-};
 
 FilePage::Result FilePage::getReader( vector<string> args, bool ) const{
 	//Rebuild the filepath, as it was split appart

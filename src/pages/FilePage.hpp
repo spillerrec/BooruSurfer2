@@ -20,6 +20,7 @@
 #include "APage.hpp"
 
 #include <istream>
+#include <fstream>
 #include <unordered_map>
 
 class FilePage : public StreamPage{
@@ -37,6 +38,12 @@ class FilePage : public StreamPage{
 					stream.read( buf, size );
 					return stream.gcount();
 				}
+		};
+
+		struct FileReader : public StreamReader{
+			std::fstream fs;
+			FileReader( std::string path )
+				:	fs( path, std::fstream::in | std::fstream::binary ), StreamReader( fs ) { }
 		};
 		
 	public:

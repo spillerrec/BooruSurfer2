@@ -63,7 +63,7 @@ Resource<Res> resourceCombine( const Resource<Res>& a, const Resource<Res>& b ){
 
 Image imageCombine( const Image& a, const Image& b ){
 	Image out;
-	out.url = fillMissing( a.url, b.url, "image url" );
+	out.url = a.url.empty() ? b.url : a.url; //TODO: prefer local files
 	out.width = std::max( a.width, b.width );
 	out.height = std::max( a.height, b.height );
 	out.size = std::max( a.size, b.size );
