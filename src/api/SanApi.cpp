@@ -90,6 +90,13 @@ double parseDouble( const string& input, double fallback ){
 	}
 }
 
+std::string parse_url( std::string url ){
+	if( boost::starts_with( url, "//" ) )
+		return "https:" + url;
+	if( boost::starts_with( url, "/" ) )
+		return "https://chan.sankakucomplex.com" + url;
+	return url;
+}
 
 Post::Rating parseAgeRating( const string& input ){
 	static const map<string,Post::Rating> function{
@@ -140,7 +147,7 @@ Post parse_preview( const xml_node &span ){
 	
 	const xml_node &img = span.child( "a" ).child( "img" );
 	
-	post.thumbnail.url = img.attribute( "src" ).value();
+	post.thumbnail.url = parse_url( img.attribute( "src" ).value() );
 	post.thumbnail.width = parseInt( img.attribute( "width" ).value(), 0 );
 	post.thumbnail.height = parseInt( img.attribute( "height" ).value(), 0 );
 	
@@ -197,14 +204,6 @@ Poco::Timestamp parse_date_time( string time ){
 	
 	Poco::DateTimeParser::parse( Poco::DateTimeFormat::SORTABLE_FORMAT, time, datetime, timezone );
 	return datetime.timestamp();
-}
-
-std::string parse_url( std::string url ){
-	if( boost::starts_with( url, "//" ) )
-		return "https:" + url;
-	if( boost::starts_with( url, "/" ) )
-		return "https://chan.sankakucomplex.com" + url;
-	return url;
 }
 
 bool get_image( xml_document& doc, Post& p ){
