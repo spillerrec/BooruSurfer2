@@ -21,14 +21,13 @@
 #include <string>
 #include <unordered_map>
 #include <utility>
+#include <memory>
 
-#include <boost/shared_ptr.hpp>
-
-#include "APage.hpp"
+class APage;
 
 class PageHandler{
 	private:
-		typedef boost::shared_ptr<APage> APage_ptr;
+		typedef std::unique_ptr<APage> APage_ptr;
 		std::unordered_map<std::string, APage_ptr > pages;
 		APage_ptr page_root;
 		APage_ptr page_404;
@@ -37,12 +36,13 @@ class PageHandler{
 		PageHandler();
 		~PageHandler();
 		
-		void add( std::string name, APage* handler ){
-			pages[ name ] = APage_ptr( handler );
+		template<class T>
+		void add( std::string name ){ //TODO: support arguments to constructor
+			pages[ name ] = std::make_unique<T>();
 		}
 		
-		APage_ptr get( std::string page );
-		APage_ptr get_root(){ return page_root; }
+		APage* get( std::string page );
+		APage* get_root(){ return page_root.get(); }
 };
 
 #endif

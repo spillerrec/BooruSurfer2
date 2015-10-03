@@ -16,6 +16,7 @@
 
 #include "PageHandler.hpp"
 
+#include "APage.hpp"
 #include "HomePage.hpp"
 #include "PostPage.hpp"
 #include "IndexPage.hpp"
@@ -27,20 +28,18 @@
 #include "FaviconPage.hpp"
 #include "RssPage.hpp"
 
-using namespace std;
-
 PageHandler::PageHandler()
 		:	page_root( new HomePage() )
 		,	page_404( new NotFoundPage() )
 	{
-	add( "index", new IndexPage() );
-	add( "post", new PostPage() );
-	add( "file", new FilePage() );
-	add( "proxy", new ProxyPage() );
-	add( "save", new SavePage() );
-	add( "favicon", new FaviconPage() );
-	add( "rss", new RssPage() );
-	add( "search", new OpenSearchPage() );
+	add<IndexPage     >( "index"   );
+	add<PostPage      >( "post"    );
+	add<FilePage      >( "file"    );
+	add<ProxyPage     >( "proxy"   );
+	add<SavePage      >( "save"    );
+	add<FaviconPage   >( "favicon" );
+	add<RssPage       >( "rss"     );
+	add<OpenSearchPage>( "search"  );
 }
 
 
@@ -49,11 +48,11 @@ PageHandler::~PageHandler(){
 }
 
 
-PageHandler::APage_ptr PageHandler::get( std::string page ){
+APage* PageHandler::get( std::string page ){
 	auto got = pages.find( page );
 	if( got != pages.end() )
-		return got->second;
+		return got->second.get();
 	else
-		return page_404;
+		return page_404.get();
 }
 
