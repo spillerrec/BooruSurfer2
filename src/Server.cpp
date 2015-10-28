@@ -93,7 +93,7 @@ class RequestHandlerFactory : public HTTPRequestHandlerFactory {
 
 
 int Server::main( const vector<string>& unknown ){
-	HTTPServer s( new RequestHandlerFactory, ServerSocket( 8000 ), new HTTPServerParams );
+	HTTPServer s( new RequestHandlerFactory, 8000 );
 	
 	s.start();
 	waitForTerminationRequest();

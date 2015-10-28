@@ -8,8 +8,8 @@ solution( "BooruSurfer2" )
 		location( "build" )
 		files( { "./src/**.h", "./src/**.cpp" } )
 		
-		-- Enable C++11 support
-		buildoptions{ "-std=c++11 -mthreads" }
+		-- Enable C++14 support
+		buildoptions{ "-std=c++14 -mthreads" }
 		
 		links( {
 				"tidy"
@@ -22,6 +22,7 @@ solution( "BooruSurfer2" )
 			,	"PocoCrypto"
 			,	"PocoNet"
 			,	"PocoUtil"
+			,	"PocoJSON"
 			,	"PocoXML"
 			,	"PocoFoundation"
 			,	"Ws2_32"
