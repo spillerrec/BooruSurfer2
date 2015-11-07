@@ -38,16 +38,19 @@ string RssPage::serve( vector<string> args, vector<header> &headers ) const{
 	Api& api = ApiHandler::get_instance()->get_by_shorthand( args[1] );
 	UrlHandler url( &api );
 	
-	string search = "";
-	if( args.size() == 3 )
-		search = args[2];
+	string search = (args.size() == 2) ? "" : args.back();
+	int page = 1;
+	if( args.size() == 4 )
+		try{ page = stoi( args[2] ); }
+		catch(...){ }
 	
-	Index index = api.get_index( search, 1 );
+	Index index = api.get_index( search, page );
 	vector<Post>& posts = index.posts;
 	
 	Rss rss;
 	rss.title.value = api.get_name() + " - " + search;
 	rss.link.value = url.index_url( {{search}} );
+	//TODO: link to next page
 	
 	Poco::Timestamp current;
 	for( auto post : posts ){

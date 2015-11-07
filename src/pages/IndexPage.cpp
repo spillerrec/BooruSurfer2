@@ -67,7 +67,7 @@ string IndexPage::serve( vector<string> args, vector<header> &headers ) const{
 	//Rss meta tag
 	styler.head( link(styler.doc
 		,	REL("alternate"), TYPE("application/rss+xml")
-		,	HREF( UrlHandler(&api).rss_url( {{search}}, page-1, limit ) )
+		,	HREF( UrlHandler(&api).rss_url( {{search}}, 1, limit ) )
 		,	TITLE( "Feed: " + search ) ) );
 	//OpenSearch meta tag
 	styler.head( link(styler.doc
