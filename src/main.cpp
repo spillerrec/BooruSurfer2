@@ -1,8 +1,8 @@
 #include "Server.hpp"
 
-#include <poco/Crypto/Crypto.h>
-#include <poco/Net/Net.h>
-#include <poco/Net/NetSSL.h>
+#include <Poco/Crypto/Crypto.h>
+#include <Poco/Net/Net.h>
+#include <Poco/Net/NetSSL.h>
 
 int main( int argc, char *argv[] ){
 	Poco::Net::initializeNetwork();
