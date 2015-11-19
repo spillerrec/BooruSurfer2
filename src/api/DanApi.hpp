@@ -121,7 +121,7 @@ class DanApi : public Api{
 		
 		virtual const char* const* post_table() const{ return post_strings; }
 		
-		Post get_post( unsigned id );
+		Post get_post( unsigned id, Image::Size level );
 		Index get_index( std::string search, int page, int limit=-1 );
 		
 		virtual ThemeColor main_color() override{ return {0xA4,0x81,0x5E}; }

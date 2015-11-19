@@ -41,9 +41,10 @@ class ResourceHandler{
 			}
 		}
 		
-		object get( indentifier id ) const{
+		template<typename... Args>
+		object get( indentifier id, Args... args ) const{
 			object temp( id );
-			return booru.load( temp ) ? temp : object( id );
+			return booru.load( temp, args... ) ? temp : object( id );
 		}
 		
 		std::vector<object> getAll( const Resource<object>& resource ){
@@ -56,9 +57,10 @@ class ResourceHandler{
 			return list;
 		}
 		
-		bool get_checked( indentifier id, object& obj ){
+		template<typename... Args>
+		bool get_checked( indentifier id, object& obj, Args... args ){
 			obj.id = id;
-			return booru.load( obj );
+			return booru.load( obj, args... );
 		}
 };
 

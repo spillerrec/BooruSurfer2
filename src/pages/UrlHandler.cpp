@@ -89,10 +89,6 @@ string UrlHandler::image_tags( const Post& p, int lenght ){
 }
 
 string UrlHandler::image_url( const Post& p, Image::Size size, bool save ){
-	//TODO: remove the need of this
-	if( size == Image::THUMB )
-		return p.thumbnail.url;
-	
 	if( size == Image::RESIZED && p.get_image_size( size ).url.empty() )
 		size = Image::COMPRESSED;
 	if( size == Image::COMPRESSED && p.get_image_size( size ).url.empty() )

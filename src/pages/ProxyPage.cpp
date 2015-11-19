@@ -54,8 +54,9 @@ FilePage::Result ProxyPage::getReader( APage::Arguments args, bool save ) const{
 	Api& api = ApiHandler::get_instance()->get_by_shorthand( site );
 	
 	//TODO: use the filename to detect image size
-	auto post = api.get_post( id );
-	Image img = post.get_image_size( Image::from_string( args[1] ) );
+	auto level = Image::from_string( args[1] );
+	auto post = api.get_post( id, level );
+	Image img = post.get_image_size( level );
 	if( (post.saved || save) != post.saved ){ //If changed
 		post.saved = post.saved || save;
 		api.booru.save( post );

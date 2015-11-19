@@ -31,7 +31,7 @@ class SanApi : public Api{
 		virtual std::string get_url() const{ return "https://chan.sankakucomplex.com/"; }
 		
 		
-		Post get_post( unsigned id );
+		Post get_post( unsigned id, Image::Size level );
 		Index get_index( std::string search, int page, int limit=-1 );
 		
 		virtual ThemeColor main_color() override{ return {0xFF,0xFF,0xFF}; }

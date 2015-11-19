@@ -32,7 +32,7 @@ using namespace std;
 using namespace pugi;
 
 #include <tidy.h>
-#include <buffio.h>
+#include <tidybuffio.h>
 
 //Returns an empty string on error
 static string CleanHTML(const string &html){
@@ -279,11 +279,10 @@ class Xhtml{
 		xml_document& doc() { return document; }
 };
 
-Post SanApi::get_post( unsigned post_id ){
+Post SanApi::get_post( unsigned post_id, Image::Size level ){
 	Post post;
-	if( post_handler.get_checked( post_id, post ) )
-		if( post.available() == Image::ORIGINAL )
-			return post;
+	if( post_handler.get_checked( post_id, post, level ) )
+		return post;
 	
 	Xhtml html( *this, get_url() + "post/show/" + to_string( post_id ) );
 	auto& doc = html.doc();

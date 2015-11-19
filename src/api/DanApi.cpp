@@ -128,9 +128,9 @@ Tag DanApi::parse_tag( DataNode node ) const{
 	return t;
 }
 
-Post DanApi::get_post( unsigned id ){
+Post DanApi::get_post( unsigned id, Image::Size level ){
 	Post post;
-	if( post_handler.get_checked( id, post ) )
+	if( post_handler.get_checked( id, post, level ) )
 		return post;
 	
 	string url = get_url() + "post/index.json?tags=id:" + to_string( id );

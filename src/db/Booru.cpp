@@ -261,11 +261,11 @@ void Booru::saveToDb( const Tag& tag ){
 }
 
 
-bool Booru::load( Post& p ){
+bool Booru::load( Post& p, Image::Size level ){
 	auto copy = p;
 	if( posts.get( copy ) ){
 		p = p.combine( copy );
-		if( p.available() == Image::ORIGINAL )
+		if( p.isAvailable(level) )
 			return true;
 	}
 	
@@ -296,7 +296,8 @@ bool Booru::load( Post& p ){
 		loadImage( p.reduced,   28 );
 		
 		posts.insert( p, true );
-		return true;
+		
+		return p.isAvailable(level);
 	}
 	
 	return false;

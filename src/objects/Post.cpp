@@ -43,12 +43,8 @@ Image Post::get_image_size( Image::Size size ) const{
 	}
 }
 
-Image::Size Post::available() const{
-	if( !full   .url.empty() ) return Image::ORIGINAL;
-	if( !reduced.url.empty() ) return Image::COMPRESSED;
-	if( !preview.url.empty() ) return Image::RESIZED;
-	
-	return Image::THUMB;
+bool Post::isAvailable( Image::Size size ) const{
+	return !get_image_size( size ).url.empty();
 }
 
 template<typename Res>

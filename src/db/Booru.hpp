@@ -108,7 +108,7 @@ class Booru{
 	public:
 		Booru( std::string site );
 		
-		bool load( Post& p );
+		bool load( Post& p, Image::Size level );
 		bool load( Tag& p );
 		
 		void save( Post& p );

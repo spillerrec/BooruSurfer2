@@ -57,7 +57,7 @@ class Api{
 		virtual std::string get_shorthand() const{ return site_name; }
 		virtual std::string get_url() const = 0;
 		
-		virtual Post get_post( unsigned id ) = 0;
+		virtual Post get_post( unsigned id, Image::Size level=Image::ORIGINAL ) = 0;
 		virtual Index get_index( std::string search, int page, int limit=-1 ) = 0;
 		
 		virtual ThemeColor main_color(){ return {255,255,255}; }

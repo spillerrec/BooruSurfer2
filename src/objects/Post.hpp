@@ -75,7 +75,7 @@ class Post : public Identity<>{
 		Image thumbnail;
 		
 		Image get_image_size( Image::Size size ) const;
-		Image::Size available() const;
+		bool isAvailable( Image::Size size ) const;
 		
 		
 	public:
