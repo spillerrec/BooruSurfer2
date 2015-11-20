@@ -105,7 +105,7 @@ Node Styler::main_navigation( string search ){
 		if( api == this->api ) //TODO:
 			continue;
 		
-		string href = url.index_url( {{search}} ); //TODO: fix
+		string href = UrlHandler(api).index_url( {{search}} ); //TODO: fix
 		list( li(doc)( a(doc, HREF( href ) )( api->get_name() ) ) );
 	}
 	
