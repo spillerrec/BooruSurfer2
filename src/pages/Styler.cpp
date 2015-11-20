@@ -35,7 +35,7 @@ using namespace HTML;
 //TODO: make url as input to the functions
 
 
-Styler::Styler( Api* api, string page_title ) : api(api), url( api ){
+BasicStyler::BasicStyler( string page_title ){
 	doc.html()(
 			head(
 					title(doc)( page_title )
@@ -50,6 +50,8 @@ Styler::Styler( Api* api, string page_title ) : api(api), url( api ){
 				)
 		);
 }
+Styler::Styler( Api* api, string page_title )
+	:	BasicStyler(page_title), api(api), url( api ) { }
 
 
 string Styler::format_filesize( unsigned filesize ) const{
@@ -103,7 +105,7 @@ Node Styler::main_navigation( string search ){
 		if( api == this->api ) //TODO:
 			continue;
 		
-		string href = UrlHandler( api ).index_url( {{search}} ); //TODO: fix
+		string href = url.index_url( {{search}} ); //TODO: fix
 		list( li(doc)( a(doc, HREF( href ) )( api->get_name() ) ) );
 	}
 	
@@ -282,7 +284,7 @@ Node Styler::index_navigation( string search, int page, int limit, int amount ){
 	
 	auto link = [=]( int page ){
 			return li(doc)(
-					a(doc, HREF( UrlHandler(api).index_url( {{search}}, page, limit ) ))(
+					a(doc, HREF( url.index_url( {{search}}, page, limit ) ))(
 							to_string(page)
 						)
 				);

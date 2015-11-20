@@ -19,8 +19,6 @@
 
 #include <Poco/Timestamp.h>
 
-#include "Styler.hpp"
-
 #include "../parsing/html.hpp"
 #include "UrlHandler.hpp"
 
@@ -34,7 +32,7 @@ class Note;
 class Image;
 class Api;
 
-class Styler{
+class BasicStyler{
 	public:
 		HTML::Document doc;
 		HTML::Node head{ HTML::head(doc) };
@@ -42,6 +40,11 @@ class Styler{
 		HTML::Node nav{ HTML::nav(doc) };
 		HTML::Node container{ HTML::div( doc, HTML::ID("container") ) };
 		
+		BasicStyler( std::string title );
+};
+
+class Styler : public BasicStyler{
+	public:	
 		Api* api;
 		UrlHandler url;
 	

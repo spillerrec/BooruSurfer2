@@ -20,6 +20,8 @@
 #include "ProxyPage.hpp"
 #include "../exceptions/utils.hpp"
 
+#include "Styler.hpp"
+
 #include <fstream>
 
 using namespace std;
@@ -36,6 +38,9 @@ string SavePage::serve( vector<string> args, vector<header> &headers ) const{
 	ofstream file( "out/" + args[2], ios_base::out | ios_base::binary );
 	reader->writeAll( file );
 	
-	return "<html><head><title>Saved</title></head><body>Saved</body></html>";
+	//TODO: detect errors and show them
+	BasicStyler s( "Saved" );
+	s.body( HTML::p( s.doc )( "Saved" ) );
+	return s.doc;
 }
 
