@@ -54,7 +54,7 @@ Styler::Styler( Api* api, string page_title )
 	:	BasicStyler(page_title), api(api), url( api ) { }
 
 
-string Styler::format_filesize( unsigned filesize ) const{
+string BasicStyler::format_filesize( unsigned filesize ) const{
 	string endings[] = { "bytes", "KiB", "MiB", "GiB", "TiB", "PiB" };
 	double size = filesize;
 	
@@ -71,7 +71,7 @@ string Styler::format_filesize( unsigned filesize ) const{
 	return "will crash your computer";
 }
 
-string Styler::format_date( Poco::Timestamp timestamp ) const{
+string BasicStyler::format_date( Poco::Timestamp timestamp ) const{
 	//TODO: write how long time ago it was
 	if( timestamp.epochMicroseconds() != 0 )
 		return Poco::DateTimeFormatter::format( timestamp, Poco::DateTimeFormat::SORTABLE_FORMAT );
@@ -80,7 +80,7 @@ string Styler::format_date( Poco::Timestamp timestamp ) const{
 }
 
 
-Node Styler::time( unsigned unix_time ){
+Node BasicStyler::time( unsigned unix_time ){
 	
 }
 

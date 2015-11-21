@@ -51,7 +51,6 @@ class Post : public Identity<>{
 		
 		std::string hash;
 		std::string author;
-		//TODO: creation_date
 		Poco::Timestamp creation_time{ 0 };
 		
 		

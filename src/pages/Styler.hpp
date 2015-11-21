@@ -41,6 +41,10 @@ class BasicStyler{
 		HTML::Node container{ HTML::div( doc, HTML::ID("container") ) };
 		
 		BasicStyler( std::string title );
+		
+		std::string format_filesize( unsigned filesize ) const;
+		std::string format_date( Poco::Timestamp timestamp ) const;
+		HTML::Node time( unsigned unix_time );
 };
 
 class Styler : public BasicStyler{
@@ -50,11 +54,6 @@ class Styler : public BasicStyler{
 	
 	public:
 		Styler( Api* api, std::string title );
-		
-		std::string format_filesize( unsigned filesize ) const;
-		std::string format_date( Poco::Timestamp timestamp ) const;
-		
-		HTML::Node time( unsigned unix_time );
 		
 		HTML::Node tag_search();
 		HTML::Node main_navigation( std::string search );

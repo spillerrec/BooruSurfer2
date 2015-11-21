@@ -73,7 +73,8 @@ Post Post::combine( const Post& other ) const{
 	p.hash   = fillMissing( hash,   other.hash,   "hash" );
 	p.author = fillMissing( author, other.author, "author" );
 	p.source = fillMissing( source, other.source, "source" );
-	//creation_time
+	//TODO: using max to avoid default of 0, but we should save the earliest known post time instead
+	p.creation_time = std::max( creation_time, other.creation_time );
 	
 	p.tags     = resourceCombine( tags,     other.tags     );
 	p.parents  = resourceCombine( parents,  other.parents  );
@@ -83,8 +84,11 @@ Post Post::combine( const Post& other ) const{
 	p.pools    = resourceCombine( pools,    other.pools    );
 	
 	p.score = std::max( score, other.score );
-	//rating
 	p.saved = saved || other.saved;
+	
+	//Pick the highest rating, but ignore UNRATED
+	auto max_rating = std::max( rating, other.rating );
+	p.rating = ( max_rating == UNRATED ) ? std::min( rating, other.rating ) : max_rating;
 	
 	p.full      = imageCombine( full,      other.full      );
 	p.reduced   = imageCombine( reduced,   other.reduced   );
