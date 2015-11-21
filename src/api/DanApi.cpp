@@ -157,8 +157,11 @@ Index DanApi::get_index( string search, int page, int limit ){
 	
 	DataNode data = JsonDataNode::from_string( get_from_url( url ) );
 	
-	for( DataNode node : data )
-		index.posts.push_back( parse_post( node ) );
+	for( DataNode node : data ){
+		auto post = parse_post( node );
+		post_handler.add( post );
+		index.posts.push_back( post );
+	}
 	
 	
 	//Related tags
