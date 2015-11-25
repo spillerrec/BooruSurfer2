@@ -20,6 +20,9 @@
 #include "ProxyPage.hpp"
 #include "../exceptions/utils.hpp"
 
+#include "../api/Api.hpp"
+#include "../api/ApiHandler.hpp"
+
 #include "Styler.hpp"
 
 #include <fstream>
@@ -39,8 +42,10 @@ string SavePage::serve( vector<string> args, vector<header> &headers ) const{
 	reader->writeAll( file );
 	
 	//TODO: detect errors and show them
+	auto& api = ApiHandler::get_instance()->get_by_shorthand( ProxyPage::parseParameters( args ).site );
 	BasicStyler s( "Saved" );
 	s.body( HTML::p( s.doc )( "Saved" ) );
+	s.head( link( s.doc, HTML::REL("shortcut icon"), HTML::HREF( "/favicon/" + api.get_shorthand() + "/saved" ) ) );
 	return s.doc;
 }
 

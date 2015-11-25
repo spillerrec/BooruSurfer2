@@ -40,7 +40,7 @@ struct RequestReader : public FilePage::StreamReader{
 		{ }
 };
 
-FilePage::Result ProxyPage::getReader( APage::Arguments args, bool save ) const{
+ProxyPage::Parameters ProxyPage::parseParameters( APage::Arguments args ){
 	require( args.size() == 3, "Wrong amount of arguments" );
 	
 	int pos1 = args[2].find_first_of( " " );
@@ -51,15 +51,21 @@ FilePage::Result ProxyPage::getReader( APage::Arguments args, bool save ) const{
 	string site = args[2].substr( 0, pos1 );
 	int id = getInt( args[2].substr( pos1 + 1, pos2-pos1-1 ), "Not a valid id" );
 	
-	Api& api = ApiHandler::get_instance()->get_by_shorthand( site );
 	
 	//TODO: use the filename to detect image size
 	auto level = Image::from_string( args[1] );
-	auto post = api.get_post( id, level );
-	Image img = post.get_image_size( level );
-	if( (post.saved || save) != post.saved ){ //If changed
-		post.saved = post.saved || save;
-		api.booru.save( post );
+	
+	return { site, id, level };
+}
+
+FilePage::Result ProxyPage::getReader( APage::Arguments args, bool save ) const{
+	auto input = parseParameters( args );
+	Api& api = ApiHandler::get_instance()->get_by_shorthand( input.site );
+	auto post = api.get_post( input.id, input.level );
+	Image img = post.get_image_size( input.level );
+	if( save && !post.saved ){ //If changed
+		post.saved = true;
+		api.booru.save( post ); //TODO: booru.save should set post.saved ?
 	}
 	
 	//Detect mime-type
@@ -75,7 +81,7 @@ FilePage::Result ProxyPage::getReader( APage::Arguments args, bool save ) const{
 		return { unique_ptr<Reader>( new FileReader( img.url.substr( file_protocol.size() ) ) ), ext };
 	else{
 		auto reader = unique_ptr<Reader>(
-				new RequestReader( api.getFromUrl( img.url, { { "Referer", api.original_post_url( id ) } } ) )
+				new RequestReader( api.getFromUrl( img.url, { { "Referer", api.original_post_url( input.id ) } } ) )
 			);
 		return { std::move(reader), ext };
 	}

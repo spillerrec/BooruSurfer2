@@ -18,10 +18,18 @@
 #define PROXY_PAGE_H
 
 #include "FilePage.hpp"
+#include "../objects/Image.hpp"
 
 
 class ProxyPage : public FilePage{
 	public:
+		struct Parameters{
+			std::string site;
+			int id;
+			Image::Size level;
+		};
+		static Parameters parseParameters( Arguments args );
+		
 		virtual Result getReader( Arguments args, bool save=false ) const override;
 };
 

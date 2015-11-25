@@ -39,7 +39,8 @@ rgb_pixel colorize( Api::ThemeColor c1, Api::ThemeColor c2, gray_pixel from ){
 
 static const unordered_map<string, string> images{
 		{"index", "i"}
-	,	{"post", "p"}
+	,	{"post",  "p"}
+	,	{"saved", "s"}
 };
 string image_path( string wanted ){
 	auto pos = images.find( wanted );
