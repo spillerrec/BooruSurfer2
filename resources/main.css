@@ -156,10 +156,11 @@ header nav li form{ float:right; }
 	vertical-align: middle;
 }
 .post_list li:hover a img{
-	-o-object-fit:none;
 	position:relative;
 	z-index:100;
-	-o-object-position:left center;
+	max-width:none;
+	max-height:none;
+	pointer-events: none;
 }
 .post_list li a:visited{
 	background-color:rgba( 255, 0,0, 0.5 );
