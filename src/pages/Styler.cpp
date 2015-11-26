@@ -275,8 +275,11 @@ Node Styler::post_list( std::vector<Post> posts ){
 	for( Post post : posts )
 		list( li(doc)( post_thumb( post ), post_thumb_info( post, false ) ) );
 	
-	return section( doc, CLASS("post_list size_medium") )( list );
+	return list;
 }
+
+Node Styler::post_list_section( std::vector<Post> posts )
+	{ return section( doc, CLASS("post_list size_medium") )( post_list( posts ) ); }
 
 Node Styler::index_navigation( string search, int page, int limit, int amount ){
 	int min_page = max( page - 3, 1 );

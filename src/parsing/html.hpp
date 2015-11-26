@@ -96,6 +96,12 @@ namespace HTML{
 			inline Node& operator()( T&& Arg1, Args&&... args ){
 				return add( Arg1 )( args... );
 			}
+			
+			operator std::string() const{
+				std::string s;
+				rapidxml::print( std::back_inserter( s ), *node, rapidxml::print_no_indenting );
+				return s;
+			}
 	};
 	
 	inline Node Document::html(){

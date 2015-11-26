@@ -14,21 +14,13 @@
 	along with BooruSurfer2.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef INDEX_PAGE_H
-#define INDEX_PAGE_H
+#ifndef INDEX_STUB_PAGE_HPP
+#define INDEX_STUB_PAGE_HPP
 
 #include "APage.hpp"
 
-class IndexPage : public StringPage{
+class IndexStubPage : public StringPage{
 	public:
-		struct Parameters{
-			std::string site;
-			std::string search;
-			int page;
-			int limit;
-		};
-		static Parameters parseArguments( Arguments args );
-		
 		std::string serve( Arguments args, std::vector<header> &headers ) const override;
 };
 

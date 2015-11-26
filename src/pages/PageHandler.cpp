@@ -20,6 +20,7 @@
 #include "HomePage.hpp"
 #include "PostPage.hpp"
 #include "IndexPage.hpp"
+#include "IndexStubPage.hpp"
 #include "FilePage.hpp"
 #include "OpenSearchPage.hpp"
 #include "ProxyPage.hpp"
@@ -33,6 +34,7 @@ PageHandler::PageHandler()
 		,	page_404( new NotFoundPage() )
 	{
 	add<IndexPage     >( "index"   );
+	add<IndexStubPage >( "jsindex" );
 	add<PostPage      >( "post"    );
 	add<FilePage      >( "file"    );
 	add<ProxyPage     >( "proxy"   );

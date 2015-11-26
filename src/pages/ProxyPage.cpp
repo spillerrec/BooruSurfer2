@@ -65,7 +65,7 @@ FilePage::Result ProxyPage::getReader( APage::Arguments args, bool save ) const{
 	Image img = post.get_image_size( input.level );
 	if( save && !post.saved ){ //If changed
 		post.saved = true;
-		api.booru.save( post ); //TODO: booru.save should set post.saved ?
+		api.booru.save( post );
 	}
 	
 	//Detect mime-type

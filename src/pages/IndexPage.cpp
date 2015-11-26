@@ -28,9 +28,8 @@
 using namespace std;
 using namespace HTML;
 
-string IndexPage::serve( vector<string> args, vector<header> &headers ) const{
+IndexPage::Parameters IndexPage::parseArguments( Arguments args ){
 	require( args.size() >= 2, "Too few arguments" );
-	Api& api = ApiHandler::get_instance()->get_by_shorthand( args[1] );
 	
 	string search;
 	int page = 1;
@@ -49,33 +48,43 @@ string IndexPage::serve( vector<string> args, vector<header> &headers ) const{
 		search = args[3];
 	}
 	
-	Index index = api.get_index( search, page );
+	return { args[1], search, page, limit };
+}
+
+string IndexPage::serve( vector<string> args, vector<header> &headers ) const{
+	auto input = parseArguments( args );
+	Api& api = ApiHandler::get_instance()->get_by_shorthand( input.site );
+	
+	Index index = api.get_index( input.search, input.page, input.limit );
 	vector<Post>& posts = index.posts;
 	
 	//TODO: page amount;
 	int page_amount = index.amount != -1 ? index.amount*index.id.limit : index.id.page+1;
-	Styler styler( &api, "Index: " + search );
+	Styler styler( &api, "Index: " + input.search );
 	
 	//Add navigation
-	if( page < page_amount )
-		styler.head( link(styler.doc, REL("next"), HREF( UrlHandler(&api).index_url( {{search}}, page+1, limit ) )) );
-	if( page-1 > 0 )
-		styler.head( link(styler.doc, REL("prev"), HREF( UrlHandler(&api).index_url( {{search}}, page-1, limit ) )) );
+	if( input.page < page_amount )
+		styler.head( link(styler.doc, REL("next"), HREF( UrlHandler(&api).index_url( {{input.search}}, input.page+1, input.limit ) )) );
+	if( input.page-1 > 0 )
+		styler.head( link(styler.doc, REL("prev"), HREF( UrlHandler(&api).index_url( {{input.search}}, input.page-1, input.limit ) )) );
 	
 	
 	styler.head( link(styler.doc, REL("shortcut icon"), HREF( "/favicon/" + api.get_shorthand() + "/index" ) ) );
 	//Rss meta tag
 	styler.head( link(styler.doc
 		,	REL("alternate"), TYPE("application/rss+xml")
-		,	HREF( UrlHandler(&api).rss_url( {{search}}, 1, limit ) )
-		,	TITLE( "Feed: " + search ) ) );
+		,	HREF( UrlHandler(&api).rss_url( {{input.search}}, 1, input.limit ) )
+		,	TITLE( "Feed: " + input.search ) ) );
 	//OpenSearch meta tag
 	styler.head( link(styler.doc
 		,	REL("search"), TYPE("application/opensearchdescription+xml")
 		,	HREF( "/search/" + api.get_shorthand() )
 		,	TITLE( api.get_name() + " search" ) ) );
 	//<link rel="search" type="application/opensearchdescription+xml" href="/opensearch.xml" title="Twitter Search">
-	styler.nav( styler.main_navigation( search ) );
+	styler.head( script( styler.doc, SRC( "/file/jquery2.min.js" ) )("") );
+	styler.head( script( styler.doc, SRC( "/file/infinity.js" ) )("") );
+	
+	styler.nav( styler.main_navigation( input.search ) );
 	
 //TODO:	element( styler.container, "aside", "class", "post_list_info" ).text().set( " " );
 	vector<Tag> tags;
@@ -85,8 +94,8 @@ string IndexPage::serve( vector<string> args, vector<header> &headers ) const{
 	auto sidebar = aside(styler.doc, CLASS("post_list_info"));
 	styler.tag_list( sidebar, tags, "Related tags" );
 	styler.body( div(styler.doc, ID("container"))(
-			styler.post_list( index.posts )(
-					styler.index_navigation( search, page, limit, page_amount )
+			styler.post_list_section( index.posts )(
+					styler.index_navigation( input.search, input.page, input.limit, page_amount )
 				)
 		,	sidebar
 		) );

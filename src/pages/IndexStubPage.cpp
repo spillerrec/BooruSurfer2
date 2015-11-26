@@ -14,23 +14,22 @@
 	along with BooruSurfer2.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef INDEX_PAGE_H
-#define INDEX_PAGE_H
+#include "IndexStubPage.hpp"
+#include "IndexPage.hpp"
 
-#include "APage.hpp"
+#include "../api/Api.hpp"
+#include "../api/ApiHandler.hpp"
+#include "Styler.hpp"
 
-class IndexPage : public StringPage{
-	public:
-		struct Parameters{
-			std::string site;
-			std::string search;
-			int page;
-			int limit;
-		};
-		static Parameters parseArguments( Arguments args );
-		
-		std::string serve( Arguments args, std::vector<header> &headers ) const override;
-};
+using namespace std;
+using namespace HTML;
 
-#endif
+string IndexStubPage::serve( Arguments args, vector<header> &headers ) const{
+	auto input = IndexPage::parseArguments( args );
+	Api& api = ApiHandler::get_instance()->get_by_shorthand( input.site );
+	Index index = api.get_index( input.search, input.page, input.limit );
+	
+	headers.push_back( content_type() );
+	return Styler( &api, "Index: " + input.search ).post_list( index.posts )();
+}
 
