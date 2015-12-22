@@ -207,6 +207,8 @@ Node previewPost( string url ){
 Node postInternal( Document& doc, Post& p, UrlHandler& url ){
 	string url_org = url.image_url( p, Image::ORIGINAL );
 	string url_show = url.image_url( p, Image::RESIZED );
+	if( p.full.isLocal() )
+		url_show = url_org;
 	
 	//Determine file extension from url, which may contain arguments
 	auto end = url_org.find( "?" );

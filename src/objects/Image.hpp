@@ -33,6 +33,8 @@ class Image{
 		int width=0;
 		int height=0;
 		int size=0;
+		
+		bool isLocal() const;
 };
 
 #endif

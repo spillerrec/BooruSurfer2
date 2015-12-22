@@ -31,3 +31,9 @@ Image::Size Image::from_string( std::string input ){
 	return ( it != function.end() ) ? it->second : ORIGINAL;
 }
 
+bool Image::isLocal() const{
+	if( url.empty() )
+		return false;
+	return url.compare( 0, 4, "http" ) != 0;
+}
+
