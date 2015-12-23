@@ -313,6 +313,8 @@ body{margin:0 5px;}
 header{ padding-top: 5px; }
 .post .container  img{
 	max-width:100%;
+	background-image: url("/file/checker.png");
+	background-repeat: repeat;
 }
 
 .post .container object{
