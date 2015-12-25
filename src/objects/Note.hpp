@@ -19,13 +19,21 @@
 
 #include "Identity.hpp"
 
+#include <string>
+
 class Note : public Identity<>{
 	private:
 		
 		
 	public:
+		double x;
+		double y;
+		double width;
+		double height;
+		std::string content;
 		
-		
+		Note( unsigned id=0 )
+			{ this->id = id; }
 };
 
 #endif

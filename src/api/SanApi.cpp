@@ -20,6 +20,7 @@
 #include "SanApi.hpp"
 
 #include "../parsing/pugixml.hpp"
+#include "../parsing/StringView.hpp"
 
 #include <boost/algorithm/string.hpp>
 #include <boost/algorithm/string/predicate.hpp>
@@ -27,12 +28,13 @@
 #include <algorithm>
 #include <iostream>
 #include <map>
+#include <cctype>
 
 using namespace std;
 using namespace pugi;
 
 #include <tidy.h>
-#include <tidybuffio.h>
+#include <buffio.h>
 
 //Returns an empty string on error
 static string CleanHTML(const string &html){
@@ -198,6 +200,58 @@ Tag parse_tag( const xml_node &node ){
 	return tag;
 }
 
+static string removePrefix( const string& str, const string& prefix ){
+	if( str.compare( 0, prefix.size(), prefix ) != 0 )
+		throw logic_error( str + " does not start with " + prefix );
+	return { str.c_str() + prefix.size() };
+}
+
+Note parse_note( const xml_node& node ){
+	auto body = node.next_sibling("div");
+	
+	//Get ids
+	const string box_prefix  = "note-box-";
+	const string body_prefix = "note-body-";
+	auto      id = parseInt( removePrefix( node.attribute( "id" ).value(), box_prefix  ), 0 );
+	auto body_id = parseInt( removePrefix( body.attribute( "id" ).value(), body_prefix ), 0 );
+	if( id != body_id )
+		throw logic_error( "Note id and body id did not match" );
+	
+	
+	Note note( id );
+	
+	cout << "Id is: " << id << endl;
+	cout << "Note: " << node.attribute( "style" ).value() << endl;
+	
+	auto parameters = cStrView( node.attribute( "style" ).value() );
+	
+	map<StringView, StringView> arguments;
+	for( auto part : StringView(parameters).split(';') ){
+		//Convert "key: 123px" to insert { key, 123 }
+		auto items = part.split(':');
+		if( items.size() != 2 )
+			throw logic_error( "Not a valid style: " + part.toString() );
+		
+		auto trimmer = [](char c){ return isspace(c);};
+		arguments.emplace(
+				items[0].trim( trimmer )
+			,	items[1].trim( trimmer ).removePostfix( cStrView("px") )
+			);
+	}
+	
+	auto convert = [arguments]( StringView key ){
+			return parseInt( arguments.at( key ).toString(), 0 );
+		};
+	note.width  = convert( cStrView("width" ) );
+	note.height = convert( cStrView("height") );
+	note.x      = convert( cStrView("left"  ) );
+	note.y      = convert( cStrView("top"   ) );
+	
+	cout << "Note: " << note.x << "x" << note.y << " (" << note.width << "x" << note.height << ")\n";
+	
+	return note;
+}
+
 Poco::Timestamp parse_date_time( string time ){
 	Poco::DateTime datetime;
 	int timezone;
@@ -349,6 +403,13 @@ Post SanApi::get_post( unsigned post_id, Image::Size level ){
 		if( !post.tags.contains( t.id ) )
 			post.tags.add( t.id );
 		tag_handler.add( t );
+	}
+	
+	//Notes:
+	for( auto notebox : doc.select_nodes( "//div[@class='note-box']" ) ){
+		auto note = parse_note( notebox.node() );
+		post.notes.add( note.id );
+	//	note_handler.add( note );
 	}
 	
 	//Favorites
