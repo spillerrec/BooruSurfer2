@@ -21,6 +21,7 @@
 #include "Statement.hpp"
 
 #include "../objects/Post.hpp"
+#include "../objects/Note.hpp"
 #include "../objects/Tag.hpp"
 
 #include <Poco/Mutex.h>
@@ -34,6 +35,7 @@ class Booru{
 	private:
 		std::string site;
 		
+		void saveToDb( const Note& item );
 		void saveToDb( const Tag&  item );
 		void saveToDb( const Post& item );
 		
@@ -101,21 +103,25 @@ class Booru{
 		};
 		
 		Cache<Post> posts;
-		Cache<Tag> tags;
+		Cache<Tag>  tags;
+		Cache<Note> notes;
 	
 		Transaction beginBatch();
 		
 	public:
 		Booru( std::string site );
 		
+		bool load( Note& n );
 		bool load( Post& p, Image::Size level );
 		bool load( Tag& p );
 		
+		void save( Note& n );
 		void save( Post& p );
 		void save( Tag& p );
 		
+		void flushNotes(){ notes.flush( *this ); }
 		void flushPosts(){ posts.flush( *this ); }
-		void flushTags(){ tags.flush( *this ); }
+		void flushTags (){ tags .flush( *this ); }
 };
 
 #endif

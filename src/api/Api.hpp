@@ -25,6 +25,7 @@
 #include <utility>
 #include "../objects/ResourceHandler.hpp"
 #include "../objects/Post.hpp"
+#include "../objects/Note.hpp"
 #include "../objects/Tag.hpp"
 #include "../objects/Index.hpp"
 
@@ -43,6 +44,7 @@ class Api{
 		};
 		ResourceHandler<Tag,std::string> tag_handler{ booru };
 		ResourceHandler<Post> post_handler{ booru };
+		ResourceHandler<Note> note_handler{ booru };
 		void flush();
 	public:
 		using Headers = std::vector<std::pair<std::string,std::string>>;

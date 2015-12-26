@@ -75,9 +75,15 @@ class SiteQueries{
 		
 		Statement& loadTags()
 			{ return prepareInstance( db, load_tags, "SELECT * FROM " + site + "_tags WHERE id = ?1" ); }
+		
+		Statement& loadNotes()
+			{ return prepareInstance( db, load_tags, "SELECT * FROM " + site + "_notes WHERE id = ?1" ); }
 			
 		Statement& saveTags()
 			{ return prepareInstance( db, save_tags, "INSERT OR REPLACE INTO " + site + "_tags VALUES( ?1, ?2, ?3, ?4 )" ); }
+			
+		Statement& saveNotes()
+			{ return prepareInstance( db, save_tags, "INSERT OR REPLACE INTO " + site + "_notes VALUES( ?1, ?2, ?3, ?4 ?5 ?6 ?7 )" ); }
 			
 		Statement& loadPosts()
 			{ return prepareInstance( db, load_posts, "SELECT * FROM " + site + "_posts WHERE id = ?1" ); }
@@ -158,14 +164,11 @@ Booru::Booru( std::string site ) : site(site) {
 	create( "_notes ("
 			"id INTEGER PRIMARY KEY, "
 			"post_id INTEGER, "
-			"x INTEGER, "
-			"y INTEGER, "
-			"width INTEGER, "
-			"height INTEGER, "
-			"body TEXT, "
-			"created_at INTEGER, "
-			"updated_at INTEGER, "
-			"version INTEGER)"
+			"x REAL, "
+			"y REAL, "
+			"width REAL, "
+			"height REAL, "
+			"body TEXT)"
 		);
 	create( "_posts ("
 			"id INTEGER PRIMARY KEY, "
@@ -210,6 +213,21 @@ Booru::Booru( std::string site ) : site(site) {
 }
 
 Transaction Booru::beginBatch(){ return connection.getDb(); }
+
+void Booru::saveToDb( const Note& item ){
+	auto& stmt = connection.getSite(site).savePosts();
+	std::cout << "Saving Note: " << item.id << std::endl;
+	
+	stmt.bind( static_cast<int>(item.id), 1 );
+	stmt.bind( -1, 2 ); //TODO: post_id
+	stmt.bind( item.x, 3 );
+	stmt.bind( item.y, 4 );
+	stmt.bind( item.width, 5 );
+	stmt.bind( item.height, 6 );
+	stmt.bind( "", 7 ); //TODO: text/body
+	
+	stmt.next();
+}
 
 void Booru::saveToDb( const Post& item ){
 	auto& stmt = connection.getSite(site).savePosts();
@@ -303,6 +321,28 @@ bool Booru::load( Post& p, Image::Size level ){
 	return false;
 }
 
+bool Booru::load( Note& p ){
+	if( notes.get( p ) )
+		return true;
+	
+	auto& stmt = connection.getSite(site).loadNotes();
+	std::cout << "Loading note: " << p.id << std::endl;
+	stmt.bind( static_cast<int>(p.id), 1 );
+	if( stmt.next() ){
+		p.x       = stmt.floating( 2 );
+		p.y       = stmt.floating( 3 );
+		p.width   = stmt.floating( 4 );
+		p.height  = stmt.floating( 5 );
+	//	p.content = stmt.text( 6 );
+		notes.insert( p, true );
+		return true;
+	}
+	else{
+		notes.insert( p, true );
+		return false;
+	}
+}
+
 bool Booru::load( Tag& p ){
 	if( tags.get( p ) )
 		return true;
@@ -333,6 +373,17 @@ void Booru::save( Post& p ){
 	}
 	else
 		posts.insert( p, false );
+}
+
+void Booru::save( Note& n ){
+	auto copy = n;
+	if( notes.get( copy ) ){
+		if( copy.content.empty() ){
+			notes.replace( n );
+		}
+	}
+	else
+		notes.insert( n, false );
 }
 
 void Booru::save( Tag& t ){

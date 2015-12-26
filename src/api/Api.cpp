@@ -33,6 +33,7 @@ using namespace std;
 void Api::flush(){
 	booru.flushPosts();
 	booru.flushTags();
+	booru.flushNotes();
 }
 
 unique_ptr<HTTPClientSession> getSession( bool https, URI uri ){
