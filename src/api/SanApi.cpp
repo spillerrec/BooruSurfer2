@@ -34,7 +34,7 @@ using namespace std;
 using namespace pugi;
 
 #include <tidy.h>
-#include <buffio.h>
+#include <tidybuffio.h>
 
 //Returns an empty string on error
 static string CleanHTML(const string &html){
