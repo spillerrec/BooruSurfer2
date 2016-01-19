@@ -89,6 +89,9 @@ string Statement::text( unsigned column ){
 	return string( (const char*)sqlite3_column_text( stmt, column ) );
 }
 
+bool Statement::boolean( unsigned column )
+	{ return integer( column ) != 0; }
+
 int Statement::integer( unsigned column ){
 	check_type( *this, column, SQLITE_INTEGER );
 	return sqlite3_column_int( stmt, column );
@@ -107,6 +110,9 @@ double Statement::floating( unsigned column ){
 void Statement::bind( string value, unsigned column ){
 	validateError( *this, sqlite3_bind_text( stmt, column, value.c_str(), value.size(), SQLITE_TRANSIENT ) );
 	//TODO: enable use of SQLITE_STATIC ?
+}
+void Statement::bind( bool value, unsigned column ){
+	bind( value ? 1 : 0, column );
 }
 void Statement::bind( int value, unsigned column ){
 	validateError( *this, sqlite3_bind_int( stmt, column, value ) );

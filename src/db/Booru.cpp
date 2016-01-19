@@ -261,7 +261,7 @@ void Booru::saveToDb( const Post& item ){
 	bindImage( item.thumbnail, 25 );
 	bindImage( item.reduced,   29 );
 	
-	stmt.bind( 0, 33 ); //TODO: local
+	stmt.bind( item.saved, 33 );
 	
 	stmt.next();
 }
@@ -312,6 +312,8 @@ bool Booru::load( Post& p, Image::Size level ){
 		loadImage( p.preview,   20 );
 		loadImage( p.thumbnail, 24 );
 		loadImage( p.reduced,   28 );
+		
+		p.saved = stmt.boolean( 32 );
 		
 		posts.insert( p, true );
 		

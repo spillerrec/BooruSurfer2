@@ -44,11 +44,13 @@ class Statement{
 		int columnType( unsigned column );
 		
 		std::string text( unsigned column );
+		bool boolean( unsigned column );
 		int integer( unsigned column );
 		int64_t integer64( unsigned column );
 		double floating( unsigned column );
 		
 		void bind( std::string value, unsigned column );
+		void bind( bool value, unsigned column );
 		void bind( int value, unsigned column );
 		void bind( int64_t value, unsigned column );
 		void bind( double value, unsigned column );
