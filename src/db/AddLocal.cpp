@@ -74,6 +74,7 @@ void addFolder( string dir_path ){
 				
 				//Filepath
 				p.saved = true;
+				p.creation_time = it->created();
 				auto current = it.path();
 				p.full.url = "file:///" + current.makeAbsolute().toString();
 				
