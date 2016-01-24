@@ -23,6 +23,7 @@
 #include "../objects/Post.hpp"
 #include "../objects/Note.hpp"
 #include "../objects/Tag.hpp"
+#include "../objects/Index.hpp"
 
 #include <Poco/Mutex.h>
 
@@ -114,10 +115,14 @@ class Booru{
 		bool load( Note& n );
 		bool load( Post& p, Image::Size level );
 		bool load( Tag& p );
+		bool load( Index& index, IndexId id );
 		
 		void save( Note& n );
 		void save( Post& p );
 		void save( Tag& p );
+		void save( Index& index );
+		
+		Index iteratePosts( IndexId id );
 		
 		void flushNotes(){ notes.flush( *this ); }
 		void flushPosts(){ posts.flush( *this ); }

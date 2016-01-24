@@ -23,6 +23,7 @@
 
 #include "IdolApi.hpp"
 #include "YandereApi.hpp"
+#include "LocalApi.hpp"
 
 ApiHandler* ApiHandler::instance{ nullptr };
 
@@ -34,6 +35,7 @@ ApiHandler::ApiHandler() : apis{
 	,	new IdolApi()
 	,	new KonachanApi()
 	,	new YandereApi()
+	,	new LocalApi( "san" )
 }{
 	//TODO: avoid this shit
 //	((DanApi*)get_by_shorthand( "kona" ))->load_tag_file();

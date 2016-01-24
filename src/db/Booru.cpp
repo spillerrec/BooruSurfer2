@@ -68,6 +68,8 @@ class SiteQueries{
 		
 		Statement* load_posts{ nullptr };
 		Statement* save_posts{ nullptr };
+		
+		Statement* iterate_posts{ nullptr };
 	
 	public:
 		SiteQueries( Database& db, std::string site ) : db(db), site(site) { }
@@ -95,6 +97,12 @@ class SiteQueries{
 					"?11, ?12, ?13, ?14, ?15, ?16, ?17, ?18, ?19, ?20,"
 					"?21, ?22, ?23, ?24, ?25, ?26, ?27, ?28, ?29, ?30,"
 					"?31, ?32, ?33 )"
+				);
+		}
+		
+		Statement& iteratePosts(){
+			return prepareInstance( db, iterate_posts, "SELECT * FROM " + site
+				+ "_posts ORDER BY created_at DESC LIMIT ?1 OFFSET ?2"
 				);
 		}
 };
@@ -278,20 +286,9 @@ void Booru::saveToDb( const Tag& tag ){
 	stmt.next();
 }
 
-
-bool Booru::load( Post& p, Image::Size level ){
-	auto copy = p;
-	if( posts.get( copy ) ){
-		p = p.combine( copy );
-		if( p.isAvailable(level) )
-			return true;
-	}
-	
-	auto& stmt = connection.getSite(site).loadPosts();
-	stmt.bind( static_cast<int>(p.id), 1 );
-	std::cout << "Loading post: " << p.id << std::endl;
-	
+static Post readPostFromStmt( Statement& stmt ){
 	if( stmt.next() ){
+		Post p( stmt.integer( 0 ) );
 		p.hash = stmt.text( 1 );
 		p.creation_time = Poco::Timestamp::fromEpochTime( stmt.integer64( 2 ) );
 		p.author = stmt.text( 3 );
@@ -315,12 +312,45 @@ bool Booru::load( Post& p, Image::Size level ){
 		
 		p.saved = stmt.boolean( 32 );
 		
-		posts.insert( p, true );
-		
-		return p.isAvailable(level);
+		return p;
+	}
+	return {};
+}
+
+bool Booru::load( Post& p, Image::Size level ){
+	auto copy = p;
+	if( posts.get( copy ) ){
+		p = p.combine( copy );
+		if( p.isAvailable(level) )
+			return true;
 	}
 	
+	auto& stmt = connection.getSite(site).loadPosts();
+	stmt.bind( static_cast<int>(p.id), 1 );
+	std::cout << "Loading post: " << p.id << std::endl;
+	
+	auto p2 = readPostFromStmt( stmt );
+	if( p2.id != 0 ){
+		p = p2;
+		posts.insert( p, true );
+		return p.isAvailable( level );
+	}
 	return false;
+}
+
+Index Booru::iteratePosts( IndexId id ){
+	Index index( id );
+	
+	auto& stmt = connection.getSite(site).iteratePosts();
+	id.limit = id.limit<0 ? 24 : id.limit;
+	stmt.bind( id.limit, 1 );
+	stmt.bind( id.page * id.limit, 2 );
+	
+	for( auto p=readPostFromStmt(stmt); p.id != 0; p=readPostFromStmt(stmt) ){
+		index.posts.push_back( p );
+	}
+	
+	return index;
 }
 
 bool Booru::load( Note& p ){
@@ -362,6 +392,10 @@ bool Booru::load( Tag& p ){
 		tags.insert( p, true );
 		return false;
 	}
+}
+
+bool Booru::load( Index& index, IndexId id ){
+	return false;
 }
 
 void Booru::save( Post& p ){
