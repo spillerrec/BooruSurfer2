@@ -26,28 +26,38 @@
 using namespace Poco::Net;
 using namespace std;
 
+static void exceptionErrorPage( HTTPServerResponse& response, exception& e ){
+	cout << "Exception occurred: " << e.what() << endl;
+	string contents = "Exception happened during processing the page: ";
+	contents += e.what();
+	response.setStatus( HTTPResponse::HTTP_INTERNAL_SERVER_ERROR );
+	response.sendBuffer( contents.c_str(), contents.size() );
+}
+
+template<typename Func>
+void handleRequestExceptions( HTTPServerResponse& response, Func f ){
+	try{ f(); }
+	//TODO: Handle more specific errors
+	catch( exception& e ){
+		resetDatabaseConnections();
+		exceptionErrorPage( response, e );
+	}
+}
+
 void StringPage::handleRequest( Arguments args, HTTPServerResponse& response ){
-	string contents;
-	try{
+	handleRequestExceptions( response, [&](){
 		//Create content
 		vector<APage::header> headers;
-		contents = serve( args, headers );
+		string contents = serve( args, headers );
 		
 		//Add headers
 		response.setStatus( HTTPResponse::HTTP_OK );
 		for( APage::header h : headers )
 			response.add( h.first, h.second );
-	}
-	catch( exception& e ){
-	
-		resetDatabaseConnections();
-		contents = "Exception happened during processing the page: ";
-		contents += e.what();
-		response.setStatus( HTTPResponse::HTTP_INTERNAL_SERVER_ERROR );
-	}
-	
-	//Send content
-	response.sendBuffer( contents.c_str(), contents.size() );
+		
+		//Send content
+		response.sendBuffer( contents.c_str(), contents.size() );
+	} );
 	
 	try{
 		ApiHandler::get_instance()->flush();
@@ -68,7 +78,7 @@ void StreamPage::Reader::writeAll( std::ostream& out ){
 }
 
 void StreamPage::handleRequest( Arguments args, HTTPServerResponse& response ){
-	try{
+	handleRequestExceptions( response, [&](){
 		vector<APage::header> headers;
 		auto reader = serve( args, headers );
 		
@@ -79,13 +89,5 @@ void StreamPage::handleRequest( Arguments args, HTTPServerResponse& response ){
 		
 		//Write everything from the Reader
 		reader->writeAll( response.send() );
-	}
-	catch( exception& e ){
-		resetDatabaseConnections();
-		cout << "Exception occurred: " << e.what() << endl;
-		string contents = "Exception happened during processing the page: ";
-		contents += e.what();
-		response.setStatus( HTTPResponse::HTTP_INTERNAL_SERVER_ERROR );
-		response.sendBuffer( contents.c_str(), contents.size() );
-	}
+	} );
 }
