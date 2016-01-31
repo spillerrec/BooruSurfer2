@@ -79,7 +79,6 @@ bool Statement::next(){
 		) == SQLITE_ROW;
 }
 bool Statement::reset(){
-	cout << "Resetting: " << query << endl;
 	return validateError( *this, sqlite3_reset( stmt ) );
 }
 

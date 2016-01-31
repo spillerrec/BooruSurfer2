@@ -236,6 +236,7 @@ void Booru::saveToDb( const Note& item ){
 	stmt.bind( "", 7 ); //TODO: text/body
 	
 	stmt.next();
+	stmt.reset();
 }
 
 void Booru::saveToDb( const Post& item ){
@@ -273,6 +274,7 @@ void Booru::saveToDb( const Post& item ){
 	stmt.bind( item.saved, 33 );
 	
 	stmt.next();
+	stmt.reset();
 }
 
 void Booru::saveToDb( const Tag& tag ){
@@ -285,6 +287,7 @@ void Booru::saveToDb( const Tag& tag ){
 	stmt.bind( false, 4 );
 	
 	stmt.next();
+	stmt.reset();
 }
 
 static Post readPostFromStmt( Statement& stmt ){
@@ -313,6 +316,7 @@ static Post readPostFromStmt( Statement& stmt ){
 		
 		p.saved = stmt.boolean( 32 );
 		
+		stmt.reset();
 		return p;
 	}
 	return {};
@@ -331,6 +335,7 @@ bool Booru::load( Post& p, Image::Size level ){
 	std::cout << "Loading post: " << p.id << std::endl;
 	
 	auto p2 = readPostFromStmt( stmt );
+	stmt.reset();
 	if( p2.id != 0 ){
 		p = p2;
 		posts.insert( p, true );
@@ -351,6 +356,7 @@ Index Booru::iteratePosts( IndexId id ){
 		index.posts.push_back( p );
 	}
 	
+	stmt.reset();
 	return index;
 }
 
@@ -368,6 +374,7 @@ bool Booru::load( Note& p ){
 		p.height  = stmt.floating( 5 );
 	//	p.content = stmt.text( 6 );
 		notes.insert( p, true );
+		stmt.reset();
 		return true;
 	}
 	else{
@@ -387,6 +394,7 @@ bool Booru::load( Tag& p ){
 		p.count = stmt.integer( 1 );
 		p.type = (Tag::Type)stmt.integer( 2 );
 		tags.insert( p, true );
+		stmt.reset();
 		return true;
 	}
 	else{
