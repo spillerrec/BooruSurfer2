@@ -25,8 +25,8 @@
 
 using namespace std;
 
-Database::Database( string file_path ){
-	if( sqlite3_open_v2( file_path.c_str(), &db, SQLITE_OPEN_READWRITE, nullptr ) != SQLITE_OK ){
+void Database::open(){
+	if( sqlite3_open_v2( filepath.c_str(), &db, SQLITE_OPEN_READWRITE, nullptr ) != SQLITE_OK ){
 		//TODO: throw exception
 		cout << "Couldn't open db!" << endl;
 		sqlite3_close( db );
@@ -36,7 +36,14 @@ Database::Database( string file_path ){
 //	Statement( *this, "PRAGMA journal_mode=WAL;" ).next();
 }
 
+Database::Database( string filepath ) : filepath(filepath) { open(); }
+
 Database::~Database(){
 //	cout << "Destroying" << endl;
 	sqlite3_close( db );
+}
+
+void Database::reset(){
+	sqlite3_close( db );
+	open();
 }

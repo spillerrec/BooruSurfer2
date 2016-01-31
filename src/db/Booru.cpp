@@ -120,6 +120,7 @@ class DbConnection{
 		void reset(){
 			Poco::ScopedLock<Poco::Mutex> locker( site_lock );
 			sites.clear();
+			db.reset();
 		}
 };
 

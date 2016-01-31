@@ -25,11 +25,16 @@ struct sqlite3_stmt;
 class Database{
 	private:
 		sqlite3 *db;
+		std::string filepath;
+		
+		void open();
 	
 	public:
 		Database( std::string file_path );
 		Database( const Database& ) = delete;
 		~Database();
+		
+		void reset();
 		
 		operator sqlite3*() const{ return db; }
 };
