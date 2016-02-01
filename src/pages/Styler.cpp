@@ -150,7 +150,18 @@ void Styler::tag_list( Node& parent, const vector<Tag>& tags, string title ){
 
 
 Node Styler::note( const Note& note ){
-	return p(doc)( "unimplemented" );
+	auto x      = note.x      * 100;
+	auto y      = note.y      * 100;
+	auto width  = note.width  * 100;
+	auto height = note.height * 100;
+	
+	string style = "";
+	style += "left:"   + to_string( x      ) + "%;";
+	style += "top:"    + to_string( y      ) + "%;";
+	style += "width:"  + to_string( width  ) + "%;";
+	style += "height:" + to_string( height ) + "%;";
+	
+	return div( doc, STYLE( style ) )( div( doc )( note.content ) );
 }
 
 Node Styler::comment( const Comment& comment ){
@@ -205,7 +216,7 @@ Node previewPost( string url ){
 }
 
 Node postInternal( Document& doc, Post& p, UrlHandler& url ){
-	string url_org = url.image_url( p, Image::ORIGINAL );
+	string url_org  = url.image_url( p, Image::ORIGINAL );
 	string url_show = url.image_url( p, Image::RESIZED );
 	if( p.full.isLocal() )
 		url_show = url_org;
@@ -232,12 +243,16 @@ Node postInternal( Document& doc, Post& p, UrlHandler& url ){
 }
 
 Node Styler::post( Post post ){
-	
-	return section( doc, CLASS("post") )(
-			div( doc, CLASS("container") )(
-					postInternal( doc, post, url )
-				)
+	auto container = div( doc, CLASS("container") )(
+			postInternal( doc, post, url )
 		);
+	
+	for( auto n : post.notes.list ){
+		auto note = api->note_handler.get( n );
+		container( this->note( note ) );
+	}
+	
+	return section( doc, CLASS("post") )( container );
 }
 
 string to_string( Post::Rating rating ){
