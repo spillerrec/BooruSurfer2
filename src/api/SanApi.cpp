@@ -220,9 +220,6 @@ Note parse_note( const xml_node& node ){
 	
 	Note note( id );
 	
-	cout << "Id is: " << id << endl;
-	cout << "Note: " << node.attribute( "style" ).value() << endl;
-	
 	auto parameters = cStrView( node.attribute( "style" ).value() );
 	
 	map<StringView, StringView> arguments;
@@ -247,7 +244,7 @@ Note parse_note( const xml_node& node ){
 	note.x      = convert( cStrView("left"  ) );
 	note.y      = convert( cStrView("top"   ) );
 	
-	cout << "Note: " << note.x << "x" << note.y << " (" << note.width << "x" << note.height << ")\n";
+	note.content = body.text().get();
 	
 	return note;
 }
