@@ -341,6 +341,7 @@ header{ padding-top: 5px; }
 	transition: opacity 0.4s linear;
 }
 .post .container a:first-child:hover:before{ opacity:0; }
+.post .container a:first-child{ display:block; font-size:0; } /* Fix <a> being too large */
 
 .post .container object{
 	display:block;
