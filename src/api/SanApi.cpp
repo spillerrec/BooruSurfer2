@@ -411,6 +411,7 @@ Post SanApi::get_post( unsigned post_id, Image::Size level ){
 		preview_size = post.full;
 	for( auto notebox : doc.select_nodes( "//div[@class='note-box']" ) ){
 		auto note = parse_note( notebox.node() );
+		note.post_id = post.id;
 		
 		//Scale to range 0.0-1.0
 		note.x      /= double(preview_size.width );

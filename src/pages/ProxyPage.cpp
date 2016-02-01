@@ -63,6 +63,11 @@ FilePage::Result ProxyPage::getReader( APage::Arguments args, bool save ) const{
 	Api& api = ApiHandler::get_instance()->get_by_shorthand( input.site );
 	auto post = api.get_post( input.id, input.level );
 	Image img = post.get_image_size( input.level );
+	
+	//QUICK-FIX: No thumbnails when using LocalApi
+	if( input.level == Image::THUMB && post.saved && img.url.empty() )
+		img = post.get_image_size( Image::ORIGINAL );
+	
 	if( save && !post.saved ){ //If changed
 		post.saved = true;
 		api.booru.save( post );

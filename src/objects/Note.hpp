@@ -26,6 +26,7 @@ class Note : public Identity<>{
 		
 		
 	public:
+		int post_id;
 		double x;
 		double y;
 		double width;

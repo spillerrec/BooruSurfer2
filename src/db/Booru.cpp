@@ -69,6 +69,9 @@ class SiteQueries{
 		Statement* load_posts{ nullptr };
 		Statement* save_posts{ nullptr };
 		
+		Statement* load_notes{ nullptr };
+		Statement* save_notes{ nullptr };
+		
 		Statement* iterate_posts{ nullptr };
 	
 	public:
@@ -79,13 +82,13 @@ class SiteQueries{
 			{ return prepareInstance( db, load_tags, "SELECT * FROM " + site + "_tags WHERE id = ?1" ); }
 		
 		Statement& loadNotes()
-			{ return prepareInstance( db, load_tags, "SELECT * FROM " + site + "_notes WHERE id = ?1" ); }
+			{ return prepareInstance( db, load_notes, "SELECT * FROM " + site + "_notes WHERE id = ?1" ); }
 			
 		Statement& saveTags()
 			{ return prepareInstance( db, save_tags, "INSERT OR REPLACE INTO " + site + "_tags VALUES( ?1, ?2, ?3, ?4 )" ); }
 			
 		Statement& saveNotes()
-			{ return prepareInstance( db, save_tags, "INSERT OR REPLACE INTO " + site + "_notes VALUES( ?1, ?2, ?3, ?4 ?5 ?6 ?7 )" ); }
+			{ return prepareInstance( db, save_notes, "INSERT OR REPLACE INTO " + site + "_notes VALUES( ?1, ?2, ?3, ?4, ?5, ?6, ?7 )" ); }
 			
 		Statement& loadPosts()
 			{ return prepareInstance( db, load_posts, "SELECT * FROM " + site + "_posts WHERE id = ?1" ); }
@@ -224,16 +227,16 @@ Booru::Booru( std::string site ) : site(site) {
 Transaction Booru::beginBatch(){ return connection.getDb(); }
 
 void Booru::saveToDb( const Note& item ){
-	auto& stmt = connection.getSite(site).savePosts();
+	auto& stmt = connection.getSite(site).saveNotes();
 	std::cout << "Saving Note: " << item.id << std::endl;
 	
 	stmt.bind( static_cast<int>(item.id), 1 );
-	stmt.bind( -1, 2 ); //TODO: post_id
+	stmt.bind( item.post_id, 2 );
 	stmt.bind( item.x, 3 );
 	stmt.bind( item.y, 4 );
 	stmt.bind( item.width, 5 );
 	stmt.bind( item.height, 6 );
-	stmt.bind( "", 7 ); //TODO: text/body
+	stmt.bind( item.content, 7 );
 	
 	stmt.next();
 	stmt.reset();
