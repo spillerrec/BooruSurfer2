@@ -403,18 +403,15 @@ Post SanApi::get_post( unsigned post_id, Image::Size level ){
 	}
 	
 	//Notes:
-	auto preview_size = post.preview;
-	if( preview_size.url.empty() )
-		preview_size = post.full;
 	for( auto notebox : doc.select_nodes( "//div[@class='note-box']" ) ){
 		auto note = parse_note( notebox.node() );
 		note.post_id = post.id;
 		
 		//Scale to range 0.0-1.0
-		note.x      /= double(preview_size.width );
-		note.y      /= double(preview_size.height);
-		note.width  /= double(preview_size.width );
-		note.height /= double(preview_size.height);
+		note.x      /= double(post.full.width );
+		note.y      /= double(post.full.height);
+		note.width  /= double(post.full.width );
+		note.height /= double(post.full.height);
 		
 		post.notes.add( note.id );
 		note_handler.add( note );

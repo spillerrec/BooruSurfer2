@@ -255,6 +255,7 @@ namespace HTML{
 	
 	HTML_ATTRIBUTE( ID, "id" )
 	HTML_ATTRIBUTE( CLASS, "class" )
+	HTML_ATTRIBUTE( STYLE, "style" )
 	HTML_ATTRIBUTE( SRC, "src" )
 	HTML_ATTRIBUTE( ALT, "alt" )
 	HTML_ATTRIBUTE( REL, "rel" )
