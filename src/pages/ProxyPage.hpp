@@ -20,7 +20,6 @@
 #include "FilePage.hpp"
 #include "../objects/Image.hpp"
 
-
 class ProxyPage : public FilePage{
 	public:
 		struct Parameters{
@@ -30,7 +29,8 @@ class ProxyPage : public FilePage{
 		};
 		static Parameters parseParameters( Arguments args );
 		
-		virtual Result getReader( Arguments args, bool save=false ) const override;
+		Result getImage( class Api& api, const class Post& post, const Image& img ) const;
+		virtual Result getReader( Arguments args ) const override;
 };
 
 #endif

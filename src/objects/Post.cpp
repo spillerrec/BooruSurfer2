@@ -57,13 +57,26 @@ Resource<Res> resourceCombine( const Resource<Res>& a, const Resource<Res>& b ){
 	return out;
 }
 
+static std::string urlCombine( const Image& a, const Image& b ){
+	if( a.isLocal() ) return a.url;
+	if( b.isLocal() ) return b.url;
+	return a.url.empty() ? b.url : a.url;
+}
+
 Image imageCombine( const Image& a, const Image& b ){
 	Image out;
-	out.url = a.url.empty() ? b.url : a.url; //TODO: prefer local files
+	out.url = urlCombine( a, b );
 	out.width = std::max( a.width, b.width );
 	out.height = std::max( a.height, b.height );
 	out.size = std::max( a.size, b.size );
 	return out;
+}
+
+static Poco::Timestamp timeCombine( Poco::Timestamp time1, Poco::Timestamp time2 ){
+	return ( time1 == 0 || time2 == 0 )
+		?	std::max( time1, time2 ) //If one of them is unset, use the other one
+		:	std::min( time1, time2 ) //Else use the earliest time
+		;
 }
 
 Post Post::combine( const Post& other ) const{
@@ -73,8 +86,7 @@ Post Post::combine( const Post& other ) const{
 	p.hash   = fillMissing( hash,   other.hash,   "hash" );
 	p.author = fillMissing( author, other.author, "author" );
 	p.source = fillMissing( source, other.source, "source" );
-	//TODO: using max to avoid default of 0, but we should save the earliest known post time instead
-	p.creation_time = std::max( creation_time, other.creation_time );
+	p.creation_time = timeCombine( creation_time, other.creation_time );
 	
 	p.tags     = resourceCombine( tags,     other.tags     );
 	p.parents  = resourceCombine( parents,  other.parents  );

@@ -33,16 +33,24 @@ using namespace std;
 string SavePage::serve( vector<string> args, vector<header> &headers ) const{
 	require( args.size() == 3, "fail" );
 	
-	vector<header> fake_headers;
-	auto result = ProxyPage().getReader( args, true );
-	auto& reader = result.first;
+	//Parse parameters
+	auto input = ProxyPage::parseParameters( args );
+	Api& api = ApiHandler::get_instance()->get_by_shorthand( input.site );
+	auto post = api.get_post( input.id, input.level );
+	Image img = post.get_image_size( input.level );
+	auto filename = "out/" + args[2];
 	
 	//Save file
-	ofstream file( "out/" + args[2], ios_base::out | ios_base::binary );
-	reader->writeAll( file );
+	auto result = ProxyPage().getImage( api, post, img );
+	ofstream file( filename, ios_base::out | ios_base::binary );
+	result.first->writeAll( file );
+	
+	//Save post in DB
+	post.saved = true;
+	post.full.url = "file:///" + filename;
+	api.booru.save( post );
 	
 	//TODO: detect errors and show them
-	auto& api = ApiHandler::get_instance()->get_by_shorthand( ProxyPage::parseParameters( args ).site );
 	BasicStyler s( "Saved" );
 	s.body( HTML::p( s.doc )( "Saved" ) );
 	s.head( link( s.doc, HTML::REL("shortcut icon"), HTML::HREF( "/favicon/" + api.get_shorthand() + "/saved" ) ) );

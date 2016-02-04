@@ -50,7 +50,7 @@ FilePage::FilePage(){
 	mimes[ "css" ] = "text/css";
 }
 
-FilePage::Result FilePage::getReader( vector<string> args, bool ) const{
+FilePage::Result FilePage::getReader( vector<string> args ) const{
 	//Rebuild the filepath, as it was split appart
 	auto add_dir = [](string sum, string add){ return ( add != ".." ) ? sum + "/" + add : ""; };
 	string filepath = accumulate( args.begin()+1, args.end(), string("resources"), add_dir );

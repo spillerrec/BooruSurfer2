@@ -58,24 +58,8 @@ ProxyPage::Parameters ProxyPage::parseParameters( APage::Arguments args ){
 	return { site, id, level };
 }
 
-FilePage::Result ProxyPage::getReader( APage::Arguments args, bool save ) const{
-	auto input = parseParameters( args );
-	Api& api = ApiHandler::get_instance()->get_by_shorthand( input.site );
-	auto post = api.get_post( input.id, input.level );
-	Image img = post.get_image_size( input.level );
-	
-	//QUICK-FIX: No thumbnails when using LocalApi
-	if( input.level == Image::THUMB && post.saved && img.url.empty() )
-		img = post.get_image_size( Image::ORIGINAL );
-	
-	if( save && !post.saved ){ //If changed
-		post.saved = true;
-		api.booru.save( post );
-	}
-	
-	//Detect mime-type
-	int pos = img.url.find_last_of( "." );
-	
+//TODO: can we make Api const here?
+FilePage::Result ProxyPage::getImage( Api& api, const Post& post, const Image& img ) const{
 	//Determine file extension from url, which may contain arguments
 	auto end = img.url.find( "?" );
 	auto start = img.url.rfind( ".", end );
@@ -86,8 +70,21 @@ FilePage::Result ProxyPage::getReader( APage::Arguments args, bool save ) const{
 		return { unique_ptr<Reader>( new FileReader( img.url.substr( file_protocol.size() ) ) ), ext };
 	else{
 		auto reader = unique_ptr<Reader>(
-				new RequestReader( api.getFromUrl( img.url, { { "Referer", api.original_post_url( input.id ) } } ) )
+				new RequestReader( api.getFromUrl( img.url, { { "Referer", api.original_post_url( post.id ) } } ) )
 			);
 		return { std::move(reader), ext };
 	}
+}
+
+FilePage::Result ProxyPage::getReader( APage::Arguments args ) const{
+	auto input = parseParameters( args );
+	Api& api = ApiHandler::get_instance()->get_by_shorthand( input.site );
+	auto post = api.get_post( input.id, input.level );
+	Image img = post.get_image_size( input.level );
+	
+	//QUICK-FIX: No thumbnails when using LocalApi
+	if( input.level == Image::THUMB && post.saved && img.url.empty() )
+		img = post.get_image_size( Image::ORIGINAL );
+	
+	return getImage( api, post, img );
 }
