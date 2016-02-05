@@ -34,6 +34,11 @@ class Statement{
 	public:
 		Statement( Database& db, const char* query );
 		Statement( const Statement& ) = delete;
+		Statement( Statement&& other )
+			:	stmt( other.stmt ), db( other.db ), query( other.query ) {
+				other.stmt = nullptr;
+				other.query = nullptr;
+			}
 		~Statement();
 		
 		void throwError( std::string error );
@@ -64,17 +69,16 @@ class Transaction{
 		
 	public:
 		Transaction( Database& db ) : db(&db) { Statement( db, "BEGIN TRANSACTION" ).next(); }
-		~Transaction(){ close(); }
+		Transaction( const Transaction& ) = delete;
 		Transaction( Transaction&& other ) : db( other.db ){ other.commit = false; }
+		~Transaction(){ close(); }
 		
+		Transaction& operator=( const Transaction& other ) = delete;
 		Transaction& operator=( Transaction&& other ){
 			db = other.db;
 			commit = other.commit;
 			other.commit = false;
 		}
-		
-		Transaction( const Transaction& ) = delete;
-		Transaction& operator=( const Transaction& other ) = delete;
 		
 		void close();
 };

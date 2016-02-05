@@ -20,18 +20,6 @@
 
 #include <iostream>
 
-//Singleton initialization of prepared statement, with automatic reset
-static Statement& prepareInstance( Database& db, Statement* stmt, std::string query ){
-	if( !stmt ){
-		//NOTE: Leak!!
-		auto copy = new char[query.size()+1];
-		stmt = new Statement( db, strcpy( copy, query.c_str() ) );
-	}
-	else
-		stmt->reset();
-	return *stmt;
-}
-
 std::vector<std::string> splitIds( std::string str ){
 	std::vector<std::string> ids;
 	boost::split( ids, str, boost::is_any_of( " " ) ); //TODO: avoid is_any_of() ?
@@ -58,56 +46,53 @@ std::string combineIds( const std::vector<std::string>& input ){
 	return output;
 }
 
+class PreparedStatement{
+	public:
+		std::string query;
+		Statement stmt;
+		
+	public:
+		PreparedStatement( Database& db, std::string query )
+			:	query(query), stmt( db, this->query.c_str() ) { }
+		PreparedStatement( const PreparedStatement& ) = delete;
+		PreparedStatement( PreparedStatement&& other )
+			:	query( std::move(other.query) ), stmt( std::move(other.stmt) ) { }
+		
+		Statement& operator()(){ return stmt; }
+};
 
 class SiteQueries{
-	private:
-		Database& db;
+	public:
 		std::string site;
-		Statement* load_tags{ nullptr };
-		Statement* save_tags{ nullptr };
 		
-		Statement* load_posts{ nullptr };
-		Statement* save_posts{ nullptr };
+		PreparedStatement loadTags;
+		PreparedStatement loadNotes;
+		PreparedStatement loadPosts;
 		
-		Statement* load_notes{ nullptr };
-		Statement* save_notes{ nullptr };
+		PreparedStatement saveTags;
+		PreparedStatement saveNotes;
+		PreparedStatement savePosts;
 		
-		Statement* iterate_posts{ nullptr };
+		PreparedStatement iteratePosts;
 	
 	public:
-		SiteQueries( Database& db, std::string site ) : db(db), site(site) { }
-		bool isSite( std::string wanted_site ) const { return site == wanted_site; }
-		
-		Statement& loadTags()
-			{ return prepareInstance( db, load_tags, "SELECT * FROM " + site + "_tags WHERE id = ?1" ); }
-		
-		Statement& loadNotes()
-			{ return prepareInstance( db, load_notes, "SELECT * FROM " + site + "_notes WHERE id = ?1" ); }
-			
-		Statement& saveTags()
-			{ return prepareInstance( db, save_tags, "INSERT OR REPLACE INTO " + site + "_tags VALUES( ?1, ?2, ?3, ?4 )" ); }
-			
-		Statement& saveNotes()
-			{ return prepareInstance( db, save_notes, "INSERT OR REPLACE INTO " + site + "_notes VALUES( ?1, ?2, ?3, ?4, ?5, ?6, ?7 )" ); }
-			
-		Statement& loadPosts()
-			{ return prepareInstance( db, load_posts, "SELECT * FROM " + site + "_posts WHERE id = ?1" ); }
-			
-		Statement& savePosts(){
-			return prepareInstance( db, save_posts,
-					"INSERT OR REPLACE INTO " + site + "_posts VALUES( "
+		SiteQueries( Database& db, std::string site )
+			:	site(site)
+			,	loadTags ( db, "SELECT * FROM " + site + "_tags  WHERE id = ?1" )
+			,	loadNotes( db, "SELECT * FROM " + site + "_notes WHERE id = ?1" )
+			,	loadPosts( db, "SELECT * FROM " + site + "_posts WHERE id = ?1" )
+			,	saveTags ( db, "INSERT OR REPLACE INTO " + site + "_tags VALUES( ?1, ?2, ?3, ?4 )" )
+			,	saveNotes( db, "INSERT OR REPLACE INTO " + site + "_notes VALUES( ?1, ?2, ?3, ?4, ?5, ?6, ?7 )" )
+			,	savePosts( db, "INSERT OR REPLACE INTO " + site + "_posts VALUES( "
 					" ?1,  ?2,  ?3,  ?4,  ?5,  ?6,  ?7,  ?8,  ?9, ?10,"
 					"?11, ?12, ?13, ?14, ?15, ?16, ?17, ?18, ?19, ?20,"
 					"?21, ?22, ?23, ?24, ?25, ?26, ?27, ?28, ?29, ?30,"
 					"?31, ?32, ?33 )"
-				);
-		}
+				)
+			,	iteratePosts( db, "SELECT * FROM " + site + "_posts ORDER BY created_at DESC LIMIT ?1 OFFSET ?2" )
+			{ }
 		
-		Statement& iteratePosts(){
-			return prepareInstance( db, iterate_posts, "SELECT * FROM " + site
-				+ "_posts ORDER BY created_at DESC LIMIT ?1 OFFSET ?2"
-				);
-		}
+		bool isSite( std::string wanted_site ) const { return site == wanted_site; }
 };
 
 class DbConnection{
