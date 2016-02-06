@@ -307,6 +307,7 @@ static Post readPostFromStmt( Statement& stmt ){
 		stmt.reset();
 		return p;
 	}
+	stmt.reset();
 	return {};
 }
 
@@ -323,7 +324,6 @@ bool Booru::load( Post& p, Image::Size level ){
 	std::cout << "Loading post: " << p.id << std::endl;
 	
 	auto p2 = readPostFromStmt( stmt );
-	stmt.reset();
 	if( p2.id != 0 ){
 		p = p2;
 		posts.insert( p, true );
@@ -367,6 +367,7 @@ bool Booru::load( Note& p ){
 	}
 	else{
 		notes.insert( p, true );
+		stmt.reset();
 		return false;
 	}
 }
@@ -387,6 +388,7 @@ bool Booru::load( Tag& p ){
 	}
 	else{
 		tags.insert( p, true );
+		stmt.reset();
 		return false;
 	}
 }
