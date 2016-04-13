@@ -18,12 +18,14 @@
 
 #include "IndexPage.hpp"
 
-#include <boost/algorithm/string.hpp>
-
 #include "../api/Api.hpp"
 #include "../api/ApiHandler.hpp"
 #include "../exceptions/utils.hpp"
 #include "Styler.hpp"
+
+#include <boost/algorithm/string.hpp>
+#include <algorithm>
+#include <cctype>
 
 using namespace std;
 using namespace HTML;
@@ -36,6 +38,9 @@ IndexPage::Parameters IndexPage::parseArguments( Arguments args ){
 	int limit = -1;
 	if( args.size() == 3 ){
 		try{
+			auto page_str = args[2];
+			if( !all_of( page_str.begin(), page_str.end(), [](char c){ return isdigit(c); } ) )
+				throw false;
 			page = stoi( args[2] );
 		}
 		catch(...){
