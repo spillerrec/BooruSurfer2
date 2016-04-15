@@ -1,8 +1,14 @@
 var items = window.location.pathname.split("/")
 items.shift()
 
+var strictParseInt = function( str ) {
+	if( isNaN( String( str ) * 1 ) )
+		return NaN
+	return parseInt( str );
+}
+
 var site = items[1];
-var page_parsed = parseInt( items[2] );
+var page_parsed = strictParseInt( items[2] );
 var page = isNaN(page_parsed) ? 1 : page_parsed;
 var limit = -1; //TODO: implement
 var search = isNaN(page_parsed) ? items[2] : items[3];
