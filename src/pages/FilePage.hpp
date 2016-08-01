@@ -42,8 +42,7 @@ class FilePage : public StreamPage{
 
 		struct FileReader : public StreamReader{
 			std::fstream fs;
-			FileReader( std::string path )
-				:	fs( path, std::fstream::in | std::fstream::binary ), StreamReader( fs ) { }
+			FileReader( std::string path );
 		};
 		
 	public:

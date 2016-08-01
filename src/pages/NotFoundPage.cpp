@@ -18,7 +18,7 @@
 
 #include "Styler.hpp"
 
-#include <algorithm>
+#include <numeric>
 
 using namespace std;
 using namespace HTML;

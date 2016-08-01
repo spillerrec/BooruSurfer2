@@ -19,6 +19,7 @@
 #include "SavePage.hpp"
 #include "ProxyPage.hpp"
 #include "../exceptions/utils.hpp"
+#include "../exceptions/ResourceMissing.hpp"
 
 #include "../api/Api.hpp"
 #include "../api/ApiHandler.hpp"
@@ -28,6 +29,13 @@
 #include <fstream>
 
 using namespace std;
+
+static string messagePage( const Api& api, string message ){
+	BasicStyler s( "Saved" );
+	s.body( HTML::p( s.doc )( message ) );
+	s.head( link( s.doc, HTML::REL("shortcut icon"), HTML::HREF( "/favicon/" + api.get_shorthand() + "/saved" ) ) );
+	return s.doc;
+}
 
 
 string SavePage::serve( vector<string> args, vector<header> &headers ) const{
@@ -40,6 +48,17 @@ string SavePage::serve( vector<string> args, vector<header> &headers ) const{
 	Image img = post.get_image_size( input.level );
 	auto filename = "out/" + args[2];
 	
+	//Sanity checking
+	if( img.isLocal() ){
+		if( !post.saved ){
+			debug( "Database inconsistency, image is local, but not saved" );
+			post.saved = true;
+			api.booru.save( post );
+		}
+		
+		return messagePage( api, "Already saved" );
+	}	
+	
 	//Save file
 	auto result = ProxyPage().getImage( api, post, img );
 	ofstream file( filename, ios_base::out | ios_base::binary );
@@ -47,13 +66,9 @@ string SavePage::serve( vector<string> args, vector<header> &headers ) const{
 	
 	//Save post in DB
 	post.saved = true;
-	post.full.url = "file:///" + filename;
+	post.full.setLocalPath( filename ); //TODO: Bug if input.level differs!
 	api.booru.save( post );
 	
-	//TODO: detect errors and show them
-	BasicStyler s( "Saved" );
-	s.body( HTML::p( s.doc )( "Saved" ) );
-	s.head( link( s.doc, HTML::REL("shortcut icon"), HTML::HREF( "/favicon/" + api.get_shorthand() + "/saved" ) ) );
-	return s.doc;
+	return messagePage( api, "Saved" );
 }
 

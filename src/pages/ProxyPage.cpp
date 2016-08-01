@@ -24,8 +24,6 @@
 #include "../api/Api.hpp"
 #include "../api/ApiHandler.hpp"
 
-#include <boost/algorithm/string/predicate.hpp>
-
 #include <iostream>
 #include <fstream>
 #include <istream>
@@ -65,9 +63,8 @@ FilePage::Result ProxyPage::getImage( Api& api, const Post& post, const Image& i
 	auto start = img.url.rfind( ".", end );
 	auto ext = img.url.substr( start+1, end - start - 1 );
 	
-	string file_protocol = "file:///";
-	if( boost::starts_with( img.url, file_protocol ) )
-		return { unique_ptr<Reader>( new FileReader( img.url.substr( file_protocol.size() ) ) ), ext };
+	if( img.isLocal() )
+		return { unique_ptr<Reader>( new FileReader( img.localPath() ) ), ext };
 	else{
 		auto reader = unique_ptr<Reader>(
 				new RequestReader( api.getFromUrl( img.url, { { "Referer", api.original_post_url( post.id ) } } ) )

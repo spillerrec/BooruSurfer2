@@ -15,6 +15,9 @@
 */
 
 #include "Image.hpp"
+#include "../exceptions/utils.hpp"
+
+#include <boost/algorithm/string/predicate.hpp>
 
 #include <map>
 
@@ -35,5 +38,11 @@ bool Image::isLocal() const{
 	if( url.empty() )
 		return false;
 	return url.compare( 0, 4, "http" ) != 0;
+}
+
+string Image::localPath() const{
+	string file_protocol = "file:///";
+	require( !boost::starts_with( url, file_protocol ), "Must be a file url: " + url );
+	return url.substr( file_protocol.size() );
 }
 

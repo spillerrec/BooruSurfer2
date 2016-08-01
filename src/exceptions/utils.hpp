@@ -18,6 +18,7 @@
 #define EXCEPTIONS__UTILS_HPP
 
 #include "InvalidInput.hpp"
+#include <iostream>
 
 inline void require( bool valid, const std::string& error ){
 	if( !valid )
@@ -28,6 +29,12 @@ inline int getInt( const std::string& input, const std::string& error="Not an in
 	try{ return stoi( input ); }
 	catch( ... ){ throw InvalidInput( error ); }
 }
+
+inline void debug( const char* message )
+	{ std::cout << message; }
+	
+inline void debug( const std::string& message )
+	{ debug( message.c_str() ); }
 
 #endif
 

@@ -14,31 +14,15 @@
 	along with BooruSurfer2.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef IMAGE_H
-#define IMAGE_H
+#ifndef RESOURCE_MISSING_HPP
+#define RESOURCE_MISSING_HPP
 
-#include <string>
+#include <stdexcept>
 
-class Image{
+class ResourceMissing : public std::runtime_error{
 	public:
-		enum Size{
-				THUMB
-			,	RESIZED
-			,	COMPRESSED
-			,	ORIGINAL
-		};
-		static Size from_string( std::string input );
-		
-		std::string url;
-		int width=0;
-		int height=0;
-		int size=0;
-		
-		bool isLocal() const;
-		std::string localPath() const;
-		
-		void setLocalPath( const std::string& path )
-			{ url = "file:///" + path; }
+		ResourceMissing( const std::string& error )
+			:	std::runtime_error( "Resource missing: " + error ) { }
 };
 
 #endif

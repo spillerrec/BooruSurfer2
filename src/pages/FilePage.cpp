@@ -17,22 +17,28 @@
 #include "FilePage.hpp"
 
 #include <iostream>
-#include <algorithm>
+#include <numeric>
 
 using namespace std;
 
+
+FilePage::FileReader::FileReader( std::string path )
+	:	fs( path, std::fstream::in | std::fstream::binary )
+	,	FilePage::StreamReader( fs )
+	{ } //TODO: Check if file exists
+
 FilePage::FilePage(){
 	//Images
-	mimes[ "bmp" ] = "image/x-windows-bmp";
-	mimes[ "jpg" ] = "image/jpeg";
+	mimes[ "bmp"  ] = "image/x-windows-bmp";
+	mimes[ "jpg"  ] = "image/jpeg";
 	mimes[ "jpeg" ] = "image/jpeg";
-	mimes[ "png" ] = "image/png";
+	mimes[ "png"  ] = "image/png";
 	mimes[ "apng" ] = "image/png";
-	mimes[ "tif" ] = "image/tiff";
+	mimes[ "tif"  ] = "image/tiff";
 	mimes[ "tiff" ] = "image/tiff";
-	mimes[ "gif" ] = "image/gif";
+	mimes[ "gif"  ] = "image/gif";
 	mimes[ "webp" ] = "image/webp";
-	mimes[ "svg" ] = "image/svg+xml";
+	mimes[ "svg"  ] = "image/svg+xml";
 	
 	//Animations/movies
 	mimes[ "swf" ] = "application/x-shockwave-flash";
@@ -51,7 +57,7 @@ FilePage::FilePage(){
 }
 
 FilePage::Result FilePage::getReader( vector<string> args ) const{
-	//Rebuild the filepath, as it was split appart
+	//Rebuild the filepath, as it was split apart
 	auto add_dir = [](string sum, string add){ return ( add != ".." ) ? sum + "/" + add : ""; };
 	string filepath = accumulate( args.begin()+1, args.end(), string("resources"), add_dir );
 	
