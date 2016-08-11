@@ -37,12 +37,12 @@ Image::Size Image::from_string( std::string input ){
 bool Image::isLocal() const{
 	if( url.empty() )
 		return false;
-	return url.compare( 0, 4, "http" ) != 0;
+	return url.compare( 0, 8, "file:///" ) == 0;
 }
 
 string Image::localPath() const{
 	string file_protocol = "file:///";
-	require( !boost::starts_with( url, file_protocol ), "Must be a file url: " + url );
+	require( boost::starts_with( url, file_protocol ), "Must be a file url: " + url );
 	return url.substr( file_protocol.size() );
 }
 
