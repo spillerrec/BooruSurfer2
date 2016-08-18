@@ -89,7 +89,7 @@ class SiteQueries{
 					"?21, ?22, ?23, ?24, ?25, ?26, ?27, ?28, ?29, ?30,"
 					"?31, ?32, ?33 )"
 				)
-			,	iteratePosts( db, "SELECT * FROM " + site + "_posts ORDER BY created_at DESC LIMIT ?1 OFFSET ?2" )
+			,	iteratePosts( db, "SELECT * FROM " + site + "_posts WHERE local=1 ORDER BY created_at DESC LIMIT ?1 OFFSET ?2" )
 			{ }
 		
 		bool isSite( std::string wanted_site ) const { return site == wanted_site; }
