@@ -303,11 +303,8 @@ static Post readPostFromStmt( Statement& stmt ){
 		loadImage( p.reduced,   28 );
 		
 		p.saved = stmt.boolean( 32 );
-		
-		stmt.reset();
 		return p;
 	}
-	stmt.reset();
 	return {};
 }
 
@@ -324,6 +321,7 @@ bool Booru::load( Post& p, Image::Size level ){
 	std::cout << "Loading post: " << p.id << std::endl;
 	
 	auto p2 = readPostFromStmt( stmt );
+	stmt.reset();
 	if( p2.id != 0 ){
 		p = p2;
 		posts.insert( p, true );
@@ -336,9 +334,10 @@ Index Booru::iteratePosts( IndexId id ){
 	Index index( id );
 	
 	auto& stmt = connection.getSite(site).iteratePosts();
-	id.limit = id.limit<0 ? 24 : id.limit;
+	id.limit = id.limit<=0 ? 24 : id.limit;
 	stmt.bind( id.limit, 1 );
-	stmt.bind( id.page * id.limit, 2 );
+	stmt.bind( (id.page-1) * id.limit, 2 );
+	
 	
 	for( auto p=readPostFromStmt(stmt); p.id != 0; p=readPostFromStmt(stmt) ){
 		index.posts.push_back( p );
