@@ -2,6 +2,7 @@
 /********** HOLY GRAIL START **********/
 body {
   min-width: 408px;      /* 2x LC width + RC width */
+  overflow: scroll; /* Prevent change of layout when scrollbar changes, no known better solution than to force it on */
 }
 #container {
 	clear:both;
