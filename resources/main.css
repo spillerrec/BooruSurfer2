@@ -6,7 +6,7 @@ body {
 }
 #container {
 	clear:both;
-	padding-left: 208px;   /* LC width */
+	padding-left: 190px;   /* LC width */
 }
 #container .post_list, #container .post {
 	position: relative;
@@ -16,9 +16,9 @@ body {
 #container aside.post_list_info, #container aside.post_info{
 	position: relative;
 	float: left;
-	width: 200px;          /* LC width */
-	right: 208px;          /* LC width */
-	margin-right: -208px; /* seems to fix issue with this box affecting .comments*/
+	width: 185px;          /* LC width */
+	right: 190px;          /* LC width */
+	margin-right: -190px; /* seems to fix issue with this box affecting .comments*/
 	margin-left: -100%;
 }
 footer { clear: both; }
@@ -310,7 +310,7 @@ html, body, #container > .post, #container > .post > .container, #container > .p
 .post .container img{max-height:100%}
 #container{height:95%;}
 */
-body{margin:0 5px;}
+body{margin: 0 0 0 5px;}
 header{ padding-top: 5px; }
 .post .container img{
 	max-width:100%;
