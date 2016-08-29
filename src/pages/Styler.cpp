@@ -74,7 +74,7 @@ string BasicStyler::format_filesize( unsigned filesize ) const{
 string BasicStyler::format_date( Poco::Timestamp timestamp ) const{
 	//TODO: write how long time ago it was
 	if( timestamp.epochMicroseconds() != 0 )
-		return Poco::DateTimeFormatter::format( timestamp, Poco::DateTimeFormat::SORTABLE_FORMAT );
+		return Poco::DateTimeFormatter::format( timestamp, "%Y-%m-%d %H:%M" );
 	else
 		return "Unknown";
 }

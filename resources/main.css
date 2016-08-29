@@ -173,8 +173,8 @@ header nav li form{ float:right; }
 .post_list a:hover + .details{
 	position:absolute;
 	display:block;
-	width:200px;
-	left:-200px;
+	width:190px;
+	left:-190px;
 	top:0px;
 	
 	background-color: #222222;
