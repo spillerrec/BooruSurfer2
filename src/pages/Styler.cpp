@@ -126,15 +126,16 @@ Node Styler::tag( const Tag& tag ){
 	
 	string text = tag.id;
 	replace( text.begin(), text.end(), '_', ' ' );
+	auto node = a( doc, HREF( url ) )( text );
 	
 	//TODO: use real_count
 	if( tag.count )
-		text += " (" + boost::lexical_cast<string>( tag.count ) + ")";
+		node( span( doc )( "(" + boost::lexical_cast<string>( tag.count ) + ")" ) );
 	
 	if( tag.type )
-		return a( doc, HREF( url ), CLASS( "tagtype" + to_string( tag.type ) ) )( text );
-	else
-		return a( doc, HREF( url ) )( text );
+		node.add_attr( CLASS( "tagtype" + to_string( tag.type ) ) );
+	
+	return node;
 }
 
 void Styler::tag_list( Node& parent, const vector<Tag>& tags, string title ){

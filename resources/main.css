@@ -213,6 +213,14 @@ header nav li form{ float:right; }
 .post_list ul li > a.has_parent{ border-top-color:yellow; }
 /********** POST LIST END **********/
 
+/********** POST LIST INFO START **********/
+.post_list_info ul li > a > span{
+	color: #777;
+	margin-left: 4px;
+	font-size: 70%;
+}
+/********** POST LIST INFO END **********/
+
 
 /********** POST LIST DETAILS START **********/
 /* Start overriding stuff from POST LIST*/

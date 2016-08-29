@@ -73,6 +73,7 @@ namespace HTML{
 			template<typename T>
 			Node& add( const T& other ){ return add( boost::lexical_cast<std::string>( other ) ); }
 			
+		public:
 			template<typename T1, typename T2>
 			void add_attr( std::pair<T1,T2> attr ){
 				node->append_attribute( doc.allocate_attribute( get_text( attr.first ), get_text( attr.second ) ) );
