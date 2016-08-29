@@ -214,7 +214,7 @@ header nav li form{ float:right; }
 /********** POST LIST END **********/
 
 /********** POST LIST INFO START **********/
-.post_list_info ul li > a > span{
+.post_list_info ul li > a > span, .post_info ul li > a > span{
 	color: #777;
 	margin-left: 4px;
 	font-size: 70%;
