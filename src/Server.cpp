@@ -14,11 +14,10 @@
 	along with BooruSurfer2.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include <Poco/Net/HTTPRequestHandler.h>
-#include <Poco/Net/HTTPServerRequest.h>
-#include <Poco/Net/HTTPServerParams.h>
-#include <Poco/Net/HTTPServer.h>
+
 #include <Poco/URI.h>
+
+#include <nghttp2/asio_http2_server.h>
 
 #include "Server.hpp"
 #include "api/ApiHandler.hpp"
@@ -28,12 +27,11 @@
 
 #include <boost/algorithm/string.hpp>
 #include <boost/algorithm/string/replace.hpp>
+#include <boost/system/error_code.hpp>
 
 #include <iostream>
 #include <algorithm>
 
-using namespace Poco;
-using namespace Poco::Net;
 using namespace std;
 
 string Server::remove_reserved( const string& input ){
@@ -52,54 +50,59 @@ string Server::remove_reserved( const string& input ){
 }
 string Server::encode_str( const string& input ){
 	string output, reserved; //TODO: reserved, wtf?
-	URI::encode( input, reserved, output );
+	Poco::URI::encode( input, reserved, output );
 	return output;
 }
 string Server::unencode_str( const string& input ){
 	string output;
 	string temp = input;
 	boost::replace_all( temp, "+", "%20" );
-	URI::decode( temp, output );
+	Poco::URI::decode( temp, output );
 	return output;
 }
 
-class RequestHandler : public HTTPRequestHandler {
-	public:
-		virtual void handleRequest( HTTPServerRequest& req, HTTPServerResponse& response ) override {
-			PageHandler pages;
-			
-			//Split on '/' and remove empty parts
-			vector<string> args;
-			boost::split( args, req.getURI(), boost::is_any_of( "/" ) ); //TODO: avoid is_any_of() ?
-			args.erase( remove_if( args.begin(), args.end(), [](string arg){ return arg.empty(); } ), args.end() );
-			
-			for( auto& arg : args )
-				arg = Server::unencode_str( arg );
-			
-			//Process page
-			if( args.size() == 0 )
-				pages.get_root()->handleRequest( args, response );
-			else
-				pages.get( args[0] )->handleRequest( args, response );
-		}
-};
-
-class RequestHandlerFactory : public HTTPRequestHandlerFactory {
-	public:
-		virtual HTTPRequestHandler* createRequestHandler( const HTTPServerRequest& request ) override{
-			return new RequestHandler;
-		}
-};
 
 
-int Server::main( const vector<string>& unknown ){
-	HTTPServer s( new RequestHandlerFactory, 8000 );
+static void handle_request( const nghttp2::asio_http2::server::request& req, const nghttp2::asio_http2::server::response& res ){
+	PageHandler pages;
 	
-	s.start();
-	waitForTerminationRequest();
-	s.stop();
+	//Split on '/' and remove empty parts
+	vector<string> args;
+	boost::split( args, req.uri().path, boost::is_any_of( "/" ) ); //TODO: avoid is_any_of() ?
+	args.erase( remove_if( args.begin(), args.end(), [](string arg){ return arg.empty(); } ), args.end() );
 	
-	return Application::EXIT_OK;
+	for( auto& arg : args )
+		arg = Server::unencode_str( arg );
+	
+	//Process page
+	if( args.size() == 0 )
+		pages.get_root()->handleRequest( args, res );
+	else
+		pages.get( args[0] )->handleRequest( args, res );
+}
+
+int Server::main(){
+	
+	boost::system::error_code ec;
+	boost::asio::ssl::context tls(boost::asio::ssl::context::sslv23);
+
+	tls.use_private_key_file("key.pem", boost::asio::ssl::context::pem);
+	tls.use_certificate_chain_file("cert.pem");
+
+	nghttp2::asio_http2::server::configure_tls_context_easy(ec, tls);
+	
+	
+	nghttp2::asio_http2::server::http2 server;
+	server.num_threads( 4 );
+	
+	server.handle("/", &handle_request );
+  
+	if( server.listen_and_serve( ec, tls, "localhost", "8000" ) ){
+		std::cout << "Server error: " << ec.message() << std::endl;
+		return -1;
+	}
+	
+	return 0;
 }
 
 

@@ -22,9 +22,12 @@
 #include <string>
 #include <utility>
 
-namespace Poco{
-	namespace Net{
-		class HTTPServerResponse;
+namespace nghttp2{
+	namespace asio_http2{
+		namespace server{
+			class request;
+			class response;
+		}
 	}
 }
 
@@ -33,14 +36,14 @@ class APage{
 		using header = std::pair<std::string,std::string>;
 		using Arguments = std::vector<std::string>;
 		static header content_type( std::string mime="text/html; charset=utf-8" ){ return header( "Content-Type", mime ); }
-		virtual void handleRequest( Arguments args, Poco::Net::HTTPServerResponse& response ) = 0;
+		virtual void handleRequest( Arguments args, const nghttp2::asio_http2::server::response& response ) = 0;
 		virtual ~APage(){ }
 };
 
 class StringPage : public APage{
 	public:
 		virtual std::string serve( Arguments args, std::vector<header> &headers ) const = 0;
-		virtual void handleRequest( Arguments args, Poco::Net::HTTPServerResponse& response ) override;
+		virtual void handleRequest( Arguments args, const nghttp2::asio_http2::server::response& response ) override;
 };
 
 class StreamPage: public APage{
@@ -53,7 +56,7 @@ class StreamPage: public APage{
 		};
 		
 		virtual std::unique_ptr<Reader> serve( Arguments args, std::vector<header>& headers ) const = 0;
-		virtual void handleRequest( Arguments args, Poco::Net::HTTPServerResponse& response ) final;
+		virtual void handleRequest( Arguments args, const nghttp2::asio_http2::server::response& response ) final;
 };
 
 #endif

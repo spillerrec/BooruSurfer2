@@ -22,6 +22,7 @@
 #include <algorithm>
 #include <string>
 #include <vector>
+#include <cstring>
 
 template<typename T>
 class ArrayView{
@@ -161,7 +162,7 @@ class ArrayView{
 using StringView=ArrayView<char>;
 
 StringView cStrView( const char* str ){
-	return StringView( str, strlen( str ) );
+	return StringView( str, std::strlen( str ) );
 }
 
 template<typename T>

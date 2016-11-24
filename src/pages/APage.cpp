@@ -19,44 +19,46 @@
 #include "../api/ApiHandler.hpp"
 #include "../db/Booru.hpp"
 
-#include <Poco/Net/HTTPServerResponse.h>
+#include <nghttp2/asio_http2_server.h>
 
 #include <iostream>
 
-using namespace Poco::Net;
 using namespace std;
+using namespace nghttp2::asio_http2;
+using namespace nghttp2::asio_http2::server;
 
-static void exceptionErrorPage( HTTPServerResponse& response, exception& e ){
+static void exceptionErrorPage( const response& res, exception& e ){
 	cout << "Exception occurred: " << e.what() << endl;
 	string contents = "Exception happened during processing the page: ";
 	contents += e.what();
-	response.setStatus( HTTPResponse::HTTP_INTERNAL_SERVER_ERROR );
-	response.sendBuffer( contents.c_str(), contents.size() );
+	res.write_head( 500 ); //HTTP_INTERNAL_SERVER_ERROR
+	res.end( contents );
 }
 
 template<typename Func>
-void handleRequestExceptions( HTTPServerResponse& response, Func f ){
+void handleRequestExceptions( const response& res, Func f ){
 	try{ f(); }
 	//TODO: Handle more specific errors
 	catch( exception& e ){
 		resetDatabaseConnections();
-		exceptionErrorPage( response, e );
+		exceptionErrorPage( res, e );
 	}
 }
 
-void StringPage::handleRequest( Arguments args, HTTPServerResponse& response ){
-	handleRequestExceptions( response, [&](){
+void StringPage::handleRequest( Arguments args, const response& res ){
+	handleRequestExceptions( res, [&](){
 		//Create content
 		vector<APage::header> headers;
 		string contents = serve( args, headers );
 		
 		//Add headers
-		response.setStatus( HTTPResponse::HTTP_OK );
+		header_map header;
 		for( APage::header h : headers )
-			response.add( h.first, h.second );
+			header.emplace( h.first, header_value{h.second, false} );
+		res.write_head( 200, header );
 		
 		//Send content
-		response.sendBuffer( contents.c_str(), contents.size() );
+		res.end( contents );
 	} );
 	
 	try{
@@ -77,17 +79,18 @@ void StreamPage::Reader::writeAll( std::ostream& out ){
 	}while( available == sizeof(buffer) );
 }
 
-void StreamPage::handleRequest( Arguments args, HTTPServerResponse& response ){
-	handleRequestExceptions( response, [&](){
+void StreamPage::handleRequest( Arguments args, const response& res ){
+	handleRequestExceptions( res, [&](){
 		vector<APage::header> headers;
 		auto reader = serve( args, headers );
 		
 		//Add headers
-		response.setStatus( HTTPResponse::HTTP_OK );
+		header_map header;
 		for( APage::header h : headers )
-			response.add( h.first, h.second );
+			header.emplace( h.first, header_value{h.second, false} );
+		res.write_head( 200, header );
 		
 		//Write everything from the Reader
-		reader->writeAll( response.send() );
+	//	reader->writeAll( res.send() );
 	} );
 }

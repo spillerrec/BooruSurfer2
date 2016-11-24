@@ -17,16 +17,15 @@
 #ifndef SERVER_H
 #define SERVER_H
 
-#include <Poco/Util/ServerApplication.h>
+#include <string>
 
-class Server : public Poco::Util::ServerApplication{
-	protected:
-		int main( const std::vector<std::string>& unknown );
-	
+class Server{
 	public:
 		static std::string remove_reserved( const std::string& input );
 		static std::string encode_str( const std::string& input );
 		static std::string unencode_str( const std::string& input );
+		
+		int main();
 };
 
 #endif

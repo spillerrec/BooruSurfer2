@@ -9,7 +9,7 @@ solution( "BooruSurfer2" )
 		files( { "./src/**.h", "./src/**.cpp" } )
 		
 		-- Enable C++14 support
-		buildoptions{ "-std=c++14 -mthreads" }
+		buildoptions{ "-std=c++14" }
 		
 		links( {
 				"tidy"
@@ -25,11 +25,13 @@ solution( "BooruSurfer2" )
 			,	"PocoJSON"
 			,	"PocoXML"
 			,	"PocoFoundation"
-			,	"Ws2_32"
-			,	"wsock32"
+		--	,	"Ws2_32"
+		--	,	"wsock32"
 			,	"ssl"
 			,	"crypto"
-			,	"iphlpapi"
+		--	,	"iphlpapi"
+			,	"nghttp2_asio"
+			,	"boost_system"
 			} )
 		
 		defines { "POCO_STATIC" }
