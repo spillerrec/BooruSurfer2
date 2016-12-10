@@ -73,11 +73,28 @@ void StringPage::handleRequest( Arguments args, const response& res ){
 void StreamPage::Reader::writeAll( std::ostream& out ){
 	char buffer[4096];
 	int available;
+	bool eof;
 	do{
-		available = readBuf( buffer, sizeof(buffer) );
+		available = readBuf( buffer, sizeof(buffer), eof );
 		out.write( buffer, available );
-	}while( available == sizeof(buffer) );
+	}while( available == sizeof(buffer) && !eof );
 }
+
+struct ReaderFunc{
+	std::shared_ptr<StreamPage::Reader> reader;
+	
+	ReaderFunc( std::unique_ptr<StreamPage::Reader> reader ) : reader(std::move(reader)) { }
+	
+	ssize_t operator()( uint8_t* buf, std::size_t len, uint32_t* data_flags ){
+		bool eof = true;
+		auto available = reader->readBuf( reinterpret_cast<char*>(buf), len, eof );
+		
+		//Return progress
+		if( eof )
+			*data_flags |= NGHTTP2_DATA_FLAG_EOF;
+		return available;
+	}
+};
 
 void StreamPage::handleRequest( Arguments args, const response& res ){
 	handleRequestExceptions( res, [&](){
@@ -91,6 +108,6 @@ void StreamPage::handleRequest( Arguments args, const response& res ){
 		res.write_head( 200, header );
 		
 		//Write everything from the Reader
-	//	reader->writeAll( res.send() );
+		res.end( generator_cb{ ReaderFunc( std::move(reader) ) } );
 	} );
 }

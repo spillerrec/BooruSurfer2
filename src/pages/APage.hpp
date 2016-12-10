@@ -49,7 +49,7 @@ class StringPage : public APage{
 class StreamPage: public APage{
 	public:
 		struct Reader{
-			virtual unsigned readBuf( char* buf, unsigned size ) = 0;
+			virtual unsigned readBuf( char* buf, unsigned size, bool& eof ) = 0;
 			virtual ~Reader(){ }
 			
 			void writeAll( std::ostream& out );

@@ -34,8 +34,9 @@ class FilePage : public StreamPage{
 				
 			public:
 				StreamReader( std::istream& stream ) : stream(stream) { }
-				unsigned readBuf( char* buf, unsigned size ) override{
+				unsigned readBuf( char* buf, unsigned size, bool& eof ) override{
 					stream.read( buf, size );
+					eof = stream.eof();
 					return stream.gcount();
 				}
 		};
