@@ -51,7 +51,9 @@ BasicStyler::BasicStyler( string page_title ){
 		);
 }
 Styler::Styler( Api* api, string page_title )
-	:	BasicStyler(page_title), api(api), url( api ) { }
+	:	BasicStyler(page_title), api(api), url( api ) {
+		head( meta( doc, NAME("viewport"), CONTENT("width=device-width, initial-scale=1.0") ) );
+	}
 
 
 string BasicStyler::format_filesize( unsigned filesize ) const{

@@ -263,6 +263,7 @@ namespace HTML{
 	HTML_ATTRIBUTE( TITLE, "title" )
 	HTML_ATTRIBUTE( TYPE, "type" )
 	HTML_ATTRIBUTE( NAME, "name" )
+	HTML_ATTRIBUTE( CONTENT, "content" )
 	HTML_ATTRIBUTE( PLACEHOLDER, "placeholder" )
 	
 	HTML_ATTRIBUTE( HREF, "href" )
