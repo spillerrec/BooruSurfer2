@@ -1,11 +1,23 @@
 
 /********** HOLY GRAIL START **********/
+
+#container {
+	clear:both;
+}
+
+@media screen and (max-width:599px){
+#container aside.post_list_info, #container aside.post_info{
+	clear:both;
+}
+}
+
+@media screen and (min-width:600px){
+	
 body {
   min-width: 408px;      /* 2x LC width + RC width */
   overflow: scroll; /* Prevent change of layout when scrollbar changes, no known better solution than to force it on */
 }
 #container {
-	clear:both;
 	padding-left: 190px;   /* LC width */
 }
 #container .post_list, #container .post {
@@ -22,6 +34,8 @@ body {
 	margin-left: -100%;
 }
 footer { clear: both; }
+
+}
 
 
 @media screen and (min-width:1290px){
@@ -123,6 +137,11 @@ header nav li form{ float:right; }
 	background-color:#222;
 	color:white;
 }
+@media screen and (max-width:380px){
+	#search{
+		width: 150px;
+	}
+}
 /********** Header END **********/
 
 
@@ -147,7 +166,7 @@ header nav li form{ float:right; }
 	/* Make thumbs centered */
 	width:150px;
 	height:150px;
-	line-height:150px;
+	line-height:147px;
 	display:block;
 	text-align:center;
 }
@@ -185,6 +204,11 @@ header nav li form{ float:right; }
 	word-wrap: break-word;
 }
 
+@media (pointer:coarse){
+	body{ font-size: 100%; }
+	a{ line-height: 150%; }
+}
+
 @media screen and (min-width:1290px), screen and (min-height:1200px) {
 	.size_medium > ul > li > a{
 		width:192px;
@@ -196,7 +220,73 @@ header nav li form{ float:right; }
 		max-height:192px;
 	}
 }
+@media screen and (max-width:799px){ /* 480px and below */
+	html > body{ margin: 0 0 0 3px; }
+}
 
+@media screen and (max-width:799px){ /* 640px */
+	.post_list > ul > li > a{
+		padding: 0;
+		width:135px;
+		height:135px;
+		line-height:130px;
+	}
+	.post_list > ul > li > a img{
+		max-width:135px;
+		max-height:135px;
+	}
+}
+
+@media screen and (max-width:599px){ /* 480px */
+	.post_list > ul > li > a{
+		padding: 0;
+		width:148px;
+		height:148px;
+		line-height:143px;
+	}
+	.post_list > ul > li > a img{
+		max-width:148px;
+		max-height:148px;
+	}
+}
+
+@media screen and (max-width:479px){ /* 375px */
+	.post_list > ul > li > a{
+		padding: 0;
+		width:110px;
+		height:110px;
+		line-height:105px;
+	}
+	.post_list > ul > li > a img{
+		max-width:110px;
+		max-height:110px;
+	}
+}
+
+@media screen and (max-width:374px){ /* 360px */
+	.post_list > ul > li > a{
+		padding: 0;
+		width:110px;
+		height:110px;
+		line-height:105px;
+	}
+	.post_list > ul > li > a img{
+		max-width:110px;
+		max-height:110px;
+	}
+}
+@media screen and (max-width:359px){ /* 320px */
+	.post_list > ul > li > a{
+		padding: 0;
+		width:95px;
+		height:95px;
+		line-height:90px;
+	}
+	.post_list > ul > li > a img{
+		max-width:95px;
+		max-height:95px;
+	}
+}
 
 /*** post relations ***/
 .post_list ul li > a.has_parent{ border-color:yellow; }
