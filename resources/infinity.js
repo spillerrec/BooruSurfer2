@@ -31,7 +31,7 @@ window.onload = function() {
 			page += 1;
 
 			$(window).scroll(function(){
-				if($(window).scrollTop() + $(window).height() == $(document).height()) {
+				if($(window).scrollTop() + window.innerHeight >= $(document).height()) {
 					load_next();
 				}
 			});
