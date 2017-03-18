@@ -14,3 +14,4 @@ NOTE: Still very much work in progress
 - tidy-html5
 - sqlite3
 - libpng
+- sass (and therefore Ruby)

@@ -60,3 +60,6 @@ solution( "BooruSurfer2" )
 		for k, f in pairs( files ) do
 			os.copyfile( f, "bin/" .. build_dir .. "/resources/" .. path.getname(f) );
 		end
+		
+		--Compile Scss
+		os.execute( "sass styles/main.scss bin/" .. build_dir .. "/resources/main.css" );

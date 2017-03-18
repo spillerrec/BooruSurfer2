@@ -1,0 +1,110 @@
+/********** POST START **********/
+.post_parent img, .post_children img{
+	max-width:150px;
+	max-height:150px;
+}
+.post_parent img:hover, .post_children img:hover{
+/*	max-width:none;
+	max-height:none; */
+	-o-object-fit:none;
+	-o-object-position:left center;
+	position:relative;
+	z-index:100;
+}
+
+.post .container{
+	display:inline-block;
+	position:relative;
+	max-width:100%;
+}
+.post .container video{
+	max-width:100%;
+}
+.post_info em{
+	font-weight:bold;
+	margin-right: 4px;
+}
+.post_info p:first-line{
+	text-indent:0;
+}
+.post_info p{
+	padding-left:10px;
+	text-indent:-10px;
+}
+.post_info p+p{
+	margin-top:1px;
+}
+
+/* Make the preview resize with the browser window */
+/* Notice that this requires each div to have 'height:100%'. */
+/* #container have been set to 95% to make the image approax */
+/* fit under the header and avoid extra padding in bottom. */
+/*
+html, body, #container > .post, #container > .post > .container, #container > .post > .container > a{height:100%;}
+.post .container img{max-height:100%}
+#container{height:95%;}
+*/
+body{margin: 0 0 0 5px;}
+header{ padding-top: 5px; }
+.post .container img{
+	max-width:100%;
+}
+
+/* Make it possible to tell the image is transparent with a checker-box pattern
+ * 
+ * NOTE: To make it transition on hover, it had to be done on the parent
+ * instead of the img, which might cause issues. A fairly restrictive selector
+ * is used as an attempt to counter that. */
+.post .container a:first-child:before{
+	content:"";
+	position:absolute;
+	top:0;
+	left:0;
+	width:100%;
+	height:100%;
+	z-index:-1;
+	
+	/* The actual pattern pattern */
+	background-color:#555;
+	background-size:24px 24px;
+	background-position:0 0, 12px 12px;
+	background-image:
+		linear-gradient(45deg, #444 25%, transparent 25%, transparent 75%, #444 75%, #444),
+		linear-gradient(45deg, #444 25%, transparent 25%, transparent 75%, #444 75%, #444);
+	
+	/* Create a smooth transition on hover */
+	transition: opacity 0.4s linear;
+}
+.post .container a:first-child:hover:before{ opacity:0; }
+.post .container a:first-child{ display:block; font-size:0; } /* Fix <a> being too large */
+
+.post .container object{
+	display:block;
+}
+.post .container div{
+	display:block;
+	position:absolute;
+	background-color:#ffffee;
+	background-color:rgba(255,255,238,0.5);
+	border:1px solid black;
+}
+.post .container div div{ display:none; }
+.post .container div:hover div{
+	display:inline;
+	z-index:1;
+	top:100%;
+	left:0;
+	color:black;
+	background-color:#ffffee;
+	width:auto;
+	max-width:200px;
+}
+/*** COMMENTS START ***/
+.comments article{
+	margin-bottom: 10px;
+}
+.comments time{
+	color:gray;
+}
+/*** COMMENTS END ***/
+/********** POST END **********/

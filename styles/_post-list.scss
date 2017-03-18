@@ -1,0 +1,179 @@
+/********** POST LIST START **********/
+.post_list li{ position:relative; }
+.post_list ul{ margin:0; padding:0; list-style:none; }
+.post_list li .details{ display:none; }
+.post_list li a{ display:block; }
+
+.post_list li{
+	float:left;
+	margin: 0 5px 5px 0;
+	padding:0;
+}
+.post_list li > a{
+	border:2px solid gray;
+	padding:5px;
+	border-radius:5px;
+
+}
+.post_list > ul > li > a{
+	/* Make thumbs centered */
+	width:150px;
+	height:150px;
+	line-height:147px;
+	display:block;
+	text-align:center;
+}
+.post_list li > a img{
+	max-width:150px;
+	max-height:150px;
+	vertical-align: middle;
+}
+.post_list li:hover a img{
+	position:relative;
+	z-index:100;
+	max-width:none;
+	max-height:none;
+	pointer-events: none;
+}
+.post_list li a{
+	background-color: #000000;
+}
+.post_list li a:visited{
+	background-color:rgb( 187,0,0 );
+}
+/*** Show details on hover ***/
+.post_list a:hover + .details{
+	position:absolute;
+	display:block;
+	width:190px;
+	left:-190px;
+	top:0px;
+	
+	background-color: #222222;
+	z-index:1;
+}
+.post_list .details span{
+	display: inline;
+	word-wrap: break-word;
+}
+
+@media (pointer:coarse){
+	body{ font-size: 100%; }
+	a{
+		display: inline-block;
+		padding: 0 4px 4px 0;
+	}
+}
+
+@media screen and (max-width:799px){ /* 480px and below */
+	html > body{ margin: 0 0 0 3px; }
+	.post_list > ul > li > a{ padding: 0; }
+}
+
+//Mobile version sizes
+@mixin thumbnail-size-a( $size ){
+	width:  $size;
+	height: $size;
+	line-height: $size - 5px;
+}
+@mixin thumbnail-size-img( $size ){
+	max-width:  $size;
+	max-height: $size;
+}
+
+@media screen and (min-width:1290px), screen and (min-height:1200px) {
+	.size_medium > ul > li > a     { @include thumbnail-size-a(   192px ) }
+	.size_medium > ul > li > a img { @include thumbnail-size-img( 192px ) }
+}
+@media screen and (max-width:799px){ /* 640px */
+	.size_medium > ul > li > a     { @include thumbnail-size-a(   135px ) }
+	.size_medium > ul > li > a img { @include thumbnail-size-img( 135px ) }
+}
+@media screen and (max-width:599px){ /* 480px */
+	.size_medium > ul > li > a     { @include thumbnail-size-a(   148px ) }
+	.size_medium > ul > li > a img { @include thumbnail-size-img( 148px ) }
+}
+@media screen and (max-width:479px){ /* 375px */
+	.size_medium > ul > li > a     { @include thumbnail-size-a(   110px ) }
+	.size_medium > ul > li > a img { @include thumbnail-size-img( 110px ) }
+}
+@media screen and (max-width:374px){ /* 360px */
+	.size_medium > ul > li > a     { @include thumbnail-size-a(   110px ) }
+	.size_medium > ul > li > a img { @include thumbnail-size-img( 110px ) }
+}
+@media screen and (max-width:359px){ /* 320px */
+	.size_medium > ul > li > a     { @include thumbnail-size-a(    95px ) }
+	.size_medium > ul > li > a img { @include thumbnail-size-img(  95px ) }
+}
+
+/*** post relations ***/
+.post_list ul li > a.has_parent{ border-color:yellow; }
+.post_list ul li > a.has_children{ border-color:green; }
+.post_list ul li > a.is_pending{ border-color:blue; }
+.post_list ul li > a.is_flagged{ border-color:red; }
+.post_list ul li > a.saved{ background-color:rgb( 0,0,187 ); }
+
+.post_list ul li > a.has_parent{ border-left-color:yellow; border-top-color:yellow; }
+.post_list ul li > a.has_children{ border-left-color:green; border-bottom-color:green; }
+.post_list ul li > a.is_pending{ border-right-color:blue; border-bottom-color:blue; }
+.post_list ul li > a.is_flagged{ border-right-color:red; border-top-color:red; }
+
+.post_list ul li > a.has_parent{ border-top-color:yellow; }
+/********** POST LIST END **********/
+
+/********** POST LIST INFO START **********/
+.post_list_info ul li > a > span, .post_info ul li > a > span{
+	color: #777;
+	margin-left: 4px;
+	font-size: 70%;
+}
+/********** POST LIST INFO END **********/
+
+
+/********** POST LIST DETAILS START **********/
+/* Start overriding stuff from POST LIST*/
+.post_list_details li{
+	float:none;
+	clear:both;
+	min-height: 160px;
+	border-top: 2px solid red;
+	margin:0;
+}
+.post_list_details li a img{
+	-o-object-fit:none;
+	width:auto;
+	height:auto;
+}
+.post_list_details li a{
+	border:none; margin:0;
+}
+.post_list_details li div.details{
+	display:block;
+	padding: 5px;
+}
+.post_list_details li div p{
+	padding:0;
+	margin:0 0 3px 0;
+}
+
+
+.post_list_details li a{
+	float:left;
+}
+
+.post_list .details em{
+	font-weight:bold;
+	margin-right: 4px;
+}
+.post_list .details p:first-line{
+	text-indent:0;
+}
+.post_list .details p{
+	padding-left:10px;
+	text-indent:-10px;
+}
+.post_list .details p+p{
+	margin-top:1px;
+}
+
+/********** POST LIST DETAILS END **********/

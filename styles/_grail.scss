@@ -1,0 +1,22 @@
+@mixin grail-body( $LC-width, $RC-width, $padding ){
+	min-width: 2 * ($LC-width + $padding) + $RC-width;      /* 2x LC width + RC width */
+	overflow: scroll; /* Prevent change of layout when scrollbar changes, no known better solution than to force it on */
+}
+
+@mixin grail-container( $LC-width, $RC-width, $padding ){
+	padding-left: $LC-width + $padding;
+}
+@mixin grail-center( $LC-width, $RC-width, $padding ){
+	position: relative;
+	float: left;
+	width: 100%;
+}
+
+@mixin grail-lc( $LC-width, $RC-width, $padding ){
+	position: relative;
+	float: left;
+	width: $LC-width;          /* LC width */
+	right: $LC-width + $padding;          /* LC width */
+	margin-right: -($LC-width + $padding); /* seems to fix issue with this box affecting .comments*/
+	margin-left: -100%;
+}
