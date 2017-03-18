@@ -38,6 +38,7 @@ class BasicStyler{
 		HTML::Node head{ HTML::head(doc) };
 		HTML::Node body{ HTML::body(doc) };
 		HTML::Node nav{ HTML::nav(doc) };
+		HTML::Node other_actions{ HTML::ul(doc) };
 		HTML::Node container{ HTML::div( doc, HTML::ID("container") ) };
 		
 		BasicStyler( std::string title );

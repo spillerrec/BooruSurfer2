@@ -41,6 +41,7 @@ BasicStyler::BasicStyler( string page_title ){
 					title(doc)( page_title )
 				,	link( doc, REL( "stylesheet" ), HREF( "/file/main.css" ) )
 			//	,	"<!--[if lt IE 9]><script src=\"/style/ie8.js\"></script><![endif]-->" //TODO:
+				,	meta( doc, NAME("viewport"), CONTENT("width=device-width, initial-scale=1.0") )
 				)
 		,	body(
 					header(doc)(
@@ -51,9 +52,7 @@ BasicStyler::BasicStyler( string page_title ){
 		);
 }
 Styler::Styler( Api* api, string page_title )
-	:	BasicStyler(page_title), api(api), url( api ) {
-		head( meta( doc, NAME("viewport"), CONTENT("width=device-width, initial-scale=1.0") ) );
-	}
+	:	BasicStyler(page_title), api(api), url( api ) { }
 
 
 string BasicStyler::format_filesize( unsigned filesize ) const{
@@ -111,14 +110,16 @@ Node Styler::main_navigation( string search ){
 		list( li(doc)( a(doc, HREF( href ) )( api->get_name() ) ) );
 	}
 	
+	other_actions( li(doc)( a(doc, HREF( "/manage/" ) )( "Settings" ) ) );
+	
 	return ul(doc)(
 			li(doc)(
 					api->get_name()
 				,	list
 				)
 		,	li(doc)( a(doc, HREF(url.index_url()) )( "Index" ) )
-		,	li(doc)( a(doc, HREF( "/manage/" ) )( "Settings" ) )
 		,	li(doc)( tag_search() ) //TODO: search
+		,	li(doc)( "Other", other_actions )
 		);
 }
 

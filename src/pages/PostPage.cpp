@@ -45,11 +45,9 @@ string PostPage::serve( vector<string> args, vector<header> &headers ) const{
 	s.head( link(s.doc, REL("shortcut icon"), HREF( "/favicon/" + api.get_shorthand() + "/post" ) ) );
 	
 	auto navi = s.main_navigation( "" );
-	navi( li(s.doc)( "Options" )(
-				ul(s.doc)(
-					li(s.doc)( a(s.doc, HREF( url.image_url( post, Image::ORIGINAL, true ) ))( "Save post" ) )
-				)
-			) );
+	s.other_actions( 
+			li(s.doc)( a(s.doc, HREF( url.image_url( post, Image::ORIGINAL, true ) ))( "Save post" ) )
+		);
 	s.nav( navi );
 	
 	//Post info
