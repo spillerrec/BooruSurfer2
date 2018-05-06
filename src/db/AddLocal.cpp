@@ -81,6 +81,6 @@ void addFolder( string dir_path ){
 				api.post_handler.add( p );
 			}
 		} catch( ... ) { }
-	cout << "Total local files: " << amount << endl;
+	cout << "Total local files: " << amount << '\n';
 }
 

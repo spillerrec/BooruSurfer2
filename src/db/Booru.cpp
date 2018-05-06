@@ -129,7 +129,7 @@ void resetDatabaseConnections(){ connection.reset(); }
 
 Booru::Booru( std::string site ) : site(site) {
 	Database db( "cache.sqlite" );
-	std::cout << "Initializing booru: " << site << std::endl;
+	std::cout << "Initializing booru: " << site << '\n';
 	auto create = [&](const char* values)
 		{ Statement( db, ("CREATE TABLE IF NOT EXISTS " + site + values).c_str() ).next(); };
 	
@@ -213,7 +213,7 @@ Transaction Booru::beginBatch(){ return connection.getDb(); }
 
 void Booru::saveToDb( const Note& item ){
 	auto& stmt = connection.getSite(site).saveNotes();
-	std::cout << "Saving Note: " << item.id << std::endl;
+	std::cout << "Saving Note: " << item.id << '\n';
 	
 	stmt.bind( static_cast<int>(item.id), 1 );
 	stmt.bind( item.post_id, 2 );
@@ -229,7 +229,7 @@ void Booru::saveToDb( const Note& item ){
 
 void Booru::saveToDb( const Post& item ){
 	auto& stmt = connection.getSite(site).savePosts();
-	std::cout << "Saving Post: " << item.id << std::endl;
+	std::cout << "Saving Post: " << item.id << '\n';
 	
 	stmt.bind( static_cast<int>(item.id), 1 );
 	stmt.bind( item.hash, 2 );
@@ -267,7 +267,7 @@ void Booru::saveToDb( const Post& item ){
 
 void Booru::saveToDb( const Tag& tag ){
 	auto& stmt = connection.getSite(site).saveTags();
-	std::cout << "Saving Tag: " << tag.id << std::endl;
+	std::cout << "Saving Tag: " << tag.id << '\n';
 	
 	stmt.bind( tag.id, 1 );
 	stmt.bind( (int)tag.count, 2 );
@@ -318,7 +318,7 @@ bool Booru::load( Post& p, Image::Size level ){
 	
 	auto& stmt = connection.getSite(site).loadPosts();
 	stmt.bind( static_cast<int>(p.id), 1 );
-	std::cout << "Loading post: " << p.id << std::endl;
+	std::cout << "Loading post: " << p.id << '\n';
 	
 	auto p2 = readPostFromStmt( stmt );
 	stmt.reset();
@@ -352,7 +352,7 @@ bool Booru::load( Note& p ){
 		return true;
 	
 	auto& stmt = connection.getSite(site).loadNotes();
-	std::cout << "Loading note: " << p.id << std::endl;
+	std::cout << "Loading note: " << p.id << '\n';
 	stmt.bind( static_cast<int>(p.id), 1 );
 	if( stmt.next() ){
 		p.x       = stmt.floating( 2 );
@@ -376,7 +376,7 @@ bool Booru::load( Tag& p ){
 		return true;
 	
 	auto& stmt = connection.getSite(site).loadTags();
-	std::cout << "Loading tag: " << p.id << std::endl;
+	std::cout << "Loading tag: " << p.id << '\n';
 	stmt.bind( p.id, 1 );
 	if( stmt.next() ){
 		p.count = stmt.integer( 1 );
@@ -424,7 +424,7 @@ void Booru::save( Tag& t ){
 	auto copy = t;
 	if( tags.get( copy ) ){
 		if( unsigned(copy.count * 1.01) < t.count ){
-			std::cout << "Tag count is: " << copy.count << " versus " << t.count << std::endl;
+			std::cout << "Tag count is: " << copy.count << " versus " << t.count << '\n';
 			tags.replace( t );
 		}
 	}

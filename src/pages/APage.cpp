@@ -27,7 +27,7 @@ using namespace Poco::Net;
 using namespace std;
 
 static void exceptionErrorPage( HTTPServerResponse& response, exception& e ){
-	cout << "Exception occurred: " << e.what() << endl;
+	cout << "Exception occurred: " << e.what() << '\n';
 	string contents = "Exception happened during processing the page: ";
 	contents += e.what();
 	response.setStatus( HTTPResponse::HTTP_INTERNAL_SERVER_ERROR );

@@ -271,7 +271,7 @@ bool get_image( xml_document& doc, Post& p ){
 	string highres = parse_url( doc.select_nodes( "//a[@id='highres']" ).first().node().attribute( "href" ).value() );
 	if( highres.size() != 0 )
 		original.url = highres;
-//	cout << "org url: " << original.url << endl;
+//	cout << "org url: " << original.url << '\n';
 	
 	original.width = image.attribute( "orig_width" ).as_int();
 	original.height = image.attribute( "orig_height" ).as_int();

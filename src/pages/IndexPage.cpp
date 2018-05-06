@@ -104,7 +104,7 @@ string IndexPage::serve( vector<string> args, vector<header> &headers ) const{
 				)
 		,	sidebar
 		) );
-	cout << "Post amount: " << index.posts.size() << endl;
+	cout << "Post amount: " << index.posts.size() << '\n';
 	
 	headers.push_back( content_type() );
 	return styler.doc;

@@ -66,7 +66,7 @@ void DanApi::load_tag_file(){
 	if( data )
 		tag_handler.addAll( data.begin(), data.end(), [&](DataNode n){ return parse_tag(n); } );
 	else
-		cout << "Could not load tags for " << get_shorthand() << endl;
+		cout << "Could not load tags for " << get_shorthand() << '\n';
 }
 
 Image DanApi::get_image( DataNode parent, DanApi::PostItem url, DanApi::PostItem width, DanApi::PostItem height, DanApi::PostItem size ) const{

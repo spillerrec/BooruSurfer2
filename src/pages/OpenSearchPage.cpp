@@ -36,7 +36,7 @@ string OpenSearchPage::serve( vector<string> args, vector<header> &headers ) con
 	Api& api = ApiHandler::get_instance()->get_by_shorthand( args[1] );
 	UrlHandler url( &api );
 	
-	cout << "Attempting to load this" << endl;
+	cout << "Attempting to load this" << '\n';
 	
 	string search = "";
 	if( args.size() == 3 )

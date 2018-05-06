@@ -34,7 +34,7 @@ struct SQLiteError : runtime_error {
 	}
 	SQLiteError( Database& db, const char* query, string error )
 		:	runtime_error( message( db, query, error ) )
-		{ cout << what() << endl; }
+		{ cout << what() << '\n'; }
 };
 
 void Statement::throwError( string error ){ throw SQLiteError( db, query, error ); }
