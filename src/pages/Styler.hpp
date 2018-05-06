@@ -32,6 +32,8 @@ class Note;
 class Image;
 class Api;
 
+std::string redirect_page( std::string url );
+
 class BasicStyler{
 	public:
 		HTML::Document doc;

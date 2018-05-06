@@ -32,6 +32,25 @@ using namespace HTML;
 #include <algorithm>
 #include <boost/lexical_cast.hpp>
 
+::string redirect_page( std::string url ){
+	HTML::Document doc;
+	
+	doc.html()(
+		head(doc)(
+				title(doc)( "Redirecting" )
+			,	link( doc, REL( "stylesheet" ), HREF( "/file/main.css" ) )
+		//	,	"<!--[if lt IE 9]><script src=\"/style/ie8.js\"></script><![endif]-->" //TODO:
+			,	meta( doc, HTTP_EQUIV("refresh"), CONTENT("0; " + url) )
+			)
+	,	body(doc)(
+				p(doc)( "Redirecting to: " + url )
+			)
+	);
+	
+	return doc;
+}
+
+
 //TODO: make url as input to the functions
 
 

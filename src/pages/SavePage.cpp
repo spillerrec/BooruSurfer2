@@ -18,6 +18,7 @@
 
 #include "SavePage.hpp"
 #include "ProxyPage.hpp"
+#include "UrlHandler.hpp"
 #include "../exceptions/utils.hpp"
 #include "../exceptions/ResourceMissing.hpp"
 
@@ -69,6 +70,7 @@ string SavePage::serve( vector<string> args, vector<header> &headers ) const{
 	post.full.setLocalPath( filename ); //TODO: Bug if input.level differs!
 	api.booru.save( post );
 	
-	return messagePage( api, "Saved" );
+	return redirect_page( UrlHandler( &api ).image_url( post, input.level ) );
+//	return messagePage( api, "Saved" );
 }
 

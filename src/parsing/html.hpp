@@ -276,6 +276,8 @@ namespace HTML{
 	HTML_ATTRIBUTE( VALUE, "value" )
 	HTML_ATTRIBUTE( WIDTH, "width" )
 	HTML_ATTRIBUTE( HEIGHT, "height" )
+	
+	HTML_ATTRIBUTE( HTTP_EQUIV, "http-equiv" )
 }
 
 
