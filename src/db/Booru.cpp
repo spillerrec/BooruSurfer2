@@ -308,6 +308,23 @@ static Post readPostFromStmt( Statement& stmt ){
 	return {};
 }
 
+bool Booru::load( Post& p ){
+	//TODO: Avoid double-loading if we already touched this ID
+	auto& stmt = connection.getSite(site).loadPosts();
+	stmt.bind( static_cast<int>(p.id), 1 );
+	std::cout << "Loading post: " << p.id << '\n';
+	
+	auto p2 = readPostFromStmt( stmt );
+	stmt.reset();
+	if( p2.id != 0 ){
+		p = p.combine( p2 ); //TODO: which should be used in case of conflict?
+		posts.insert( p, true );
+		return true;
+	}
+	return false;
+	
+}
+
 bool Booru::load( Post& p, Image::Size level ){
 	auto copy = p;
 	if( posts.get( copy ) ){
@@ -316,18 +333,8 @@ bool Booru::load( Post& p, Image::Size level ){
 			return true;
 	}
 	
-	auto& stmt = connection.getSite(site).loadPosts();
-	stmt.bind( static_cast<int>(p.id), 1 );
-	std::cout << "Loading post: " << p.id << '\n';
-	
-	auto p2 = readPostFromStmt( stmt );
-	stmt.reset();
-	if( p2.id != 0 ){
-		p = p2;
-		posts.insert( p, true );
-		return p.isAvailable( level );
-	}
-	return false;
+	load( p );
+	return p.isAvailable( level );
 }
 
 Index Booru::iteratePosts( IndexId id ){
@@ -397,11 +404,10 @@ bool Booru::load( Index& index, IndexId id ){
 }
 
 void Booru::save( Post& p ){
+	load( p );
+	
 	auto copy = p;
 	if( posts.get( copy ) ){
-	//	p = copy.saved || p.saved;
-	//	if( copy.tags.list != p.tags.list || p.saved != copy.saved )
-	//		posts.replace( p );
 		p = p.combine( copy );
 		posts.replace( p );
 	}

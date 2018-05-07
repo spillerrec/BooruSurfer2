@@ -113,6 +113,7 @@ class Booru{
 		Booru( std::string site );
 		
 		bool load( Note& n );
+		bool load( Post& p );
 		bool load( Post& p, Image::Size level );
 		bool load( Tag& p );
 		bool load( Index& index, IndexId id );
