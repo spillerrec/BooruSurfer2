@@ -74,6 +74,7 @@ class SiteQueries{
 		PreparedStatement savePosts;
 		
 		PreparedStatement iteratePosts;
+		PreparedStatement iteratePostsSearch;
 	
 	public:
 		SiteQueries( Database& db, std::string site )
@@ -90,6 +91,7 @@ class SiteQueries{
 					"?31, ?32, ?33 )"
 				)
 			,	iteratePosts( db, "SELECT * FROM " + site + "_posts WHERE local=1 ORDER BY created_at DESC LIMIT ?1 OFFSET ?2" )
+			,	iteratePostsSearch( db, "SELECT * FROM " + site + "_posts WHERE local=1 AND tags LIKE ?3 ORDER BY created_at DESC LIMIT ?1 OFFSET ?2" )
 			{ }
 		
 		bool isSite( std::string wanted_site ) const { return site == wanted_site; }
@@ -338,13 +340,16 @@ bool Booru::load( Post& p, Image::Size level ){
 }
 
 Index Booru::iteratePosts( IndexId id ){
+	auto do_search = id.query.size() > 0;
 	Index index( id );
 	
-	auto& stmt = connection.getSite(site).iteratePosts();
+	auto& db_site = connection.getSite(site);
+	auto& stmt = do_search ? db_site.iteratePostsSearch() : db_site.iteratePosts();
 	id.limit = id.limit<=0 ? 24 : id.limit;
 	stmt.bind( id.limit, 1 );
 	stmt.bind( (id.page-1) * id.limit, 2 );
-	
+	if( do_search )
+		stmt.bind( "%" + id.query + "%", 3 );
 	
 	for( auto p=readPostFromStmt(stmt); p.id != 0; p=readPostFromStmt(stmt) ){
 		index.posts.push_back( p );
