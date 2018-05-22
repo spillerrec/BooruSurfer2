@@ -27,6 +27,12 @@ FilePage::FileReader::FileReader( std::string path )
 	,	FilePage::StreamReader( fs )
 	{ } //TODO: Check if file exists
 
+
+FilePage::StringReader::StringReader( const std::string& contents )
+	:	is( contents )
+	,	FilePage::StreamReader( is )
+	{ }
+
 FilePage::FilePage(){
 	//Images
 	mimes[ "bmp"  ] = "image/x-windows-bmp";

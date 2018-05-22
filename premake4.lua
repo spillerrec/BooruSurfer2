@@ -30,6 +30,15 @@ solution( "BooruSurfer2" )
 			,	"ssl"
 			,	"crypto"
 			,	"iphlpapi"
+			
+			-- Windows thumbnail
+			,	"Shell32"
+			,	"Uuid"
+			,	"Gdi32"
+			,	"Ole32"
+			,	"Windowscodecs"
+			,	"boost_system-mgw52-mt-1_61"
+			,	"boost_filesystem-mgw52-mt-1_61.dll"
 			} )
 		
 		defines { "POCO_STATIC" }

@@ -46,7 +46,7 @@ ApiHandler* ApiHandler::get_instance(){
 	//TODO: make atomic
 	if( !instance ){
 		instance = new ApiHandler;
-		addFolder( "out/" );
+	//	addFolder( "out/" );
 	}
 	return instance;
 }

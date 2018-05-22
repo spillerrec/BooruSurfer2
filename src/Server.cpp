@@ -32,6 +32,8 @@
 #include <iostream>
 #include <algorithm>
 
+#include <Objbase.h> //TODO: Windows only
+
 using namespace Poco;
 using namespace Poco::Net;
 using namespace std;
@@ -66,6 +68,9 @@ string Server::unencode_str( const string& input ){
 class RequestHandler : public HTTPRequestHandler {
 	public:
 		virtual void handleRequest( HTTPServerRequest& req, HTTPServerResponse& response ) override {
+	CoInitialize( nullptr ); //TODO: Windows only
+	//TODO: How are thread handled? Should only be called once per thread
+	
 			PageHandler pages;
 			
 			//Split on '/' and remove empty parts

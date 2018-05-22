@@ -24,6 +24,8 @@
 #include "../api/Api.hpp"
 #include "../api/ApiHandler.hpp"
 
+#include "../system/Thumbnailer.hpp"
+
 #include <iostream>
 #include <fstream>
 #include <istream>
@@ -79,9 +81,15 @@ FilePage::Result ProxyPage::getReader( APage::Arguments args ) const{
 	auto post = api.get_post( input.id, input.level );
 	Image img = post.get_image_size( input.level );
 	
-	//QUICK-FIX: No thumbnails when using LocalApi
-	if( input.level == Image::THUMB && post.saved && img.url.empty() )
+	//Try to generate local high-res thumbnail
+	if( input.level == Image::THUMB && post.saved ){
 		img = post.get_image_size( Image::ORIGINAL );
+		if( img.isLocal() ){
+			auto thumbnail = get_thumbnail( img.localPath() );
+			if( thumbnail.size() > 0 )
+				return { unique_ptr<Reader>( new StringReader( thumbnail ) ), "bmp" };
+		}
+	}
 	
 	return getImage( api, post, img );
 }

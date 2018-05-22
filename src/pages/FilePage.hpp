@@ -21,6 +21,7 @@
 
 #include <istream>
 #include <fstream>
+#include <sstream>
 #include <unordered_map>
 
 class FilePage : public StreamPage{
@@ -43,6 +44,11 @@ class FilePage : public StreamPage{
 		struct FileReader : public StreamReader{
 			std::fstream fs;
 			FileReader( std::string path );
+		};
+		
+		struct StringReader : public StreamReader{
+			std::istringstream is;
+			StringReader( const std::string& contents );
 		};
 		
 	public:
