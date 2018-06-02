@@ -80,6 +80,10 @@ void addFolder( string dir_path ){
 				
 				api.post_handler.add( p );
 			}
+			else if( it->isDirectory() ){
+				auto current = it.path();
+				addFolder( current.makeAbsolute().toString() );
+			}
 		} catch( ... ) { }
 	cout << "Total local files: " << amount << '\n';
 }
