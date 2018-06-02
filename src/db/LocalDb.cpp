@@ -16,6 +16,9 @@
 
 #include "LocalDb.hpp"
 
+#include <string>
+#include <iostream>
+
 
 LocalDb::LocalDb(){
 	Database db( "cache_debug.sqlite" );
@@ -94,13 +97,21 @@ LocalDb::LocalDb(){
 		
 		//file extension to mime lookup?
 	
+	//Contains prefixes so we can more easily fix paths, and to save space
+	create( "media_path",
+			"id INTEGER PRIMARY KEY, "
+			"path TEXT"
+		);
+	
 	create( "media",
 			"id INTEGER PRIMARY KEY, "
 			"date INTEGER, " //TODO: Time
 			"check_sum INTEGER, " //TODO: 64bit?
+			"path_prefix INTEGER, "
 			"path TEXT, "
 			"mime_id INTEGER, "
 			"file_size INTEGER, " //TODO: 64bit?
+			"FOREIGN KEY(path_prefix) REFERENCES media_path(id), "
 			"FOREIGN KEY(mime_id) REFERENCES mime(id) "
 		);
 	
