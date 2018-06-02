@@ -30,26 +30,26 @@ LocalDb::LocalDb(){
 	//TODO: Autoincrement
 	create( "configuration",
 			"setting TEXT PRIMARY KEY, "
-			"group TEXT, "
+			"conf_group TEXT, "
 			"value TEXT" //TODO: any type
 		); //Generic config storage
 	
 	create( "plugins",
-			"id INTEGER PRIMARY KEY, "
+			"id INTEGER PRIMARY KEY AUTOINCREMENT, "
 			"name TEXT, " //Human readable
 			"type INTEGER, " //Site handler, tag category handler, etc.
 			"handler TEXT" //Handler indification @plugin(path), @internal(class name)?
 		); //TODO:
 	
 	create( "site_configuration",
-			"id TEXT PRIMARY KEY, "
+			"id INTEGER PRIMARY KEY AUTOINCREMENT, "
 			"name TEXT, "
 			"plugin INTEGER NOT NULL, "
 			"FOREIGN KEY(plugin) REFERENCES plugins(id)"
 		); //TODO:
 	
 	create( "tag_category",
-			"id INTEGER PRIMARY KEY, "
+			"id INTEGER PRIMARY KEY AUTOINCREMENT, "
 			"name TEXT, "
 			"color INTEGER, "
 			"plugin INTEGER, "
@@ -57,7 +57,7 @@ LocalDb::LocalDb(){
 		);
 		
 	create( "tags",
-			"id INTEGER PRIMARY KEY, "
+			"id INTEGER PRIMARY KEY AUTOINCREMENT, "
 			"name TEXT, "
 			"parent_id INTEGER NOT NULL, "
 			"category INTEGER, "
@@ -67,12 +67,12 @@ LocalDb::LocalDb(){
 		
 	
 	create( "meta_types",
-			"id INTEGER PRIMARY KEY, "
+			"id INTEGER PRIMARY KEY AUTOINCREMENT, "
 			"name TEXT"
 		);
 	create( "tag_meta",
-			"id INTEGER PRIMARY KEY, "
-			"tag_id INTEGER PRIMARY KEY NOT NULL, "
+			"id INTEGER PRIMARY KEY AUTOINCREMENT, "
+			"tag_id INTEGER NOT NULL, "
 			"meta_id INTEGER NOT NULL, "
 			"value TEXT, " //TODO: any type
 			"FOREIGN KEY(tag_id) REFERENCES tags(id), "
@@ -81,7 +81,7 @@ LocalDb::LocalDb(){
 		
 	
 	create( "tag_legacy_names",
-			"id INTEGER PRIMARY KEY, "
+			"id INTEGER PRIMARY KEY AUTOINCREMENT, "
 			"name TEXT, "
 			"tag_id INTEGER NOT NULL, "
 			//TODO: Source system?
@@ -89,7 +89,7 @@ LocalDb::LocalDb(){
 		);
 	
 	create( "mime",
-			"id INTEGER PRIMARY KEY, "
+			"id INTEGER PRIMARY KEY AUTOINCREMENT, "
 			"mime TEXT "
 			//TODO: What else?
 			//
@@ -99,12 +99,12 @@ LocalDb::LocalDb(){
 	
 	//Contains prefixes so we can more easily fix paths, and to save space
 	create( "media_path",
-			"id INTEGER PRIMARY KEY, "
+			"id INTEGER PRIMARY KEY AUTOINCREMENT, "
 			"path TEXT"
 		);
 	
 	create( "media",
-			"id INTEGER PRIMARY KEY, "
+			"id INTEGER PRIMARY KEY AUTOINCREMENT, "
 			"date INTEGER, " //TODO: Time
 			"check_sum INTEGER, " //TODO: 64bit?
 			"path_prefix INTEGER, "
@@ -116,7 +116,7 @@ LocalDb::LocalDb(){
 		);
 	
 	create( "position",
-			"id INTEGER PRIMARY KEY, "
+			"id INTEGER PRIMARY KEY AUTOINCREMENT, "
 			"shape INTEGER, "
 			"x INTEGER, " //Refers to the center
 			"y INTEGER, " //Refers to the center
@@ -125,7 +125,7 @@ LocalDb::LocalDb(){
 		);
 	
 	create( "media_tags",
-			"id INTEGER PRIMARY KEY, "
+			"id INTEGER PRIMARY KEY AUTOINCREMENT, "
 			"media_id INTEGER NOT NULL, "
 			"tag_id INTEGER NOT NULL, "
 			"position_id INTEGER, "
@@ -135,7 +135,7 @@ LocalDb::LocalDb(){
 		);
 	
 	create( "media_links", //TODO: Think through
-			"id INTEGER PRIMARY KEY, "
+			"id INTEGER PRIMARY KEY AUTOINCREMENT, "
 			"media_id_from INTEGER, "
 			"media_id_to INTEGER, "
 			"directed INTEGER, " //Is one-way or both directions

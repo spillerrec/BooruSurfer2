@@ -28,7 +28,7 @@ using namespace std;
 void Database::open(){
 	if( sqlite3_open_v2( filepath.c_str(), &db, SQLITE_OPEN_READWRITE, nullptr ) != SQLITE_OK ){
 		//TODO: throw exception
-		cout << "Couldn't open db!" << '\n';
+		cout << "Couldn't open db! Path: " << filepath.c_str() << '\n';
 		sqlite3_close( db );
 		exit( -1 );
 	}
