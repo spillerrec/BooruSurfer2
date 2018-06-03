@@ -37,6 +37,8 @@ class Database{
 		void reset();
 		
 		operator sqlite3*() const{ return db; }
+		
+		int64_t lastRowId();
 };
 
 #endif

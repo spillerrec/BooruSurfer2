@@ -21,15 +21,37 @@
 #include "Statement.hpp"
 
 #include <string>
-#include <vector>
+
+class DbIndex{
+	private:
+		int64_t id{ -1 }; //Negative values means invalid index
+		
+	public:
+		DbIndex( int64_t id=-1 ) : id(id) {}
+		
+		int64_t get() const{ return id; }
+		//TODO: debug exception on invalid index?
+		//Or use the maybe scheme instead? We may want to pass an invalid index though
+		
+		operator bool() const{ return id >= 0; }
+		operator int64_t() const{ return get(); }
+};
 
 class LocalDb{
 	private:
+		Database db;
 		
+		void addFolderToDbInternal( const std::string& folder_path, int64_t& counter );
 		
 	public:
 		LocalDb();
 		
+		static std::string sanitizeFolderPath( std::string path );
+		DbIndex getFolderId( const std::string& folder_path );
+		
+		DbIndex addMedia( DbIndex path_id, const std::string& file_name ); //TODO: Much more
+		
+		void addFolderToDb( const std::string& folder_path );
 };
 
 #endif

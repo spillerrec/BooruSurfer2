@@ -16,12 +16,14 @@
 
 #include "LocalDb.hpp"
 
+#include <Poco/DirectoryIterator.h>
+
 #include <string>
 #include <iostream>
+#include <stdexcept>
 
 
-LocalDb::LocalDb(){
-	Database db( "cache_debug.sqlite" );
+LocalDb::LocalDb() : db( "cache_debug.sqlite" ) {
 	std::cout << "Initializing local booru\n";
 	auto create = [&](const char* table, const char* values)
 		{ Statement( db, ("CREATE TABLE IF NOT EXISTS " + std::string(table) + '(' + values + ')').c_str() ).next(); };
@@ -147,4 +149,85 @@ LocalDb::LocalDb(){
 	//Empty query for grouping other queries?
 	
 	//Some way of referencing its source, likely multiple sources
+}
+
+
+std::string LocalDb::sanitizeFolderPath( std::string path ){
+	//NOTE: Paths must always be UTF-8
+	for( auto& c : path )
+		if( c == '\\' )
+			c = '/';
+	
+	if( path.back() != '/' )
+		path += '/';
+	
+	return path;
+}
+
+DbIndex LocalDb::getFolderId( const std::string& folder_path ){
+	
+	//TODO: Check path. Must end on '/' and must not use '\\'!
+	
+	Statement read( db, "SELECT * FROM media_path WHERE path = ?1 " );
+	read.bind( folder_path, 1 );
+	if( read.next() )
+		return { read.integer64( 0 ) };
+	
+	//Failed to get an folder, insert a new one
+	Statement write( db, "INSERT INTO media_path VALUES( null, ?1 ) " );
+	write.bind( folder_path, 1 );
+	write.next(); //TODO: have a write specialization?
+	return { db.lastRowId() };
+}
+
+DbIndex LocalDb::addMedia( DbIndex path_id, const std::string& file_name ){
+	/*		"id INTEGER PRIMARY KEY AUTOINCREMENT, "
+			"date INTEGER, " //TODO: Time
+			"check_sum INTEGER, " //TODO: 64bit?
+			"path_prefix INTEGER, "
+			"path TEXT, "
+			"mime_id INTEGER, "
+			"file_size INTEGER, " //TODO: 64bit?
+			"FOREIGN KEY(path_prefix) REFERENCES media_path(id), "
+			"FOREIGN KEY(mime_id) REFERENCES mime(id) "*/
+	if( !path_id )
+		throw std::runtime_error( "Missing media ID" );
+	
+	Statement write( db, "INSERT INTO media VALUES( null, null, null, ?1, ?2, null, null ) " );
+	write.bind( path_id.get(), 1 );
+	write.bind( file_name, 2 );
+	write.next();
+	return { db.lastRowId() };
+}
+
+
+void LocalDb::addFolderToDbInternal( const std::string& folder_path, int64_t& counter ){
+	//Get folder path ID for insertion
+	auto folder = Poco::Path( folder_path ).makeAbsolute().toString();
+	auto db_path = sanitizeFolderPath( folder );
+	auto path_id = getFolderId( db_path );
+	
+	//Iterate over all files
+	Poco::DirectoryIterator it( { folder_path } ), end;
+	for( ; it != end; ++it, counter++ )
+		try{
+			if( it->isFile() ){
+				//TODO: Fill all the details
+				addMedia( path_id, Poco::Path( it->path() ).getFileName() );
+				
+			}
+			else if( it->isDirectory() ){
+				//Add folders recursively
+				addFolderToDbInternal( Poco::Path( it->path() ).makeAbsolute().toString(), counter );
+			}
+		} catch( ... ) { }
+}
+
+void LocalDb::addFolderToDb( const std::string& folder_path ){
+	int64_t amount = 0;
+	//Do it as a single transacction to speed it up very very much
+	{	Transaction trans( db );
+		addFolderToDbInternal( folder_path, amount );
+	}
+	std::cout << "Total files added to local database: " << amount << '\n';
 }

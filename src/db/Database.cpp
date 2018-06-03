@@ -47,3 +47,7 @@ void Database::reset(){
 	sqlite3_close( db );
 	open();
 }
+
+int64_t Database::lastRowId(){
+	return sqlite3_last_insert_rowid( db );
+}
