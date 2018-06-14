@@ -23,14 +23,14 @@ using namespace std;
 
 
 FilePage::FileReader::FileReader( std::string path )
-	:	fs( path, std::fstream::in | std::fstream::binary )
-	,	FilePage::StreamReader( fs )
+	:	FilePage::StreamReader( fs )
+	,	fs( path, std::fstream::in | std::fstream::binary )
 	{ } //TODO: Check if file exists
 
 
 FilePage::StringReader::StringReader( const std::string& contents )
-	:	is( contents )
-	,	FilePage::StreamReader( is )
+	:	FilePage::StreamReader( is )
+	,	is( contents )
 	{ }
 
 FilePage::FilePage(){
@@ -70,7 +70,7 @@ FilePage::Result FilePage::getReader( vector<string> args ) const{
 	//Get file extension, using the solution by graphitemaster:
 	// http://stackoverflow.com/questions/51949/how-to-get-file-extension-from-string-in-c
 	string ext = "";
-	int pos = filepath.find_last_of( "." );
+	auto pos = filepath.find_last_of( "." );
 	if( pos != string::npos )
 		ext = filepath.substr( pos + 1 );
 	cout << filepath << "\n";

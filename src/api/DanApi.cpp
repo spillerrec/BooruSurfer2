@@ -181,7 +181,7 @@ Index DanApi::get_index( string search, int page, int limit ){
 		
 		//Determine first tag
 		string first_tag = search;
-		int pos = first_tag.find( ' ' );
+		auto pos = first_tag.find( ' ' );
 		if( pos != string::npos )
 			first_tag = first_tag.substr( 0, pos );
 		
