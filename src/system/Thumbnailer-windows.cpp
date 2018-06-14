@@ -15,6 +15,8 @@
 */
 
 
+#ifdef WIN32
+
 #define _WIN32_IE _WIN32_IE_IE70
 
 #include <Shobjidl.h>
@@ -164,4 +166,5 @@ std::string get_thumbnail( std::string path ){
 	return out;
 }
 
+#endif
 

@@ -101,7 +101,7 @@ string BasicStyler::format_date( Poco::Timestamp timestamp ) const{
 
 
 Node BasicStyler::time( unsigned unix_time ){
-	
+	return p(doc)( "TODO: BasicStyler::time" ); //TODO:
 }
 
 
@@ -234,10 +234,6 @@ Node Styler::post_details( const Post& post ){
 	return p(doc)( "unimplemented" );
 }
 
-Node previewPost( string url ){
-	
-}
-
 Node postInternal( Document& doc, Post& p, UrlHandler& url ){
 	string url_org  = url.image_url( p, Image::ORIGINAL );
 	string url_show = url.image_url( p, Image::RESIZED );
@@ -308,6 +304,8 @@ Node Styler::post_info( Node& parent, const Post& post, bool extended ){
 		parent( add( "Source:", post.source ) );
 	if( extended )
 		parent( p(doc)( a(doc, HREF(api->original_post_url(post.id)))( "Site link" ) ) );
+	
+	return parent; //TODO: How is this used?
 }
 
 Node Styler::post_list( std::vector<Post> posts ){
