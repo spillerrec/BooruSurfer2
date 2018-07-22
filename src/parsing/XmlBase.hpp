@@ -21,19 +21,19 @@
 #include <string>
 #include <vector>
 
-static const char* as_string( std::string value ){ return value.c_str(); }
-static const char* as_string( int value ){ return std::to_string( value ).c_str(); }
-static const char* as_string( bool value ){ return value ? "true" : "false"; }
-static void from_string( bool& result, std::string value ){ result = value == "true"; }
-static void from_string( int& result, std::string value ){
+inline const char* as_string( std::string value ){ return value.c_str(); }
+inline const char* as_string( int value ){ return std::to_string( value ).c_str(); }
+inline const char* as_string( bool value ){ return value ? "true" : "false"; }
+inline void from_string( bool& result, std::string value ){ result = value == "true"; }
+inline void from_string( int& result, std::string value ){
 	try{ result = std::stoi( value ); }
 	catch(...){ result = -1; }
 }
-static void from_string( std::string& result, std::string value ){ result = value; }
+inline void from_string( std::string& result, std::string value ){ result = value; }
 
-static bool is_valid( std::string value ){ return !value.empty(); }
-static bool is_valid( int value ){ return value >= 0; }
-static bool is_valid( bool value ){ return true; } //TODO: do something useful?
+inline bool is_valid( std::string value ){ return !value.empty(); }
+inline bool is_valid( int value ){ return value >= 0; }
+inline bool is_valid( bool value ){ return true; } //TODO: do something useful?
 
 template<typename T=std::string>
 class Attribute{

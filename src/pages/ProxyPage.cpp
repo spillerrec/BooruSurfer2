@@ -36,15 +36,15 @@ using namespace std;
 struct RequestReader : public FilePage::StreamReader{
 	unique_ptr<Poco::Net::HTTPClientSession> session;
 	RequestReader( Api::UrlResponse response )
-		:	session( std::move( response.first ) ), StreamReader( response.second )
+		:	StreamReader( response.second ), session( std::move( response.first ) )
 		{ }
 };
 
 ProxyPage::Parameters ProxyPage::parseParameters( APage::Arguments args ){
 	require( args.size() == 3, "Wrong amount of arguments" );
 	
-	int pos1 = args[2].find_first_of( " " );
-	int pos2 = args[2].find_first_of( " ", pos1+1 );
+	auto pos1 = args[2].find_first_of( " " );
+	auto pos2 = args[2].find_first_of( " ", pos1+1 );
 	if( pos1 == string::npos || pos2 == string::npos )
 		throw runtime_error( "parsing failed" );
 	

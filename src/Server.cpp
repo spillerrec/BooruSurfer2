@@ -32,7 +32,9 @@
 #include <iostream>
 #include <algorithm>
 
+#ifdef WIN32
 #include <Objbase.h> //TODO: Windows only
+#endif
 
 using namespace Poco;
 using namespace Poco::Net;
@@ -68,8 +70,10 @@ string Server::unencode_str( const string& input ){
 class RequestHandler : public HTTPRequestHandler {
 	public:
 		virtual void handleRequest( HTTPServerRequest& req, HTTPServerResponse& response ) override {
+#ifdef WIN32
 	CoInitialize( nullptr ); //TODO: Windows only
 	//TODO: How are thread handled? Should only be called once per thread
+#endif
 	
 			PageHandler pages;
 			

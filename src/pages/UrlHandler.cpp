@@ -106,7 +106,7 @@ string UrlHandler::image_url( const Post& p, Image::Size size, bool save ){
 	string filename_start = api->get_shorthand() + " " + to_string( p.id ) + " - ";
 	
 	//Ignore ?xxx parameters
-	int pos = filepath.find_last_of( "?" );
+	auto pos = filepath.find_last_of( "?" );
 	if( pos != string::npos )
 		filepath = filepath.substr( 0, pos );
 	

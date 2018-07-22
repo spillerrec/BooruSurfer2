@@ -27,9 +27,9 @@ class NullDataNode : public DataNodeInterface{
 			return instance ? instance : instance = new NullDataNode();
 		}
 		
-		virtual bool is_valid( void* p ) const{ false; }
+		virtual bool is_valid( void* p ) const{ return false; }
 		
-		virtual bool as_boolean( void* p ) const{ false; }
+		virtual bool as_boolean( void* p ) const{ return false; }
 		virtual int as_int( void* p ) const{ return 0; }
 		virtual std::string as_string( void* p ) const{ return ""; }
 		

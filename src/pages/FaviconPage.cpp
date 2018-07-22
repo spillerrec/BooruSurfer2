@@ -71,8 +71,8 @@ string FaviconPage::serve( vector<string> args, vector<header> &headers ) const{
 			&& img_template.get_height() != img_out.get_height() )
 			throw logic_error( "Favicon template has wrong dimensions" );
 		
-		for( int iy=0; iy<img_out.get_height(); iy++ )
-			for( int ix=0; ix<img_out.get_width(); ix++ )
+		for( size_t iy=0; iy<img_out.get_height(); iy++ )
+			for( size_t ix=0; ix<img_out.get_width(); ix++ )
 				img_out.set_pixel( ix,iy, colorize( main,secondary, img_template.get_pixel( ix, iy ) ) );
 		
 		headers.push_back( header( "Cache-Control", "max-age=31536000" ) );

@@ -78,6 +78,7 @@ class Transaction{
 			db = other.db;
 			commit = other.commit;
 			other.commit = false;
+			return *this;
 		}
 		
 		void close();

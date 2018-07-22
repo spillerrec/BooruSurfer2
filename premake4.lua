@@ -9,7 +9,10 @@ solution( "BooruSurfer2" )
 		files( { "./src/**.h", "./src/**.cpp" } )
 		
 		-- Enable C++14 support
-		buildoptions{ "-std=c++14 -mthreads" }
+		buildoptions{ "-std=c++14 -pthread" }
+		
+		-- Warnings
+		buildoptions{ "-Wall" }
 		
 		links( {
 				"tidy"
