@@ -129,16 +129,16 @@ Node Styler::main_navigation( string search ){
 		list( li(doc)( a(doc, HREF( href ) )( api->get_name() ) ) );
 	}
 	
-	other_actions( li(doc)( a(doc, HREF( "/manage/" ) )( "Settings" ) ) );
+//	other_actions( li(doc)( a(doc, HREF( "/manage/" ) )( "Settings" ) ) );
 	
-	return ul(doc)(
+	return other_actions(//ul(doc)(
 			li(doc)(
 					api->get_name()
 				,	list
 				)
 		,	li(doc)( a(doc, HREF(url.index_url()) )( "Index" ) )
 		,	li(doc)( tag_search() ) //TODO: search
-		,	li(doc)( "Other", other_actions )
+	, li(doc)( a(doc, HREF( "/manage/" ) )( "Settings" ) )//	,	li(doc)( "Other", other_actions )
 		);
 }
 
