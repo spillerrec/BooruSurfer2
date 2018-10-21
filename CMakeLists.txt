@@ -67,7 +67,7 @@ if( NOT Poco_FOUND )
 endif()
 	
 if( UNIX )
-	set(THUMB_SOURCES src/system/Thumbnailer-kde.cpp src/system/ThumbGetter.cpp)
+	set(THUMB_SOURCES src/system/Thumbnailer-kde.cpp)
 	find_package(Qt5Core REQUIRED)
 	find_package(Qt5Gui REQUIRED)
 	set(CMAKE_AUTOMOC ON)
