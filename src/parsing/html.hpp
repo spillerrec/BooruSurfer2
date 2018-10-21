@@ -8,8 +8,6 @@
 
 #include <boost/lexical_cast.hpp>
 
-#include "../Server.hpp"
-
 namespace HTML{
 	class Node;
 	

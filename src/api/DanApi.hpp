@@ -18,7 +18,7 @@
 #define DAN_API_H
 
 #include "Api.hpp"
-#include "../Server.hpp"
+#include "../server/Server.hpp"
 
 #include <string>
 #include <vector>

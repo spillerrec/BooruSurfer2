@@ -18,7 +18,7 @@
 #define SAN_API_H
 
 #include "Api.hpp"
-#include "../Server.hpp"
+#include "../server/Server.hpp"
 
 class SanApi : public Api{
 	protected:

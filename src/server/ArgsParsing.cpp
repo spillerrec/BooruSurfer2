@@ -21,10 +21,10 @@
 #include <Poco/URI.h>
 
 #include "Server.hpp"
-#include "api/ApiHandler.hpp"
-#include "db/Booru.hpp"
-#include "pages/APage.hpp"
-#include "pages/PageHandler.hpp"
+#include "../api/ApiHandler.hpp"
+#include "../db/Booru.hpp"
+#include "../pages/APage.hpp"
+#include "../pages/PageHandler.hpp"
 
 #include <boost/algorithm/string.hpp>
 #include <boost/algorithm/string/replace.hpp>

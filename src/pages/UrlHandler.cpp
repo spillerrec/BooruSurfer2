@@ -17,7 +17,7 @@
 #include "UrlHandler.hpp"
 
 #include "../api/Api.hpp"
-#include "../Server.hpp"
+#include "../server/Server.hpp"
 
 #include <algorithm>
 
