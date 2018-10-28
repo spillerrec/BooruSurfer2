@@ -92,8 +92,8 @@ endif()
 
 
 add_executable(BooruSurfer2 ${SOURCES} ${THUMB_SOURCES} )
-target_link_libraries(BooruSurfer2 -ltidy -ljansson -lpng -lsqlite3 -llzma -lpugixml ${Poco_LIBRARIES} ${SYSTEM_LINKS})
+target_link_libraries(BooruSurfer2 -ljansson -lpng -lsqlite3 -llzma -lmyhtml -lpugixml ${Poco_LIBRARIES} ${SYSTEM_LINKS})
 
 # C++14
-set_property(TARGET BooruSurfer2 PROPERTY CXX_STANDARD 14)
+set_property(TARGET BooruSurfer2 PROPERTY CXX_STANDARD 17)
 set_property(TARGET BooruSurfer2 PROPERTY CXX_STANDARD_REQUIRED ON)

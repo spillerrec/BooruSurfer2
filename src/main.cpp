@@ -3,10 +3,10 @@
 #include <Poco/Crypto/Crypto.h>
 #include <Poco/Net/Net.h>
 #include <Poco/Net/NetSSL.h>
+#include <thread>
 
 #ifdef USES_QT
 	#include <QGuiApplication>
-	#include <thread>
 #endif
 
 int main( int argc, char *argv[] ){

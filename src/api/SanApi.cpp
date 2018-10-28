@@ -19,6 +19,7 @@
 
 #include "SanApi.hpp"
 
+#include "MyHtml++.hpp"
 #include "../parsing/pugixml.hpp"
 #include "../parsing/StringView.hpp"
 
@@ -29,88 +30,73 @@
 #include <iostream>
 #include <map>
 #include <cctype>
+#include <charconv>
 
 using namespace std;
 using namespace pugi;
 
-#include <tidy.h>
-#include <tidybuffio.h>
+using str_view = std::string_view;
 
-//Returns an empty string on error
-static string CleanHTML(const string &html){
-	TidyBuffer output;
-	TidyDoc doc = tidyCreate();
-	tidyBufInit( &output );
-	
-	bool ok = tidyOptSetBool( doc, TidyXmlOut, yes );
-	ok &= tidyOptSetBool( doc, TidyQuiet, yes );
-	ok &= tidyOptSetBool( doc, TidyShowWarnings, no );
-	ok &= tidyOptSetValue( doc, TidyCharEncoding, "utf8" );
-	
-	int result = -1;
-	if( ok ){
-		result = tidyParseString( doc, html.c_str() );
-		
-		if( result >= 0 )
-			result = tidyCleanAndRepair( doc );
-		
-		if( result > 1 )	// If error, force output.
-			result = ( tidyOptSetBool( doc, TidyForceOutput, yes ) ? result : -1 );
-		
-		if( result >= 0 )
-			result = tidySaveBuffer( doc, &output );
-	}
-	
-	
-	string xml = "";
-	if( result >= 0 ){
-		if( output.bp )
-			xml = (char*)output.bp;
-	}
-	
-	tidyBufFree( &output );
-	tidyRelease( doc );
-	
-	return xml;
+
+bool starts_with( str_view input, str_view match ){
+	if( input.length() >= match.length() )
+		return input.substr( 0, match.length() ) == match;
+	return false;
 }
 
-int parseInt( const string& input, int fallback ){
-	try{
-		return stoi( input );
-	}
-	catch( ... ){
-		return fallback;
-	}
+std::pair<str_view, str_view> splitAt( str_view str, char splitter ){
+	auto pos = str.find( splitter );
+	if( pos == str_view::npos )
+		return { str, {} };
+	else
+		return { str.substr( 0, pos ), str.substr( pos+1 ) };
 }
 
-double parseDouble( const string& input, double fallback ){
-	try{
-		return stod( input );
+std::vector<str_view> splitAllOn( str_view str, char splitter ){
+	std::vector<str_view> splits;
+	
+	size_t last=0, pos = 0;
+	while( (pos = str.find(splitter, last)) != str_view::npos ){
+		splits.push_back( str.substr( last, pos-last ) );
+		last = pos+1;
 	}
-	catch( ... ){
-		return fallback;
-	}
+	splits.push_back( str.substr( last ) );
+	
+	return splits;
 }
 
-std::string parse_url( std::string url ){
-	if( boost::starts_with( url, "//" ) )
-		return "https:" + url;
-	if( boost::starts_with( url, "/" ) )
-		return "https://chan.sankakucomplex.com" + url;
-	return url;
+
+static int parseInt( str_view input, int fallback ){
+	int value = 0;
+	auto result = std::from_chars( input.begin(), input.end(), value, 10 );
+	return result.ptr == input.begin() ? fallback : value;
 }
 
-Post::Rating parseAgeRating( const string& input ){
-	static const map<string,Post::Rating> function{
-			{"Safe", Post::SAFE}
-		,	{"Questionable", Post::QUESTIONABLE}
-		,	{"Explicit", Post::EXPLICIT}
-		};
-	auto it = function.find( input );
-	return ( it != function.end() ) ? it->second : Post::UNRATED;
-};
+static double parseDouble( str_view input, double fallback ){
+	//TODO: Avoid string conversion
+	try
+		{ return std::stod(std::string(input)); }
+	catch(...)
+		{ return fallback; }
+}
 
-string hash_from_url( string url ){
+static std::string parse_url( str_view url ){
+	std::string url_s( url );
+	if( starts_with( url, "//" ) )
+		return "https:" + url_s;
+	if( starts_with( url, "/" ) )
+		return "https://chan.sankakucomplex.com" + url_s;
+	return url_s;
+}
+
+static Post::Rating parseAgeRating( str_view input ){
+	     if( input == "Safe"         ) return Post::SAFE;
+	else if( input == "Questionable" ) return Post::QUESTIONABLE;
+	else if( input == "Explicit"     ) return Post::EXPLICIT;
+	else                               return Post::UNRATED;
+}
+
+static string hash_from_url( string url ){
 	size_t start = url.find_last_of( '/' ) + 1;
 	size_t end = url.find_last_of( '.' );
 	
@@ -121,81 +107,38 @@ string hash_from_url( string url ){
 		return url.substr( start, end-start );
 }
 
-void extract_meta( Post &post, string meta ){
-	//Split on ' ' and remove empty parts
-	vector<string> data;
-	boost::split( data, meta, boost::is_any_of( " " ) ); //TODO: avoid is_any_of() ?
-	data.erase( remove_if( data.begin(), data.end(), [](string arg){ return arg.empty(); } ), data.end() );
-	
-	for( string s : data ){
-		if( boost::starts_with( s, "Rating:" ) )
-			post.rating = parseAgeRating( s.substr( 7 ) );
-		else if( boost::starts_with( s, "Score:" ) )
-			post.score = parseDouble( s.substr( 6 ), -1 );
-		else if( boost::starts_with( s, "User:" ) )
-			post.author = s.substr( 5 );
-		else if( boost::starts_with( s, "Size:" ) )
-			s.substr( 5 ); //TODO:
-		else
-			post.tags.add( s );
-	}
-}
 
-
-Post parse_preview( const xml_node &span ){
-	Post post;
-	string id_string = span.attribute( "id" ).value();
-	post.id = parseInt( id_string.substr( 1 ), 0 ); //Remove initial 'p'
-	
-	const xml_node &img = span.child( "a" ).child( "img" );
-	
-	post.thumbnail.url = parse_url( img.attribute( "src" ).value() );
-	post.thumbnail.width = parseInt( img.attribute( "width" ).value(), 0 );
-	post.thumbnail.height = parseInt( img.attribute( "height" ).value(), 0 );
-	
-	//TODO: size of original image: "Size:999x999"
-	//TODO: parent: class="... has-parent"
-	//TODO: children: class="... has-children"
-	//TODO: flagged: class="... flagged"
-	
-//	cout << "\t" << "Hash: " << hash_from_url( post.thumbnail.url ) << "\n";
-	//TODO: fill the other urls from this
-	
-	string meta = img.attribute( "title" ).value();
-	extract_meta( post, meta );
-	
-	return post;
-}
-
-
-Tag::Type parseTagType( const string& input ){
+static Tag::Type parseTagType( str_view input ){
 	static const map<string,Tag::Type> function{
-			{"tag-type-general", Tag::NONE}
+			{"tag-type-general"  , Tag::NONE     }
 			
 			//Sankaku
 		,	{"tag-type-character", Tag::CHARACTER}
 		,	{"tag-type-copyright", Tag::COPYRIGHT}
-		,	{"tag-type-artist", Tag::ARTIST}
+		,	{"tag-type-artist"   , Tag::ARTIST   }
 			//Idol
-		,	{"tag-type-idol", Tag::ARTIST}
+		,	{"tag-type-idol"     , Tag::ARTIST   }
 		,	{"tag-type-photo_set", Tag::COPYRIGHT}
-		,	{"tag-type-medium", Tag::SPECIAL}
-		,	{"tag-type-meta", Tag::SPECIAL}
+		,	{"tag-type-medium"   , Tag::SPECIAL  }
+		,	{"tag-type-meta"     , Tag::SPECIAL  }
 		};
-	auto it = function.find( input );
+	auto it = function.find( std::string(input) );
 	return ( it != function.end() ) ? it->second : Tag::UNKNOWN;
 };
 
-Tag parse_tag( const xml_node &node ){
+
+static Tag parse_tag( MyHtml::Node node, MyHtml::Tree& tree ){
 	Tag tag;
-	tag.id = node.select_nodes( "./a" ).first().node().child_value();
+	
+	tag.id = std::string( node.getChildWith( tree.tag("a") ).child().text() );
 	//TODO: Japanese name?
-	tag.count = parseInt( node.select_nodes( ".//span[@class='post-count']" ).first().node().child_value(), 0 );
-	tag.type = parseTagType( node.attribute( "class" ).value() );
+	
+	tag.count = parseInt( node.getChildWith( tree.tag("span") ).getChildWith( tree.tag("span") ).child().text(), 0 );
+	tag.type = parseTagType( node.attributes().valueOf( "class" ) );
 	
 	//Remove spaces in tag name
-	replace( tag.id.begin(), tag.id.end(), ' ', '_' );
-	replace( tag.id.begin(), tag.id.end(), '\n', '_' );
+	std::replace( tag.id.begin(), tag.id.end(), ' ', '_' );
+	std::replace( tag.id.begin(), tag.id.end(), '\n', '_' );
 	
 	return tag;
 }
@@ -206,7 +149,7 @@ static string removePrefix( const string& str, const string& prefix ){
 	return { str.c_str() + prefix.size() };
 }
 
-Note parse_note( const xml_node& node ){
+static Note parse_note( const xml_node& node ){
 	auto body = node.next_sibling("div");
 	
 	//Get ids
@@ -249,7 +192,7 @@ Note parse_note( const xml_node& node ){
 	return note;
 }
 
-Poco::Timestamp parse_date_time( string time ){
+static Poco::Timestamp parse_date_time( string time ){
 	Poco::DateTime datetime;
 	int timezone;
 	
@@ -257,28 +200,29 @@ Poco::Timestamp parse_date_time( string time ){
 	return datetime.timestamp();
 }
 
-bool get_image( xml_document& doc, Post& p ){
+static bool get_image( MyHtml::Tree& tree, Post& p ){
 	//Original/resized width+height+url
 	Image resized, original;
-	xml_node link = doc.select_nodes( "//a[@id='image-link']" ).first().node();
-	xml_node image = link.child( "img" );
 	
+	auto link = MyHtml::Search::byAttrValue( tree, "id", "image-link" ).first();
+	auto image = link.getChildWith( tree.tag("img") );
 	if( !image )
 		return false;
 	
-	//Get image link, but overwrite it with highres to work with svg.
-	original.url = parse_url( link.attribute( "href" ).value() );
-	string highres = parse_url( doc.select_nodes( "//a[@id='highres']" ).first().node().attribute( "href" ).value() );
-	if( highres.size() != 0 )
-		original.url = highres;
-//	cout << "org url: " << original.url << '\n';
+	original.url = std::string( link.attributes().valueOf( "href" ) );
+	auto highres_link = MyHtml::Search::byAttrValue(tree, "id", "highres").first();
+	string highes = parse_url( highres_link.attributes().valueOf("href") );
+	if( highes.size() > 0 )
+		original.url = highes;
+	std::cout << "org url: " << original.url << '\n';
 	
-	original.width = image.attribute( "orig_width" ).as_int();
-	original.height = image.attribute( "orig_height" ).as_int();
+	auto attr = image.attributes();
+	original.width  = parseInt(attr.valueOf("orig_width" ), 0);
+	original.height = parseInt(attr.valueOf("orig_height"), 0);
 	
-	resized.width = image.attribute( "width" ).as_int();
-	resized.height = image.attribute( "height" ).as_int();
-	resized.url = parse_url( image.attribute( "src" ).value() );
+	resized.width  = parseInt(  attr.valueOf("width" ), 0 );
+	resized.height = parseInt(  attr.valueOf("height"), 0 );
+	resized.url    = parse_url( attr.valueOf("src") );
 	
 	//It might not be resized, in that case the image is the original
 	if( original.url.empty() )
@@ -291,67 +235,97 @@ bool get_image( xml_document& doc, Post& p ){
 	return true;
 }
 
-bool get_video( xml_document& doc, Post& p ){
-	xml_node video = doc.select_nodes( "//video[@id='image']" ).first().node();
+static bool get_video( MyHtml::Tree& tree, Post& p ){
+	auto video = MyHtml::Search::byId( tree, "image" );
 	if( !video )
 		return false;
 	
-	p.full.width = video.attribute( "width" ).as_int();
-	p.full.height = video.attribute( "height" ).as_int();
-	p.full.url = parse_url( video.attribute( "src" ).value() );
+	auto attr = video.attributes();
+	p.full.width  = parseInt(attr.valueOf("width" ), 0);
+	p.full.height = parseInt(attr.valueOf("height"), 0);
+	p.full.url    = parse_url( attr.valueOf("src") );
 	
 	return true;
 }
 
-bool get_flash( xml_document& doc, Post& p ){
-	xml_node flash = doc.select_nodes( "//div[@id='non-image-content']/object/embed" ).first().node();
+static bool get_flash( MyHtml::Tree& tree, Post& p ){
+	auto flash_container = MyHtml::Search::byId( tree, "non-image-content" );
+	auto flash = flash_container.getChildWith(tree.tag("object")).getChildWith(tree.tag("embed"));
 	if( !flash )
 		return false;
 	
-	p.full.width = flash.attribute( "width" ).as_int();
-	p.full.height = flash.attribute( "height" ).as_int();
-	p.full.url = parse_url( flash.attribute( "src" ).value() );
+	auto attr = flash.attributes();
+	p.full.width  = parseInt(attr.valueOf("width" ), 0);
+	p.full.height = parseInt(attr.valueOf("height"), 0);
+	p.full.url    = parse_url( attr.valueOf("src") );
 	
 	return true;
 }
 
-class Xhtml{
-	private:
-		xml_document document;
+
+static Post parse_preview( MyHtml::Node span ){
+	Post post;
+	post.id = parseInt( span.attributes().valueOf( "id" ).substr( 1 ), 0 ); //Remove initial 'p'
+	
+	auto img = span.child().child().attributes(); // a > img
+	
+	post.thumbnail.url    = parse_url( img.valueOf( "src" )  );
+	post.thumbnail.width  = parseInt( img.valueOf( "width"  ), 0 );
+	post.thumbnail.height = parseInt( img.valueOf( "height" ), 0 );
+	
+	//TODO: parent: class="... has-parent"
+	//TODO: children: class="... has-children"
+	//TODO: flagged: class="... flagged"
+	
+//	cout << "\t" << "Hash: " << hash_from_url( post.thumbnail.url ) << "\n";
+	//TODO: fill the other urls from this
+	
+	for( auto property : splitAllOn( img.valueOf( "title" ), ' ' ) ){
+		if( property.empty() )
+			continue; //Ignore empty properties
 		
-	public:
-		Xhtml( SanApi& api, const string& url ){
-			auto xml = CleanHTML( api.get_from_url( url ) );
-			xml_parse_result result = document.load( xml.c_str() );
-			if( result.status != status_ok )
-				throw runtime_error( string("XHTML parsing failed, ") + result.description() );
+		auto [name, value] = splitAt( property, ':' );
+		if( name == "Rating" )
+			post.rating = parseAgeRating( value );
+		else if( name == "Score" )
+			post.score = parseDouble( value, -1 );
+		else if( name == "User" )
+			post.author = std::string( value );
+		else if( name == "Size" ){
+			auto [width, height] = splitAt(value, 'x');
+			post.full.width  = parseInt(width , 0);
+			post.full.height = parseInt(height, 0);
 		}
-		
-		xml_document& doc() { return document; }
-};
+		else
+			post.tags.add( std::string( property ) );
+	}
+	
+	return post;
+}
+
 
 Post SanApi::get_post( unsigned post_id, Image::Size level ){
 	Post post;
 	if( post_handler.get_checked( post_id, post, level ) )
 		return post;
 	
-	Xhtml html( *this, get_url() + "post/show/" + to_string( post_id ) );
-	auto& doc = html.doc();
+	
+	MyHtml::Html myHtml;
+	MyHtml::Tree tree( myHtml );
+	auto data = get_from_url( get_url() + "post/show/" + to_string( post_id ) );
+	tree.parse( data.c_str(), data.size() );
 	
 	//TODO: notes
 	//TODO: comments
+	post.id = post_id;
 	
-	//Get ID
-	string id = doc.select_nodes( "//meta[@property='og:title']" ).first().node().attribute("content").value();
-	post.id = parseInt( id.substr( 5 ), 0 );
-	
-	if( !get_image( doc, post ) )
-		if( !get_video( doc, post ) )
-			if( !get_flash( doc, post ) )
+	if( !get_image( tree, post ) )
+		if( !get_video( tree, post ) )
+			if( !get_flash( tree, post ) )
 				throw logic_error( "No media found in HTML post" );
 	
 	//Parent
-	xml_node parent = doc.select_nodes( "//div[@id='parent-preview']/span" ).first().node();
+	//xml_node parent = doc.select_nodes( "//div[@id='parent-preview']/span" ).first().node();
 //	if( parent )
 //		post.set_parent( parse_preview( parent ) );
 	
@@ -360,11 +334,13 @@ Post SanApi::get_post( unsigned post_id, Image::Size level ){
 //		post.children.push_back( parse_preview( it.node() ) );
 	
 	//Score
+				/*
 	string score_query( "//span[@id='post-score-" + id + "']" );
 	string count_query( "//span[@id='post-vote-count-" + id + "']" );
 	xml_node avg_span = doc.select_nodes( score_query.c_str() ).first().node();
 	xml_node count_span = doc.select_nodes( count_query.c_str() ).first().node();
 	post.score = parseDouble( avg_span.child_value(), -1.0 ) * parseDouble( count_span.child_value(), 0.0 );
+	
 	
 	//Parsing of the detail section of the side-bar
 	for( auto tag : doc.select_nodes( "//div[@id='stats']/ul/li" ) ){
@@ -393,18 +369,21 @@ Post SanApi::get_post( unsigned post_id, Image::Size level ){
 				post.author = "System";
 		}
 	}
-	
+	*/
 	//Tags
-	for( auto tag : doc.select_nodes( "//ul[@id='tag-sidebar']/li" ) ){
-		Tag t = parse_tag( tag.node() );
-		if( !post.tags.contains( t.id ) )
-			post.tags.add( t.id );
-		tag_handler.add( t );
-	}
+	for( auto ul : MyHtml::Search::byAttrValue( tree, "id", "tag-sidebar" ) )
+		for( auto li : ul )
+			if( !li.getTag().isText() ){
+				Tag t = parse_tag( li, tree );
+				if( !post.tags.contains( t.id ) )
+					post.tags.add( t.id );
+				tag_handler.add( t );
+			}
 	
 	//Notes:
-	for( auto notebox : doc.select_nodes( "//div[@class='note-box']" ) ){
-		auto note = parse_note( notebox.node() );
+	for( auto notebox : MyHtml::Search::byAttrValue(tree, "class", "note-box")){
+		//TODO: Convert parse_note
+		/*auto note = parse_note( notebox );
 		note.post_id = post.id;
 		
 		//Scale to range 0.0-1.0
@@ -414,7 +393,7 @@ Post SanApi::get_post( unsigned post_id, Image::Size level ){
 		note.height /= double(post.full.height);
 		
 		post.notes.add( note.id );
-		note_handler.add( note );
+		note_handler.add( note );*/
 	}
 	
 	//Favorites
@@ -424,7 +403,7 @@ Post SanApi::get_post( unsigned post_id, Image::Size level ){
 //		post.fans.push_back( it.node().child_value() );
 //	cout << "Amount of fans: " << post.fans.size() << "\n";
 	
-	post_handler.add( post );
+	//post_handler.add( post );
 	return post;
 }
 
@@ -433,25 +412,24 @@ Index SanApi::get_index( string search, int page, int limit ){
 	string url = get_url() + "?tags=" + Server::remove_reserved( Server::encode_str( search ) );
 	if( page > 1 )
 		url += "&page=" + to_string( page );
-	Xhtml html( *this, url );
-		
-	//div.content div span.thumb
 	
-	xpath_node_set spans = html.doc().select_nodes( "//div[@class='content']/div/span[contains(concat(' ', normalize-space(@class), ' '), ' thumb ')]" );
-//	cout << "Spans: " << spans.size() << "\n";
-	for( xpath_node f : spans ){
-		auto post = parse_preview( f.node() );
+	MyHtml::Html myHtml;
+	MyHtml::Tree tree( myHtml );
+	auto data = get_from_url( url );
+	tree.parse( data.c_str(), data.size() );
+
+	for( auto node : MyHtml::Search::byAttrValueSpaceSeperated( tree, "class", "thumb", false ) ){
+		auto post = parse_preview( node );
 		post_handler.add( post );
 		index.posts.push_back( post );
 	}
 	
-	
-	xpath_node_set tags = html.doc().select_nodes( "//ul[@id='tag-sidebar']/li" );
-	for( xpath_node tag : tags ){
-		Tag t = parse_tag( tag.node() );
-		tag_handler.add( t );
-		index.related_tags.add( t.id );
-	}
+	for( auto node : MyHtml::Search::byAttrValue( tree, "id", "tag-sidebar", false ).first() )
+		if( !node.getTag().isText() ){
+			Tag t = parse_tag( node, tree );
+			tag_handler.add( t );
+			index.related_tags.add( t.id );
+		}
 
 	index.amount = -1;
 	return index;
