@@ -74,6 +74,7 @@ static int parseInt( str_view input, int fallback ){
 
 static double parseDouble( str_view input, double fallback ){
 	//TODO: Avoid string conversion
+	//TODO: 4.7 got parsed as "4" !
 	try
 		{ return std::stod(std::string(input)); }
 	catch(...)
@@ -130,10 +131,10 @@ static Tag::Type parseTagType( str_view input ){
 static Tag parse_tag( MyHtml::Node node, MyHtml::Tree& tree ){
 	Tag tag;
 	
-	tag.id = std::string( node.getChildWith( tree.tag("a") ).child().text() );
+	tag.id = std::string( node.child( tree.tag("a") ).child().text() );
 	//TODO: Japanese name?
 	
-	tag.count = parseInt( node.getChildWith( tree.tag("span") ).getChildWith( tree.tag("span") ).child().text(), 0 );
+	tag.count = parseInt( node.child( tree.tag("span") ).child( tree.tag("span") ).child().text(), 0 );
 	tag.type = parseTagType( node.attributes().valueOf( "class" ) );
 	
 	//Remove spaces in tag name
@@ -192,11 +193,12 @@ static Note parse_note( const xml_node& node ){
 	return note;
 }
 
-static Poco::Timestamp parse_date_time( string time ){
+static Poco::Timestamp parse_date_time( str_view time ){
 	Poco::DateTime datetime;
 	int timezone;
 	
-	Poco::DateTimeParser::parse( Poco::DateTimeFormat::SORTABLE_FORMAT, time, datetime, timezone );
+	//TODO: Remove dependency on Poco
+	Poco::DateTimeParser::parse( Poco::DateTimeFormat::SORTABLE_FORMAT, std::string(time), datetime, timezone );
 	return datetime.timestamp();
 }
 
@@ -205,7 +207,7 @@ static bool get_image( MyHtml::Tree& tree, Post& p ){
 	Image resized, original;
 	
 	auto link = MyHtml::Search::byAttrValue( tree, "id", "image-link" ).first();
-	auto image = link.getChildWith( tree.tag("img") );
+	auto image = link.child( tree.tag("img") );
 	if( !image )
 		return false;
 	
@@ -250,7 +252,7 @@ static bool get_video( MyHtml::Tree& tree, Post& p ){
 
 static bool get_flash( MyHtml::Tree& tree, Post& p ){
 	auto flash_container = MyHtml::Search::byId( tree, "non-image-content" );
-	auto flash = flash_container.getChildWith(tree.tag("object")).getChildWith(tree.tag("embed"));
+	auto flash = flash_container.child(tree.tag("object")).child(tree.tag("embed"));
 	if( !flash )
 		return false;
 	
@@ -334,42 +336,33 @@ Post SanApi::get_post( unsigned post_id, Image::Size level ){
 //		post.children.push_back( parse_preview( it.node() ) );
 	
 	//Score
-				/*
-	string score_query( "//span[@id='post-score-" + id + "']" );
-	string count_query( "//span[@id='post-vote-count-" + id + "']" );
-	xml_node avg_span = doc.select_nodes( score_query.c_str() ).first().node();
-	xml_node count_span = doc.select_nodes( count_query.c_str() ).first().node();
-	post.score = parseDouble( avg_span.child_value(), -1.0 ) * parseDouble( count_span.child_value(), 0.0 );
-	
+	auto s_id = std::to_string( post.id );
+	auto score      = parseDouble( MyHtml::Search::byId( tree, "post-score-"      + s_id ).child().text(), -1.0 );
+	auto vote_count = parseDouble( MyHtml::Search::byId( tree, "post-vote-count-" + s_id ).child().text(),  0.0 );
+	post.score = score * vote_count;
 	
 	//Parsing of the detail section of the side-bar
-	for( auto tag : doc.select_nodes( "//div[@id='stats']/ul/li" ) ){
-		string val = tag.node().child_value();
-		string start_rating = "Rating: ";
-		string start_source = "Source: ";
-		//TODO: file-sizes of images?
+	auto stats = MyHtml::Search::byId( tree, "stats" ).child( tree.tag("ul") );
+	for( auto li : stats ){
+		auto [info, value] = splitAt( li.child().text(), ' ' );
 		
-		if( boost::starts_with( val, start_rating ) )
-			//Rating
-			post.rating = parseAgeRating( val.substr( start_rating.size() ) );
-		else if( boost::starts_with( val, start_source ) )
-			//Source
-			post.source = val.substr( start_source.size() );
-		else if( boost::starts_with( val, "Posted: " ) ){
-			//Date
-			auto links = tag.node().child( "a" );
+		if( info == "Rating:" )
+			post.rating = parseAgeRating( value );
+		else if( info == "Source:" )
+			post.source = std::string(value);
+		else if( info == "\nPosted:" ){
+			auto links = li.child( tree.tag("a") );
 			
-			string date = links.attribute( "title" ).value();
-			post.creation_time = parse_date_time( date );
+			post.creation_time = parse_date_time( links.attributes().valueOf( "title" ) );
 			
-			//User-name
-			if( (links = links.next_sibling( "a" )) )
-				post.author = links.child_value();
+			links = links.next( tree.tag("a") );
+			if( links )
+				post.author = std::string( links.child().text() );
 			else
 				post.author = "System";
 		}
 	}
-	*/
+	
 	//Tags
 	for( auto ul : MyHtml::Search::byAttrValue( tree, "id", "tag-sidebar" ) )
 		for( auto li : ul )

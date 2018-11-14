@@ -92,11 +92,20 @@ class Node{
 		Node child()    { return { node ? myhtml_node_child(      node ) : nullptr }; }
 		Node lastChild(){ return { node ? myhtml_node_last_child( node ) : nullptr }; }
 		
-		Node getChildWith( Tag t ){
+		Node child( Tag t ){
 			for( auto child : *this )
 				if( child.getTag() == t )
 					return child;
 			return {};
+		}
+		Node next( Tag t ){
+			Node search = next();
+			do{
+				if( search.getTag() == t )
+					return search;
+				search = search.next();
+			} while( search );
+			return {}; //No such node found :(
 		}
 		
 		std::string_view text(){
