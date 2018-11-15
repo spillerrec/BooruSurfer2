@@ -128,6 +128,8 @@ class Node{
 		Tag getTag(){ return { myhtml_node_tag_id( node ) }; }
 		
 		AttributeList attributes() { return { { node ? myhtml_node_attribute_first( node ) : nullptr } }; }
+		auto attribute( std::string_view key ){ return attributes().valueOf( key ); }
+		auto operator[]( std::string_view key ){ return attribute( key ); }
 };
 
 class Html{

@@ -43,6 +43,11 @@ bool starts_with( str_view input, str_view match ){
 		return input.substr( 0, match.length() ) == match;
 	return false;
 }
+bool ends_with( str_view input, str_view match ){
+	if( input.length() >= match.length() )
+		return input.substr( input.size() - match.length() ) == match;
+	return false;
+}
 
 std::pair<str_view, str_view> splitAt( str_view str, char splitter ){
 	auto pos = str.find( splitter );
@@ -144,51 +149,57 @@ static Tag parse_tag( MyHtml::Node node, MyHtml::Tree& tree ){
 	return tag;
 }
 
-static string removePrefix( const string& str, const string& prefix ){
-	if( str.compare( 0, prefix.size(), prefix ) != 0 )
-		throw logic_error( str + " does not start with " + prefix );
-	return { str.c_str() + prefix.size() };
+static str_view removePrefix( str_view str, str_view prefix ){
+	if( !starts_with( str, prefix ) )
+		throw logic_error( std::string(str) + " does not start with " + std::string(prefix) );
+	return str.substr( prefix.size() );;
+}
+static str_view removePostfix( str_view str, str_view postfix ){
+	if( !ends_with( str, postfix ) )
+		throw logic_error( std::string(str) + " does not end with " + std::string(postfix) );
+	return str.substr( str.size() - postfix.size() );
+}
+static str_view trim( str_view str ){
+	auto first = str.find_first_not_of( ' ' );
+	auto last  = str.find_last_not_of(  ' ' );
+	auto chars_removed = first + (str.size()-last-1);
+	return str.substr( first, str.size() - chars_removed );
 }
 
-static Note parse_note( const xml_node& node ){
-	auto body = node.next_sibling("div");
+static Note parse_note( MyHtml::Node node, MyHtml::Tree& tree ){
+	auto body = node.next(tree.tag("div"));
 	
 	//Get ids
-	const string box_prefix  = "note-box-";
-	const string body_prefix = "note-body-";
-	auto      id = parseInt( removePrefix( node.attribute( "id" ).value(), box_prefix  ), 0 );
-	auto body_id = parseInt( removePrefix( body.attribute( "id" ).value(), body_prefix ), 0 );
-	if( id != body_id )
+	auto      id = parseInt( removePrefix( node["id"sv], "note-box-"  ), -1 );
+	auto body_id = parseInt( removePrefix( body["id"sv], "note-body-" ), -2 );
+	if( id != body_id ) //NOTE: The fallbacks differs to avoid matching in that case
 		throw logic_error( "Note id and body id did not match" );
 	
 	
 	Note note( id );
 	
-	auto parameters = cStrView( node.attribute( "style" ).value() );
-	
-	map<StringView, StringView> arguments;
-	for( auto part : StringView(parameters).split(';') ){
-		//Convert "key: 123px" to insert { key, 123 }
-		auto items = part.split(':');
-		if( items.size() != 2 )
-			throw logic_error( "Not a valid style: " + part.toString() );
+	map<str_view, str_view> arguments;
+	for( auto part : splitAllOn( node["style"sv], ';') ){
+		if( part.empty() )
+			continue;
 		
-		auto trimmer = [](char c){ return isspace(c);};
-		arguments.emplace(
-				items[0].trim( trimmer )
-			,	items[1].trim( trimmer ).removePostfix( cStrView("px") )
-			);
+		//Convert "key: 123px" to insert { key, 123 }
+		auto [key, value] = splitAt( part, ':' );
+		if( value.empty() )
+			throw logic_error( "Not a valid style: " + std::string(part) );
+		
+		arguments.emplace( trim( key ), removePostfix( trim( value ), "px" ) );
 	}
 	
-	auto convert = [arguments]( StringView key ){
-			return parseInt( arguments.at( key ).toString(), 0 );
-		};
-	note.width  = convert( cStrView("width" ) );
-	note.height = convert( cStrView("height") );
-	note.x      = convert( cStrView("left"  ) );
-	note.y      = convert( cStrView("top"   ) );
+	note.width  = parseInt( arguments.at( "width"  ), 0 );
+	note.height = parseInt( arguments.at( "height" ), 0 );
+	note.x      = parseInt( arguments.at( "left"   ), 0 );
+	note.y      = parseInt( arguments.at( "top"    ), 0 );
 	
-	note.content = body.text().get();
+	note.content = "";
+	for( auto child : body )
+		note.content += std::string( child.text() );
+	//TODO: Parse the whole body recursively and handle note types. Also introduce newline
 	
 	return note;
 }
@@ -317,7 +328,6 @@ Post SanApi::get_post( unsigned post_id, Image::Size level ){
 	auto data = get_from_url( get_url() + "post/show/" + to_string( post_id ) );
 	tree.parse( data.c_str(), data.size() );
 	
-	//TODO: notes
 	//TODO: comments
 	post.id = post_id;
 	
@@ -375,8 +385,7 @@ Post SanApi::get_post( unsigned post_id, Image::Size level ){
 	
 	//Notes:
 	for( auto notebox : MyHtml::Search::byAttrValue(tree, "class", "note-box")){
-		//TODO: Convert parse_note
-		/*auto note = parse_note( notebox );
+		auto note = parse_note( notebox, tree );
 		note.post_id = post.id;
 		
 		//Scale to range 0.0-1.0
@@ -386,7 +395,7 @@ Post SanApi::get_post( unsigned post_id, Image::Size level ){
 		note.height /= double(post.full.height);
 		
 		post.notes.add( note.id );
-		note_handler.add( note );*/
+		note_handler.add( note );
 	}
 	
 	//Favorites
