@@ -1,5 +1,13 @@
 /********** HEADER START **********/
 header nav ul, header nav ul li{ margin:0; padding:0; list-style:none; }
+header{ height: 30px; }
+header nav{
+	position: fixed;
+	width:100%;
+	z-index:1;
+	background-color: black;
+	padding-top: 5px;
+}
 
 header nav > ul > li{ float: left; }
 header nav ul li{
@@ -13,7 +21,6 @@ header > nav li > ul{
 	background-color: black;
 	display:none;
 	border: 2px solid #222;
-	padding-top: 5px;
 }
 header > nav li:hover > ul{
 	display:block;
