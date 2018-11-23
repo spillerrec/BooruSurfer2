@@ -33,7 +33,7 @@ std::string get_thumbnail( std::string path ){
 	using namespace KIO;
 	
 	//Initialize job
-	QUrl url( "file://" + QFileInfo(QString::fromLocal8Bit( path.c_str() )).absoluteFilePath() );
+	auto url = QUrl::fromLocalFile( QFileInfo(QString::fromLocal8Bit( path.c_str() )).absoluteFilePath() );
 	KFileItem file( url );
 	auto list = QList<KFileItem>() << file;
 	KIO::PreviewJob job( list, QSize( 512, 512 ) );
