@@ -41,7 +41,7 @@ class Statement{
 			}
 		~Statement();
 		
-		void throwError( std::string error );
+		[[ noreturn ]] void throwError( std::string error );
 		
 		bool next();
 		bool reset();

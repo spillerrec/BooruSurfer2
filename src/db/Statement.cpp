@@ -37,7 +37,7 @@ struct SQLiteError : runtime_error {
 		{ cout << what() << '\n'; }
 };
 
-void Statement::throwError( string error ){ throw SQLiteError( db, query, error ); }
+[[ noreturn ]] void Statement::throwError( string error ){ throw SQLiteError( db, query, error ); }
 
 template<typename T>
 int validateError( Statement& stmt, int result, T checker ){
@@ -67,11 +67,13 @@ static void check_type( Statement& stmt, int column, int type ){
 }
 
 bool Statement::next(){
-	int result, i=1;
-	while( (result = sqlite3_step( stmt )) == SQLITE_BUSY ){
-		if( ++i >= 30 )
+	//Keep trying while busy, delay each attempt with 10 ms, and fail after 30 tries
+	int result = sqlite3_step( stmt );
+	for( int i=0; result == SQLITE_BUSY || result == SQLITE_LOCKED; i++ ){
+		if( i >= 30 )
 			throwError( "Time out during execution of statement" );
 		Poco::Thread::sleep( 10 );
+		result = sqlite3_step( stmt );
 	}
 	
 	return validateError( *this, result

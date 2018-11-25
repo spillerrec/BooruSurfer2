@@ -26,14 +26,15 @@
 using namespace std;
 
 void Database::open(){
-	if( sqlite3_open_v2( filepath.c_str(), &db, SQLITE_OPEN_READWRITE, nullptr ) != SQLITE_OK ){
+	auto flags = SQLITE_OPEN_READWRITE | SQLITE_CONFIG_MULTITHREAD;
+	if( sqlite3_open_v2( filepath.c_str(), &db, flags, nullptr ) != SQLITE_OK ){
 		//TODO: throw exception
 		cout << "Couldn't open db! Path: " << filepath.c_str() << '\n';
 		sqlite3_close( db );
 		exit( -1 );
 	}
-//	sqlite3_busy_timeout( db, 100 );
-//	Statement( *this, "PRAGMA journal_mode=WAL;" ).next();
+	sqlite3_busy_timeout( db, 100 );
+	Statement( *this, "PRAGMA journal_mode=WAL;" ).next();
 }
 
 Database::Database( string filepath ) : filepath(filepath) { open(); }

@@ -102,7 +102,7 @@ static Post::Rating parseAgeRating( str_view input ){
 	else                               return Post::UNRATED;
 }
 
-static string hash_from_url( string url ){
+static str_view hash_from_url( str_view url ){
 	size_t start = url.find_last_of( '/' ) + 1;
 	size_t end = url.find_last_of( '.' );
 	
@@ -227,7 +227,6 @@ static bool get_image( MyHtml::Tree& tree, Post& p ){
 	string highes = parse_url( highres_link.attributes().valueOf("href") );
 	if( highes.size() > 0 )
 		original.url = highes;
-	std::cout << "org url: " << original.url << '\n';
 	
 	auto attr = image.attributes();
 	original.width  = parseInt(attr.valueOf("orig_width" ), 0);
@@ -290,8 +289,11 @@ static Post parse_preview( MyHtml::Node span ){
 	//TODO: children: class="... has-children"
 	//TODO: flagged: class="... flagged"
 	
-//	cout << "\t" << "Hash: " << hash_from_url( post.thumbnail.url ) << "\n";
-	//TODO: fill the other urls from this
+	auto hash = hash_from_url( post.thumbnail.url );
+	if( hash.size() == 32 )
+		post.hash = std::string( hash );
+	else
+		std::cout << "Warning: Could not read hash from preview with id: " << post.id << '\n';
 	
 	for( auto property : splitAllOn( img.valueOf( "title" ), ' ' ) ){
 		if( property.empty() )
@@ -405,7 +407,7 @@ Post SanApi::get_post( unsigned post_id, Image::Size level ){
 //		post.fans.push_back( it.node().child_value() );
 //	cout << "Amount of fans: " << post.fans.size() << "\n";
 	
-	//post_handler.add( post );
+	post_handler.add( post ); //TODO: Removing this causes very repeatable "database is locked" errors
 	return post;
 }
 

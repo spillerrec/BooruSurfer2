@@ -32,7 +32,6 @@ string PostPage::serve( vector<string> args, vector<header> &headers ) const{
 	UrlHandler url( &api );
 	
 	unsigned id = getInt( args[2], "Post id not an number!" );
-	cout << "Post: " << id << "\n";
 	Post post = api.get_post( id );
 	
 	Styler s( &api, "Post: " + url.image_tags( post, 128 ) );

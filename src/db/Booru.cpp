@@ -215,7 +215,7 @@ Transaction Booru::beginBatch(){ return connection.getDb(); }
 
 void Booru::saveToDb( const Note& item ){
 	auto& stmt = connection.getSite(site).saveNotes();
-	std::cout << "Saving Note: " << item.id << '\n';
+	//std::cout << "Saving Note: " << item.id << '\n';
 	
 	stmt.bind( static_cast<int>(item.id), 1 );
 	stmt.bind( item.post_id, 2 );
@@ -231,7 +231,7 @@ void Booru::saveToDb( const Note& item ){
 
 void Booru::saveToDb( const Post& item ){
 	auto& stmt = connection.getSite(site).savePosts();
-	std::cout << "Saving Post: " << item.id << '\n';
+	//std::cout << "Saving Post: " << item.id << '\n';
 	
 	stmt.bind( static_cast<int>(item.id), 1 );
 	stmt.bind( item.hash, 2 );
@@ -269,7 +269,7 @@ void Booru::saveToDb( const Post& item ){
 
 void Booru::saveToDb( const Tag& tag ){
 	auto& stmt = connection.getSite(site).saveTags();
-	std::cout << "Saving Tag: " << tag.id << '\n';
+	//std::cout << "Saving Tag: " << tag.id << '\n';
 	
 	stmt.bind( tag.id, 1 );
 	stmt.bind( (int)tag.count, 2 );
@@ -314,7 +314,7 @@ bool Booru::load( Post& p ){
 	//TODO: Avoid double-loading if we already touched this ID
 	auto& stmt = connection.getSite(site).loadPosts();
 	stmt.bind( static_cast<int>(p.id), 1 );
-	std::cout << "Loading post: " << p.id << '\n';
+	//std::cout << "Loading post: " << p.id << '\n';
 	
 	auto p2 = readPostFromStmt( stmt );
 	stmt.reset();
@@ -364,7 +364,7 @@ bool Booru::load( Note& p ){
 		return true;
 	
 	auto& stmt = connection.getSite(site).loadNotes();
-	std::cout << "Loading note: " << p.id << '\n';
+	//std::cout << "Loading note: " << p.id << '\n';
 	stmt.bind( static_cast<int>(p.id), 1 );
 	if( stmt.next() ){
 		p.x       = stmt.floating( 2 );
@@ -388,7 +388,7 @@ bool Booru::load( Tag& p ){
 		return true;
 	
 	auto& stmt = connection.getSite(site).loadTags();
-	std::cout << "Loading tag: " << p.id << '\n';
+	//std::cout << "Loading tag: " << p.id << '\n';
 	stmt.bind( p.id, 1 );
 	if( stmt.next() ){
 		p.count = stmt.integer( 1 );
@@ -434,10 +434,8 @@ void Booru::save( Note& n ){
 void Booru::save( Tag& t ){
 	auto copy = t;
 	if( tags.get( copy ) ){
-		if( unsigned(copy.count * 1.01) < t.count ){
-			std::cout << "Tag count is: " << copy.count << " versus " << t.count << '\n';
+		if( unsigned(copy.count * 1.01) < t.count )
 			tags.replace( t );
-		}
 	}
 	else
 		tags.insert( t, t.count == 0 );
