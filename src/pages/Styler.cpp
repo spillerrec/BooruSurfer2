@@ -30,7 +30,6 @@ using namespace HTML;
 #include "../api/ApiHandler.hpp"
 
 #include <algorithm>
-#include <boost/lexical_cast.hpp>
 
 ::string redirect_page( std::string url ){
 	HTML::Document doc;
@@ -152,7 +151,7 @@ Node Styler::tag( const Tag& tag ){
 	
 	//TODO: use real_count
 	if( tag.count )
-		node( span( doc )( "(" + boost::lexical_cast<string>( tag.count ) + ")" ) );
+		node( span( doc )( "(" + std::to_string( tag.count ) + ")" ) );
 	
 	if( tag.type )
 		node.add_attr( CLASS( "tagtype" + to_string( tag.type ) ) );

@@ -23,7 +23,6 @@
 #include "../exceptions/utils.hpp"
 #include "Styler.hpp"
 
-#include <boost/algorithm/string.hpp>
 #include <algorithm>
 #include <cctype>
 

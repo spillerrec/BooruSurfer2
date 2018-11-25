@@ -20,7 +20,6 @@
 
 #include "RssPage.hpp"
 
-#include <boost/algorithm/string.hpp>
 #include <algorithm>
 #include <iostream>
 

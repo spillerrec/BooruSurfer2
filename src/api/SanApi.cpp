@@ -22,71 +22,17 @@
 #include "MyHtml++.hpp"
 #include "../parsing/pugixml.hpp"
 #include "../parsing/StringView.hpp"
-
-#include <boost/algorithm/string.hpp>
-#include <boost/algorithm/string/predicate.hpp>
+#include "../parsing/StringViewUtils.hpp"
 
 #include <algorithm>
 #include <iostream>
 #include <map>
 #include <cctype>
-#include <charconv>
 
 using namespace std;
 using namespace pugi;
 
-using str_view = std::string_view;
-
-
-bool starts_with( str_view input, str_view match ){
-	if( input.length() >= match.length() )
-		return input.substr( 0, match.length() ) == match;
-	return false;
-}
-bool ends_with( str_view input, str_view match ){
-	if( input.length() >= match.length() )
-		return input.substr( input.size() - match.length() ) == match;
-	return false;
-}
-
-std::pair<str_view, str_view> splitAt( str_view str, char splitter ){
-	auto pos = str.find( splitter );
-	if( pos == str_view::npos )
-		return { str, {} };
-	else
-		return { str.substr( 0, pos ), str.substr( pos+1 ) };
-}
-
-std::vector<str_view> splitAllOn( str_view str, char splitter ){
-	std::vector<str_view> splits;
-	
-	size_t last=0, pos = 0;
-	while( (pos = str.find(splitter, last)) != str_view::npos ){
-		splits.push_back( str.substr( last, pos-last ) );
-		last = pos+1;
-	}
-	splits.push_back( str.substr( last ) );
-	
-	return splits;
-}
-
-
-static int parseInt( str_view input, int fallback ){
-	int value = 0;
-	auto result = std::from_chars( input.begin(), input.end(), value, 10 );
-	return result.ptr == input.begin() ? fallback : value;
-}
-
-static double parseDouble( str_view input, double fallback ){
-	//TODO: Avoid string conversion
-	//TODO: 4.7 got parsed as "4" !
-	try
-		{ return std::stod(std::string(input)); }
-	catch(...)
-		{ return fallback; }
-}
-
-static std::string parse_url( str_view url ){
+static std::string parse_url( std::string_view url ){
 	std::string url_s( url );
 	if( starts_with( url, "//" ) )
 		return "https:" + url_s;
@@ -95,14 +41,14 @@ static std::string parse_url( str_view url ){
 	return url_s;
 }
 
-static Post::Rating parseAgeRating( str_view input ){
+static Post::Rating parseAgeRating( std::string_view input ){
 	     if( input == "Safe"         ) return Post::SAFE;
 	else if( input == "Questionable" ) return Post::QUESTIONABLE;
 	else if( input == "Explicit"     ) return Post::EXPLICIT;
 	else                               return Post::UNRATED;
 }
 
-static str_view hash_from_url( str_view url ){
+static std::string_view hash_from_url( std::string_view url ){
 	size_t start = url.find_last_of( '/' ) + 1;
 	size_t end = url.find_last_of( '.' );
 	
@@ -114,7 +60,7 @@ static str_view hash_from_url( str_view url ){
 }
 
 
-static Tag::Type parseTagType( str_view input ){
+static Tag::Type parseTagType( std::string_view input ){
 	static const map<string,Tag::Type> function{
 			{"tag-type-general"  , Tag::NONE     }
 			
@@ -149,23 +95,6 @@ static Tag parse_tag( MyHtml::Node node, MyHtml::Tree& tree ){
 	return tag;
 }
 
-static str_view removePrefix( str_view str, str_view prefix ){
-	if( !starts_with( str, prefix ) )
-		throw logic_error( std::string(str) + " does not start with " + std::string(prefix) );
-	return str.substr( prefix.size() );;
-}
-static str_view removePostfix( str_view str, str_view postfix ){
-	if( !ends_with( str, postfix ) )
-		throw logic_error( std::string(str) + " does not end with " + std::string(postfix) );
-	return str.substr( str.size() - postfix.size() );
-}
-static str_view trim( str_view str ){
-	auto first = str.find_first_not_of( ' ' );
-	auto last  = str.find_last_not_of(  ' ' );
-	auto chars_removed = first + (str.size()-last-1);
-	return str.substr( first, str.size() - chars_removed );
-}
-
 static Note parse_note( MyHtml::Node node, MyHtml::Tree& tree ){
 	auto body = node.next(tree.tag("div"));
 	
@@ -178,7 +107,7 @@ static Note parse_note( MyHtml::Node node, MyHtml::Tree& tree ){
 	
 	Note note( id );
 	
-	map<str_view, str_view> arguments;
+	map<std::string_view, std::string_view> arguments;
 	for( auto part : splitAllOn( node["style"sv], ';') ){
 		if( part.empty() )
 			continue;
@@ -204,7 +133,7 @@ static Note parse_note( MyHtml::Node node, MyHtml::Tree& tree ){
 	return note;
 }
 
-static Poco::Timestamp parse_date_time( str_view time ){
+static Poco::Timestamp parse_date_time( std::string_view time ){
 	Poco::DateTime datetime;
 	int timezone;
 	

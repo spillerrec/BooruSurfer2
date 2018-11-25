@@ -6,8 +6,6 @@
 #include <iostream>
 #include <utility>
 
-#include <boost/lexical_cast.hpp>
-
 namespace HTML{
 	class Node;
 	
@@ -69,7 +67,7 @@ namespace HTML{
 			}
 			Node& add( const std::string& s ){ return add( get_text( s ) ); }
 			template<typename T>
-			Node& add( const T& other ){ return add( boost::lexical_cast<std::string>( other ) ); }
+			Node& add( const T& other ){ return add( std::to_string( other ) ); }
 			
 		public:
 			template<typename T1, typename T2>

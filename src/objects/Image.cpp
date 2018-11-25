@@ -17,32 +17,26 @@
 #include "Image.hpp"
 #include "../exceptions/utils.hpp"
 
-#include <boost/algorithm/string/predicate.hpp>
+#include <cstring>
 
-#include <map>
-
-using namespace std;
-
+constexpr const char* URL_FILE = "file:///";
+constexpr int URL_FILE_LENGHT = std::strlen( URL_FILE );
 
 Image::Size Image::from_string( std::string input ){
-	static const map<string,Image::Size> function{
-			{"thumb", THUMB}
-		,	{"resized", RESIZED}
-		,	{"compressed", COMPRESSED}
-		};
-	auto it = function.find( input );
-	return ( it != function.end() ) ? it->second : ORIGINAL;
+	if( input == "thumb"      ) return THUMB;
+	if( input == "resized"    ) return RESIZED;
+	if( input == "compressed" ) return COMPRESSED;
+	return ORIGINAL;
 }
 
 bool Image::isLocal() const{
 	if( url.empty() )
 		return false;
-	return url.compare( 0, 8, "file:///" ) == 0;
+	return url.compare( 0, URL_FILE_LENGHT, URL_FILE ) == 0; //TODO: Use starts_with
 }
 
-string Image::localPath() const{
-	string file_protocol = "file:///";
-	require( boost::starts_with( url, file_protocol ), "Must be a file url: " + url );
-	return url.substr( file_protocol.size() );
+std::string Image::localPath() const{
+	require( isLocal(), "Must be a file url: " + url );
+	return url.substr( URL_FILE_LENGHT );
 }
 

@@ -16,19 +16,19 @@
 
 #include "Booru.hpp"
 
-#include <boost/algorithm/string.hpp>
+#include "../parsing/StringViewUtils.hpp"
 
 #include <iostream>
 
 std::vector<std::string> splitIds( std::string str ){
-	std::vector<std::string> ids;
-	boost::split( ids, str, boost::is_any_of( " " ) ); //TODO: avoid is_any_of() ?
+	auto ids = splitAllOn( str, ' ' );
+	removeEmpty( ids );
 	
+	//TODO: It seem silly to convert a string to a bunch of smaller strings
 	std::vector<std::string> output;
 	output.reserve( ids.size() );
 	for( auto id : ids )
-		if( !id.empty() )
-			output.emplace_back( id );
+		output.emplace_back( id );
 	return output;
 }
 

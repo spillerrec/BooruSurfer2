@@ -17,7 +17,7 @@
 #ifndef STRING_VIEW_HPP
 #define STRING_VIEW_HPP
 
-#include <boost/optional.hpp>
+#include <optional>
 
 #include <algorithm>
 #include <string>
@@ -91,21 +91,21 @@ class ArrayView{
 		}
 		
 	//Searching
-		boost::optional<unsigned> find( const T& val ) const{
+		std::optional<unsigned> find( const T& val ) const{
 			auto it = std::find( begin(), end(), val );
 			if( it != end() )
 				return it-begin();
 			else
-				return boost::none;
+				return std::nullopt;
 		}
 		
 		template<typename Predicate>
-		boost::optional<unsigned> findIf( Predicate func ) const{
+		std::optional<unsigned> findIf( Predicate func ) const{
 			auto it = std::find_if( begin(), end(), func );
 			if( it != end() )
 				return it-begin();
 			else
-				return boost::none;
+				return std::nullopt;
 		}
 		
 		std::vector<ArrayView<T>> split( const T& value ) const{
