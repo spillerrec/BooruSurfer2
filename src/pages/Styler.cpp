@@ -14,10 +14,6 @@
 	along with BooruSurfer2.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include <Poco/DateTime.h>
-#include <Poco/DateTimeFormatter.h>
-#include <Poco/DateTimeFormat.h>
-
 #include "Styler.hpp"
 
 using namespace std;
@@ -90,10 +86,10 @@ string BasicStyler::format_filesize( unsigned filesize ) const{
 	return "will crash your computer";
 }
 
-string BasicStyler::format_date( Poco::Timestamp timestamp ) const{
+string BasicStyler::format_date( Time timestamp ) const{
 	//TODO: write how long time ago it was
-	if( timestamp.epochMicroseconds() != 0 )
-		return Poco::DateTimeFormatter::format( timestamp, "%Y-%m-%d %H:%M" );
+	if( timestamp.isValid() )
+		return timestamp.formatSimple();
 	else
 		return "Unknown";
 }

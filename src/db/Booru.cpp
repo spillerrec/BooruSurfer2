@@ -101,21 +101,21 @@ class DbConnection{
 	private:
 		Database db;
 		std::vector<SiteQueries> sites;
-		Poco::Mutex site_lock;
+		std::mutex site_lock;
 	
 	public:
 		DbConnection() : db( "cache.sqlite" ) { }
 		SiteQueries& getSite( std::string site );
 		Database& getDb(){ return db; }
 		void reset(){
-			Poco::ScopedLock<Poco::Mutex> locker( site_lock );
+			std::lock_guard<std::mutex> locker( site_lock );
 			sites.clear();
 			db.reset();
 		}
 };
 
 SiteQueries& DbConnection::getSite( std::string site ){
-	Poco::ScopedLock<Poco::Mutex> locker( site_lock );
+	std::lock_guard<std::mutex> locker( site_lock );
 	for( auto& query : sites )
 		if( query.isSite( site ) )
 			return query;
@@ -235,7 +235,7 @@ void Booru::saveToDb( const Post& item ){
 	
 	stmt.bind( static_cast<int>(item.id), 1 );
 	stmt.bind( item.hash, 2 );
-	stmt.bind( item.creation_time.epochTime(), 3 );
+	stmt.bind( item.creation_time.toUnixTime(), 3 );
 	stmt.bind( item.author, 4 );
 	stmt.bind( item.source, 5 );
 	stmt.bind( item.rating, 6 );
@@ -284,7 +284,7 @@ static Post readPostFromStmt( Statement& stmt ){
 	if( stmt.next() ){
 		Post p( stmt.integer( 0 ) );
 		p.hash = stmt.text( 1 );
-		p.creation_time = Poco::Timestamp::fromEpochTime( stmt.integer64( 2 ) );
+		p.creation_time = Time::FromUnixTime( stmt.integer64( 2 ) );
 		p.author = stmt.text( 3 );
 		p.source = stmt.text( 4 );
 		p.rating = static_cast<Post::Rating>( stmt.integer( 5 ) );

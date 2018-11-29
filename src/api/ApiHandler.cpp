@@ -15,8 +15,6 @@
 */
 
 
-#include <Poco/Timestamp.h>
-
 #include "ApiHandler.hpp"
 #include "../exceptions/InvalidInput.hpp"
 #include "../db/AddLocal.hpp"

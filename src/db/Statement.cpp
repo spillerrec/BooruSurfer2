@@ -17,8 +17,9 @@
 #include "Statement.hpp"
 
 #include <sqlite3.h>
-#include <Poco/Thread.h>
 
+#include <chrono>
+#include <thread>
 #include <utility>
 #include <iostream>
 #include <exception>
@@ -72,7 +73,7 @@ bool Statement::next(){
 	for( int i=0; result == SQLITE_BUSY || result == SQLITE_LOCKED; i++ ){
 		if( i >= 30 )
 			throwError( "Time out during execution of statement" );
-		Poco::Thread::sleep( 10 );
+		std::this_thread::sleep_for( 10ms );
 		result = sqlite3_step( stmt );
 	}
 	

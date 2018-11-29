@@ -17,14 +17,13 @@
 #ifndef STYLER_H
 #define STYLER_H
 
-#include <Poco/Timestamp.h>
-
 #include "../parsing/html.hpp"
 #include "UrlHandler.hpp"
 
 #include <vector>
 
 class Post;
+class Time;
 class Tag;
 class Comment;
 class Pool;
@@ -46,7 +45,7 @@ class BasicStyler{
 		BasicStyler( std::string title );
 		
 		std::string format_filesize( unsigned filesize ) const;
-		std::string format_date( Poco::Timestamp timestamp ) const;
+		std::string format_date( Time timestamp ) const;
 		HTML::Node time( unsigned unix_time );
 };
 

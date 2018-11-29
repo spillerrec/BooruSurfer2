@@ -25,8 +25,7 @@
 #include "../objects/Tag.hpp"
 #include "../objects/Index.hpp"
 
-#include <Poco/Mutex.h>
-
+#include <mutex>
 #include <string>
 #include <vector>
 
@@ -50,12 +49,12 @@ class Booru{
 		template<typename T>
 		class Cache{
 			private:
-				Poco::Mutex lock;
+				std::mutex lock;
 				std::vector<CacheItem<T>> items;
 				
 			public:
 				bool get( T& find ){
-					Poco::ScopedLock<Poco::Mutex> locker( lock );
+					std::lock_guard<std::mutex> locker( lock );
 					for( auto& item : items )
 						if( item.value.id == find.id ){
 							find = item.value;
@@ -65,12 +64,12 @@ class Booru{
 				}
 				
 				void insert( T& item, bool saved ){
-					Poco::ScopedLock<Poco::Mutex> locker( lock );
+					std::lock_guard<std::mutex> locker( lock );
 					items.emplace_back( item, saved );
 				}
 				
 				void replace( const T& t, bool saved = false ){
-					Poco::ScopedLock<Poco::Mutex> locker( lock );
+					std::lock_guard<std::mutex> locker( lock );
 					for( auto& item : items )
 						if( item.value.id == t.id ){
 							item.value = t;
@@ -79,7 +78,7 @@ class Booru{
 				}
 				
 				void flush( Booru& booru ){
-					Poco::ScopedLock<Poco::Mutex> locker( lock );
+					std::lock_guard<std::mutex> locker( lock );
 					
 					//Find all items to save
 					std::vector<CacheItem<T>*> saved;

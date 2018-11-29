@@ -55,6 +55,8 @@ set(SOURCES
 	#src/server/ArgsParsing.cpp
 	src/server/PocoServer.cpp
 	
+	src/system/TimeHandling.cpp
+	
 	src/main.cpp
 	)
 	

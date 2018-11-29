@@ -14,8 +14,6 @@
 	along with BooruSurfer2.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include <Poco/Timestamp.h>
-
 #include "SavePage.hpp"
 #include "ProxyPage.hpp"
 #include "UrlHandler.hpp"

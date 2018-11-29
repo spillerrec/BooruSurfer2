@@ -14,10 +14,6 @@
 	along with BooruSurfer2.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include <Poco/Timestamp.h>
-#include <Poco/DateTimeFormatter.h>
-#include <Poco/DateTimeFormat.h>
-
 #include "RssPage.hpp"
 
 #include <algorithm>
@@ -51,7 +47,7 @@ string RssPage::serve( vector<string> args, vector<header> &headers ) const{
 	rss.link.value = url.index_url( {{search}} );
 	//TODO: link to next page
 	
-	Poco::Timestamp current;
+	Time current;
 	for( auto post : posts ){
 		Rss::Item item{ "item" };
 		item.title.value = url.image_tags( post, 128 );
@@ -62,11 +58,11 @@ string RssPage::serve( vector<string> args, vector<header> &headers ) const{
 		item.guid.value = item.link.value;
 		item.guid_isPermaLink = true;
 		
-		if( post.creation_time.epochMicroseconds() != 0 )
+		if( post.creation_time.isValid() )
 			current = post.creation_time;
 		
-		item.pubDate.value = Poco::DateTimeFormatter::format( current, Poco::DateTimeFormat::RFC1123_FORMAT );
-		current -= 1000000; //Decrease it with a second
+		item.pubDate.value = current.formatRFC822();
+		current.addSeconds( -1 ); //Decrease it with a second
 		
 		rss.items.push_back( item );
 	}

@@ -59,7 +59,7 @@ void addFolder( string dir_path ){
 				
 				//Filepath
 				p.saved = true;
-				p.creation_time = it->created();
+				p.creation_time = Time::FromUnixTime( it->created().epochTime() );
 				auto current = it.path();
 				p.full.url = "file:///" + current.makeAbsolute().toString();
 				

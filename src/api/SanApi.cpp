@@ -14,9 +14,6 @@
 	along with BooruSurfer2.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include <Poco/DateTimeParser.h>
-#include <Poco/DateTimeFormat.h>
-
 #include "SanApi.hpp"
 
 #include "MyHtml++.hpp"
@@ -131,15 +128,6 @@ static Note parse_note( MyHtml::Node node, MyHtml::Tree& tree ){
 	//TODO: Parse the whole body recursively and handle note types. Also introduce newline
 	
 	return note;
-}
-
-static Poco::Timestamp parse_date_time( std::string_view time ){
-	Poco::DateTime datetime;
-	int timezone;
-	
-	//TODO: Remove dependency on Poco
-	Poco::DateTimeParser::parse( Poco::DateTimeFormat::SORTABLE_FORMAT, std::string(time), datetime, timezone );
-	return datetime.timestamp();
 }
 
 static bool get_image( MyHtml::Tree& tree, Post& p ){
@@ -294,7 +282,7 @@ Post SanApi::get_post( unsigned post_id, Image::Size level ){
 		else if( info == "\nPosted:" ){
 			auto links = li.child( tree.tag("a") );
 			
-			post.creation_time = parse_date_time( links.attributes().valueOf( "title" ) );
+			post.creation_time = Time::FromSimpleFormat( links.attributes().valueOf( "title" ) );
 			
 			links = links.next( tree.tag("a") );
 			if( links )
