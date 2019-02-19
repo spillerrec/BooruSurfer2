@@ -60,7 +60,7 @@ Api::UrlResponse Api::getFromUrl( string url, Api::Headers headers ) const{
 	req.add( "Accept", "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8" );
 //	req.add( "Accept-Encoding", "gzip,deflate" );
 	req.add( "Accept-Language", "en-US,en;q=0.6" );
-	req.add( "User-Agent", "Mozilla/5.0 (Windows NT 6.3; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/33.0.1750.117 Safari/537.36" );
+	req.add( "User-Agent", "Mozilla/5.0 (Windows NT 6.3; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/72.0.3626.109 Safari/537.36" );
 	for( auto h : headers )
 		req.add( h.first, h.second );
 	
