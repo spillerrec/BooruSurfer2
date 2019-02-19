@@ -31,7 +31,9 @@ window.onload = function() {
 			page += 1;
 
 			$(window).scroll(function(){
-				if($(window).scrollTop() + window.innerHeight >= $(document).height()) {
+				var current = $(window).scrollTop() + window.innerHeight;
+				var total = $(document).height();
+				if(Math.round(current) >= total) {
 					load_next();
 				}
 			});
