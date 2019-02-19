@@ -4,3 +4,4 @@
 /bin
 /build
 /.sass-cache
+/cmake_build

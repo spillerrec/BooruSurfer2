@@ -14,8 +14,6 @@
 	along with BooruSurfer2.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include <Poco/Timestamp.h>
-
 #include "IndexPage.hpp"
 
 #include "../api/Api.hpp"
@@ -23,7 +21,6 @@
 #include "../exceptions/utils.hpp"
 #include "Styler.hpp"
 
-#include <boost/algorithm/string.hpp>
 #include <algorithm>
 #include <cctype>
 
@@ -61,7 +58,6 @@ string IndexPage::serve( vector<string> args, vector<header> &headers ) const{
 	Api& api = ApiHandler::get_instance()->get_by_shorthand( input.site );
 	
 	Index index = api.get_index( input.search, input.page, input.limit );
-	vector<Post>& posts = index.posts;
 	
 	//TODO: page amount;
 	int page_amount = index.amount != -1 ? index.amount*index.id.limit : index.id.page+1;

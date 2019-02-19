@@ -72,11 +72,13 @@ Image imageCombine( const Image& a, const Image& b ){
 	return out;
 }
 
-static Poco::Timestamp timeCombine( Poco::Timestamp time1, Poco::Timestamp time2 ){
-	return ( time1 == 0 || time2 == 0 )
-		?	std::max( time1, time2 ) //If one of them is unset, use the other one
-		:	std::min( time1, time2 ) //Else use the earliest time
-		;
+static Time timeCombine( Time time1, Time time2 ){
+	//If not both are valid, use the one which is (if any)
+	if( !time1.isValid() || !time2.isValid() )
+		return time1.isValid() ? time1 : time2;
+	
+	//If both are valid, use the oldest one
+	return std::min( time1, time2 );
 }
 
 Post Post::combine( const Post& other ) const{

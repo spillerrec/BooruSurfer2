@@ -14,10 +14,6 @@
 	along with BooruSurfer2.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include <Poco/DateTime.h>
-#include <Poco/DateTimeFormatter.h>
-#include <Poco/DateTimeFormat.h>
-
 #include "Styler.hpp"
 
 using namespace std;
@@ -30,7 +26,6 @@ using namespace HTML;
 #include "../api/ApiHandler.hpp"
 
 #include <algorithm>
-#include <boost/lexical_cast.hpp>
 
 ::string redirect_page( std::string url ){
 	HTML::Document doc;
@@ -91,10 +86,10 @@ string BasicStyler::format_filesize( unsigned filesize ) const{
 	return "will crash your computer";
 }
 
-string BasicStyler::format_date( Poco::Timestamp timestamp ) const{
+string BasicStyler::format_date( Time timestamp ) const{
 	//TODO: write how long time ago it was
-	if( timestamp.epochMicroseconds() != 0 )
-		return Poco::DateTimeFormatter::format( timestamp, "%Y-%m-%d %H:%M" );
+	if( timestamp.isValid() )
+		return timestamp.formatSimple();
 	else
 		return "Unknown";
 }
@@ -152,7 +147,7 @@ Node Styler::tag( const Tag& tag ){
 	
 	//TODO: use real_count
 	if( tag.count )
-		node( span( doc )( "(" + boost::lexical_cast<string>( tag.count ) + ")" ) );
+		node( span( doc )( "(" + std::to_string( tag.count ) + ")" ) );
 	
 	if( tag.type )
 		node.add_attr( CLASS( "tagtype" + to_string( tag.type ) ) );

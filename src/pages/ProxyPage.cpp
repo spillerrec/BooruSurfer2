@@ -14,7 +14,6 @@
 	along with BooruSurfer2.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include <Poco/Timestamp.h>
 #include <Poco/Net/HTTPClientSession.h>
 
 #include "ProxyPage.hpp"

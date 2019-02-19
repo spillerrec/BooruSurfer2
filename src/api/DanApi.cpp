@@ -14,8 +14,6 @@
 	along with BooruSurfer2.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include <Poco/Timestamp.h>
-
 #include "DanApi.hpp"
 
 #include "../parsing/JsonDataNode.hpp"
@@ -93,7 +91,7 @@ Post DanApi::parse_post( DataNode p ) const{
 	post.score = p[ post_table()[ SCORE ] ];
 	post.source = p[ post_table()[ SOURCE ]].as_string();
 	
-	post.creation_time = Poco::Timestamp::fromEpochTime( p[ post_table()[ CREATED ] ].as_int() );
+	post.creation_time = Time::FromUnixTime( p[ post_table()[ CREATED ] ].as_int() );
 	
 	post.tags = get_resource<Tag>( p, TAGS );
 	post.parents = get_resource<Post>( p, PARENT_ID );

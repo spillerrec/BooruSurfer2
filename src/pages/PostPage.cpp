@@ -14,8 +14,6 @@
 	along with BooruSurfer2.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include <Poco/Timestamp.h>
-
 #include "PostPage.hpp"
 #include "../api/Api.hpp"
 #include "../api/ApiHandler.hpp"
@@ -32,7 +30,6 @@ string PostPage::serve( vector<string> args, vector<header> &headers ) const{
 	UrlHandler url( &api );
 	
 	unsigned id = getInt( args[2], "Post id not an number!" );
-	cout << "Post: " << id << "\n";
 	Post post = api.get_post( id );
 	
 	Styler s( &api, "Post: " + url.image_tags( post, 128 ) );

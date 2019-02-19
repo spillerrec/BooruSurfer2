@@ -18,13 +18,13 @@
 #define DAN_API_H
 
 #include "Api.hpp"
-#include "../Server.hpp"
+#include "../server/Server.hpp"
 
 #include <string>
 #include <vector>
-#include <boost/algorithm/string.hpp>
 #include <boost/lexical_cast.hpp>
 #include "../parsing/DataNode.hpp"
+#include "../parsing/StringViewUtils.hpp"
 
 class DanApi : public Api{
 	protected:
@@ -70,10 +70,10 @@ class DanApi : public Api{
 		static const char* const post_strings[POST_ITEM_SIZE];
 		
 		template<class T>
-		std::vector<T> convert_vector( std::vector<std::string> list ) const{
+		std::vector<T> convert_vector( std::vector<std::string_view> list ) const{
 			std::vector<T> converted;
 			converted.reserve( list.size() );
-			for( std::string s : list )
+			for( auto& s : list )
 				converted.push_back( boost::lexical_cast<T>( s ) );
 			return converted;
 		}
@@ -95,10 +95,8 @@ class DanApi : public Api{
 				//TODO: split string
 				
 				//Split and remove empty
-				std::string text = node.as_string();
-				std::vector<std::string> list;
-				boost::split( list, text, boost::is_any_of( " " ) ); //TODO: avoid is_any_of() ?
-				list.erase( remove_if( list.begin(), list.end(), [](std::string arg){ return arg.empty(); } ), list.end() );
+				auto list = splitAllOn( node.as_string(), ' ' );
+				removeEmpty( list );
 				
 				return Resource<T1>( convert_vector<typename T1::ID_T>( list ) );
 			}
@@ -117,7 +115,7 @@ class DanApi : public Api{
 		void load_tag_file();
 		
 		virtual std::string get_name() const{ return "Danbooru"; }
-		virtual std::string get_url() const{ return "http://danbooru.donmai.us/"; }
+		virtual std::string get_url() const{ return "https://danbooru.donmai.us/"; }
 		
 		virtual const char* const* post_table() const{ return post_strings; }
 		
@@ -134,12 +132,6 @@ class DanApi : public Api{
 			return get_url() + "posts/?tags=" + Server::remove_reserved( Server::encode_str( search ) );
 		}
 };
-
-
-template<>
-inline std::vector<std::string> DanApi::convert_vector<std::string>( std::vector<std::string> list ) const{
-	return list;
-}
 
 #endif
 

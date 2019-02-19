@@ -17,7 +17,7 @@
 #ifndef POST_H
 #define POST_H
 
-#include <Poco/Timestamp.h>
+#include "../system/TimeHandling.hpp"
 
 #include "Tag.hpp"
 #include "Image.hpp"
@@ -51,7 +51,7 @@ class Post : public Identity<>{
 		
 		std::string hash;
 		std::string author;
-		Poco::Timestamp creation_time{ 0 };
+		Time creation_time;
 		
 		
 		Resource<Tag> tags;

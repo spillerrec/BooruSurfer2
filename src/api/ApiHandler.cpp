@@ -15,14 +15,13 @@
 */
 
 
-#include <Poco/Timestamp.h>
-
 #include "ApiHandler.hpp"
 #include "../exceptions/InvalidInput.hpp"
 #include "../db/AddLocal.hpp"
 
 #include "IdolApi.hpp"
 #include "YandereApi.hpp"
+#include "BehoimiApi.hpp"
 #include "LocalApi.hpp"
 
 ApiHandler* ApiHandler::instance{ nullptr };
@@ -35,6 +34,7 @@ ApiHandler::ApiHandler() : apis{
 	,	new IdolApi()
 	,	new KonachanApi()
 	,	new YandereApi()
+	,	new BehoimiApi()
 	,	new LocalApi( "san" )
 }{
 	//TODO: avoid this shit

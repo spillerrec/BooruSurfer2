@@ -17,7 +17,7 @@
 #include "UrlHandler.hpp"
 
 #include "../api/Api.hpp"
-#include "../Server.hpp"
+#include "../server/Server.hpp"
 
 #include <algorithm>
 
@@ -66,7 +66,7 @@ string tags_to_name( Api* api, const Post& p, Tag::Type type, int limit ){
 	for( auto raw : p.tags.list ){
 		Tag tag = api->tag_handler.get( raw );
 		if( tag.type == type )
-			if( s.size() + tag.id.size() + 1 < limit )
+			if( s.size() + tag.id.size() + 1 < size_t(limit) )
 				s += tag.id + " ";
 	}
 	return s.size() ? s : " ";

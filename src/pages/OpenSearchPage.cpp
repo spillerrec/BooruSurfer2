@@ -14,10 +14,6 @@
 	along with BooruSurfer2.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include <Poco/Timestamp.h>
-#include <Poco/DateTimeFormatter.h>
-#include <Poco/DateTimeFormat.h>
-
 #include "OpenSearchPage.hpp"
 
 #include <iostream>
@@ -29,14 +25,11 @@
 #include "UrlHandler.hpp"
 
 using namespace std;
-using namespace pugi;
 
 string OpenSearchPage::serve( vector<string> args, vector<header> &headers ) const{
 	require( args.size() >= 2, "Too few arguments" );
 	Api& api = ApiHandler::get_instance()->get_by_shorthand( args[1] );
 	UrlHandler url( &api );
-	
-	cout << "Attempting to load this" << '\n';
 	
 	string search = "";
 	if( args.size() == 3 )

@@ -19,10 +19,9 @@
 #include "../api/Api.hpp"
 #include "../api/ApiHandler.hpp"
 #include "../objects/Post.hpp"
+#include "../parsing/StringViewUtils.hpp"
 
 #include <Poco/DirectoryIterator.h>
-
-#include <boost/algorithm/string.hpp>
 
 #include <iostream>
 #include <vector>
@@ -30,43 +29,29 @@
 using namespace std;
 using namespace Poco;
 
-static vector<string> split( string str, string split_on ){
-	vector<string> out;
-	boost::split( out, str, boost::is_any_of( split_on ) );
-	//TODO: split on " -", to avoid removed characters from breaking it up prematurely
-	return out;
-}
-
-template<typename Predicate>
-vector<string> splitAndFilter( string str, string split_on, Predicate pred ){
-	auto out = split( str, split_on );
-	out.erase( remove_if( out.begin(), out.end(), pred ), out.end() );
-	return out;
-}
-
 void addFolder( string dir_path ){
 	int amount = 0;
 	DirectoryIterator it( { dir_path } ), end;
 	for( ; it != end; ++it, amount++ )
 		try{
-			auto parts = splitAndFilter( it.path().getBaseName(), " ", [](string arg){ return arg.empty(); } );
+			auto parts = splitAllOn( it.path().getBaseName(), ' ' );
+			removeEmpty( parts );
 			if( it->isFile() && parts.size() >= 2 ){
-				auto& api = ApiHandler::get_instance()->get_by_shorthand( parts[0] );
+				auto& api = ApiHandler::get_instance()->get_by_shorthand( std::string(parts[0]) ); //TODO: Avoid string conversion
 				
-				Post p( stoi( parts[1] ) );
+				Post p( stoi( std::string(parts[1]) ) );
 				for( unsigned i=2, type=0; i<parts.size(); i++ ){
 					if( parts[i] == "-" )
 						type++;
 					else{
-						Tag t( parts[i] );
+						Tag t( std::string( parts[i] ) );
 						switch( type ){
-							case 1: t.type = Tag::ARTIST; break;
-							case 2: t.type = Tag::COPYRIGHT; break;
-							case 3: t.type = Tag::CHARACTER; break;
-							case 4: t.type = Tag::NONE; break;
-							default: t.type = Tag::UNKNOWN; break;
+							case 1:  t.type = Tag::ARTIST   ; break;
+							case 2:  t.type = Tag::COPYRIGHT; break;
+							case 3:  t.type = Tag::CHARACTER; break;
+							case 4:  t.type = Tag::NONE     ; break;
+							default: t.type = Tag::UNKNOWN  ; break;
 						}
-						//TODO: type
 						api.tag_handler.add( t );
 						p.tags.add( t.id );
 					}
@@ -74,7 +59,7 @@ void addFolder( string dir_path ){
 				
 				//Filepath
 				p.saved = true;
-				p.creation_time = it->created();
+				p.creation_time = Time::FromUnixTime( it->created().epochTime() );
 				auto current = it.path();
 				p.full.url = "file:///" + current.makeAbsolute().toString();
 				
