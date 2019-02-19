@@ -115,7 +115,7 @@ class DanApi : public Api{
 		void load_tag_file();
 		
 		virtual std::string get_name() const{ return "Danbooru"; }
-		virtual std::string get_url() const{ return "http://danbooru.donmai.us/"; }
+		virtual std::string get_url() const{ return "https://danbooru.donmai.us/"; }
 		
 		virtual const char* const* post_table() const{ return post_strings; }
 		

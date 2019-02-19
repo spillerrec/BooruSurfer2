@@ -21,6 +21,7 @@
 
 #include "IdolApi.hpp"
 #include "YandereApi.hpp"
+#include "BehoimiApi.hpp"
 #include "LocalApi.hpp"
 
 ApiHandler* ApiHandler::instance{ nullptr };
@@ -33,6 +34,7 @@ ApiHandler::ApiHandler() : apis{
 	,	new IdolApi()
 	,	new KonachanApi()
 	,	new YandereApi()
+	,	new BehoimiApi()
 	,	new LocalApi( "san" )
 }{
 	//TODO: avoid this shit
