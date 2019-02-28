@@ -160,7 +160,7 @@ class ArrayView{
 
 using StringView=ArrayView<char>;
 
-StringView cStrView( const char* str ){
+inline StringView cStrView( const char* str ){
 	return StringView( str, strlen( str ) );
 }
 

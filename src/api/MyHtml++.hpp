@@ -7,11 +7,11 @@
 
 namespace MyHtml{
 
-void validate( void* ptr ){
+inline void validate( void* ptr ){
 	if( !ptr )
 		throw std::runtime_error( "Failed to alloc MyHtml object" ); //TODO: new exception?
 }
-void validate( mystatus_t status_code ){
+inline void validate( mystatus_t status_code ){
 	if( status_code != MyHTML_STATUS_OK )
 		throw std::runtime_error( "MyHTML call failed with code" + std::to_string(status_code) ); //TODO: Show code?
 }

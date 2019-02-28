@@ -17,6 +17,7 @@ set(SOURCES
 	src/api/KonachanApi.cpp
 	src/api/LocalApi.cpp
 	src/api/SanApi.cpp
+	src/api/ShimmieApi.cpp
 	
 	src/db/AddLocal.cpp
 	src/db/Booru.cpp
