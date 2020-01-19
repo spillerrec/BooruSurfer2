@@ -85,7 +85,7 @@ if( UNIX )
 	include_directories( /usr/include/KF5/KIOWidgets/kio/ )
 elseif( WIN32 )
 	set(THUMB_SOURCES src/system/Thumbnailer-windows.cpp)
-	set(SYSTEM_LINKS -lShell32 -lUuid -lGdi32 -lOle32 -lWindowscodecs -lboost_system-mgw52-mt-1_61 -lboost_filesystem-mgw52-mt-1_61.dll)
+	set(SYSTEM_LINKS -lShell32 -lUuid -lGdi32 -lOle32 -lWindowscodecs -lboost_system-mt -lboost_filesystem-mt)
 	#TODO: find boost
 else()
 	set(THUMB_SOURCES src/system/Thumbnailer-fallback.cpp)
@@ -95,8 +95,13 @@ endif()
 
 
 add_executable(BooruSurfer2 ${SOURCES} ${THUMB_SOURCES} )
-target_link_libraries(BooruSurfer2 -ljansson -lpng -lsqlite3 -llzma -lmyhtml -lpugixml ${Poco_LIBRARIES} ${SYSTEM_LINKS})
+target_link_libraries(BooruSurfer2 -ljansson -lpng -lsqlite3 -llzma -lmyhtml_static -lpugixml ${Poco_LIBRARIES} ${SYSTEM_LINKS})
 
 # C++14
 set_property(TARGET BooruSurfer2 PROPERTY CXX_STANDARD 17)
 set_property(TARGET BooruSurfer2 PROPERTY CXX_STANDARD_REQUIRED ON)
+
+if( WIN32 )
+	target_compile_definitions(BooruSurfer2 PUBLIC POCO_WIN32_UTF8)
+endif()
+	
