@@ -44,6 +44,7 @@ set(SOURCES
 	src/pages/PageHandler.cpp
 	src/pages/PostPage.cpp
 	src/pages/ProxyPage.cpp
+	src/pages/TagSearchPage.cpp
 	src/pages/RssPage.cpp
 	src/pages/SavePage.cpp
 	src/pages/Styler.cpp

@@ -124,6 +124,8 @@ class Booru{
 		
 		Index iteratePosts( IndexId id );
 		
+		std::vector<Tag> searchTags( std::string query );
+		
 		void flushNotes(){ notes.flush( *this ); }
 		void flushPosts(){ posts.flush( *this ); }
 		void flushTags (){ tags .flush( *this ); }

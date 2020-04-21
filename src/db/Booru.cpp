@@ -75,6 +75,8 @@ class SiteQueries{
 		
 		PreparedStatement iteratePosts;
 		PreparedStatement iteratePostsSearch;
+		
+		PreparedStatement searchTags;
 	
 	public:
 		SiteQueries( Database& db, std::string site )
@@ -92,6 +94,8 @@ class SiteQueries{
 				)
 			,	iteratePosts( db, "SELECT * FROM " + site + "_posts WHERE local=1 ORDER BY created_at DESC LIMIT ?1 OFFSET ?2" )
 			,	iteratePostsSearch( db, "SELECT * FROM " + site + "_posts WHERE local=1 AND tags LIKE ?3 ORDER BY created_at DESC LIMIT ?1 OFFSET ?2" )
+			
+			,	searchTags( db, "SELECT * FROM " + site + "_tags WHERE id LIKE ?1 ORDER BY length(id) LIMIT 20" )
 			{ }
 		
 		bool isSite( std::string wanted_site ) const { return site == wanted_site; }
@@ -439,5 +443,24 @@ void Booru::save( Tag& t ){
 	}
 	else
 		tags.insert( t, t.count == 0 );
+}
+
+
+std::vector<Tag> Booru::searchTags( std::string query ){
+	auto& db_site = connection.getSite(site);
+	auto& stmt = db_site.searchTags();
+	stmt.bind( "%" + query + "%", 1 );
+	
+	std::vector<Tag> tags;
+	while( stmt.next() ){
+		Tag t;
+		t.id = stmt.text( 0 );
+		t.count = stmt.integer( 1 );
+		t.type = (Tag::Type)stmt.integer( 2 );
+		tags.push_back( t );
+	}
+	
+	stmt.reset();
+	return tags;
 }
 

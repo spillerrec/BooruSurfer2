@@ -28,6 +28,7 @@
 #include "NotFoundPage.hpp"
 #include "FaviconPage.hpp"
 #include "RssPage.hpp"
+#include "TagSearchPage.hpp"
 
 PageHandler::PageHandler()
 		:	page_root( new HomePage() )
@@ -42,6 +43,7 @@ PageHandler::PageHandler()
 	add<FaviconPage   >( "favicon" );
 	add<RssPage       >( "rss"     );
 	add<OpenSearchPage>( "search"  );
+	add<TagSearchPage >( "tags"    );
 }
 
 

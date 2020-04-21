@@ -39,4 +39,26 @@ window.onload = function() {
 			});
 		} );
 	
+	$("#search").parent().append('<div id="search_list"></div>');
+	
+	$("#search").on("input", function(){
+		var value = $("#search").val();
+		console.log(value);
+		$.getJSON( "/tags/" + site + "/" + value, function(data){
+			console.log(data);
+			var ul = $("<div>", {id: "search_list"});
+			
+			data.forEach(function(item){
+					var name = item["id"];
+					var li = $('<li>')
+					var a = $('<a>', {"class": "tagtype" + item['type'], "href":"/index/" + site + "/" + name});
+					var span = $('<span>(' + item["type"] + ')</span>');
+					a.append(name);
+					a.append(span);
+					li.append(a);
+					ul.append(li);
+				});
+			$("#search_list").replaceWith(ul);
+		} );
+	});
 }
