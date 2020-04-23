@@ -48,7 +48,7 @@
 	width:190px;
 	left:-190px;
 	top:0px;
-	
+
 	background-color: #222222;
 	z-index:1;
 }
@@ -122,7 +122,7 @@
 /********** POST LIST END **********/
 
 /********** POST LIST INFO START **********/
-.post_list_info ul li > a > span, .post_info ul li > a > span{
+.post_list_info ul li > a > span, .post_info ul li > a > span, #search_list a > span{
 	color: #777;
 	margin-left: 4px;
 	font-size: 70%;

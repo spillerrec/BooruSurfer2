@@ -40,21 +40,26 @@ window.onload = function() {
 		} );
 	
 	$("#search").parent().append('<div id="search_list"></div>');
+	$("#search").attr("autocomplete", "off");
 	
 	$("#search").on("input", function(){
 		var value = $("#search").val();
-		console.log(value);
 		$.getJSON( "/tags/" + site + "/" + value, function(data){
-			console.log(data);
 			var ul = $("<div>", {id: "search_list"});
 			
 			data.forEach(function(item){
 					var name = item["id"];
 					var li = $('<li>')
+					var add = $('<a>', {"href":"/index/" + site + "/" + search + "+" + name});
+					add.append("+");
+					var sub = $('<a>', {"href":"/index/" + site + "/" + search + "+-" + name});
+					sub.append("-");
 					var a = $('<a>', {"class": "tagtype" + item['type'], "href":"/index/" + site + "/" + name});
-					var span = $('<span>(' + item["type"] + ')</span>');
+					var span = $('<span>(' + item['count'] + ')</span>');
 					a.append(name);
 					a.append(span);
+					li.append(add);
+					li.append(sub);
 					li.append(a);
 					ul.append(li);
 				});

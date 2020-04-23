@@ -41,6 +41,10 @@ header nav li form{ float:right; }
 	background-color:#222;
 	color:white;
 }
+#search_list{
+	position:absolute;
+	background-color: black;
+}
 @media screen and (max-width:380px){
 	#search{
 		width: 150px;
