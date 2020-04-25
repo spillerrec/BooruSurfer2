@@ -22,18 +22,18 @@
 
 class ShimmieApi : public Api{
 	protected:
-		
-		
+
+
 	public:
 		ShimmieApi( std::string short_hand="shimmie" ) : Api( short_hand ) { }
-		
+
 		virtual std::string get_name() const{ return "Shimmie Testbed"; }
 		virtual std::string get_url() const{ return "http://shimmie.shishnet.org/v2/"; }
-		
-		
-		Post get_post( unsigned id, Image::Size level );
+
+
+		Post fetch_post( unsigned id, Image::Size level );
 		Index get_index( std::string search, int page, int limit=-1 );
-		
+
 		virtual ThemeColor main_color() override{ return {0xFF,0xFF,0xFF}; }
 		virtual ThemeColor secondary_color() override{ return {0xFF,0x76,0x1C}; }
 		
@@ -48,13 +48,12 @@ class ShimmieApi : public Api{
 class Rule34Api : public ShimmieApi{
 	public:
 		Rule34Api() : ShimmieApi( "rule34" ) { }
-		
+
 		std::string get_name() const override{ return "Rule 34"; }
 		std::string get_url() const override{ return "http://rule34.paheal.net/"; }
-		
+
 		ThemeColor main_color() override{ return {0x00,0x43,0x08}; }
 		ThemeColor secondary_color() override{ return {0xAC,0xE4,0xA3}; }
 };
 
 #endif
-

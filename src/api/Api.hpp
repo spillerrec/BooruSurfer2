@@ -36,7 +36,7 @@ namespace Poco{ namespace Net {
 class Api{
 	protected:
 		std::string site_name;
-		
+
 	public:
 		Booru booru{ site_name };
 		struct ThemeColor{
@@ -49,27 +49,27 @@ class Api{
 	public:
 		using Headers = std::vector<std::pair<std::string,std::string>>;
 		using UrlResponse = std::pair<std::unique_ptr<Poco::Net::HTTPClientSession>,std::istream&>;
-		
+
 		UrlResponse getFromUrl( std::string url, Headers headers = Headers() ) const;
 		std::string get_from_url( std::string url, Headers headers = Headers() ) const; //temporary
-		
+
 	public:
 		Api( std::string site_name ) : site_name(site_name) { }
 		virtual std::string get_name() const = 0;
 		virtual std::string get_shorthand() const{ return site_name; }
 		virtual std::string get_url() const = 0;
-		
-		virtual Post get_post( unsigned id, Image::Size level=Image::ORIGINAL ) = 0;
+
+		virtual Post fetch_post( unsigned id, Image::Size level ) = 0;
+		virtual Post get_post( unsigned id, Image::Size level=Image::ORIGINAL, bool force_refresh=false );
 		virtual Index get_index( std::string search, int page, int limit=-1 ) = 0;
-		
+
 		virtual ThemeColor main_color(){ return {255,255,255}; }
 		virtual ThemeColor secondary_color(){ return {0,0,0}; }
-		
+
 		virtual std::string original_post_url( unsigned id ) = 0;
 		virtual std::string original_index_url( std::string search ) = 0;
-		
+
 		virtual ~Api(){ }
 };
 
 #endif
-

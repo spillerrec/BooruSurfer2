@@ -48,13 +48,13 @@ unique_ptr<HTTPClientSession> getSession( bool https, URI uri ){
 Api::UrlResponse Api::getFromUrl( string url, Api::Headers headers ) const{
 	if( url.empty() )
 		throw logic_error( "Resource requested, but no url provided" );
-	
+
 	URI uri( url );
 	cout << "Url: " << url << "\n";
-	
+
 	HTTPRequest req(HTTPRequest::HTTP_GET, uri.getPathAndQuery(), HTTPMessage::HTTP_1_1);
 	HTTPResponse res;
-	
+
 	//Add headers
 	//TODO: do something with the user-agent
 	req.add( "Accept", "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8" );
@@ -63,16 +63,16 @@ Api::UrlResponse Api::getFromUrl( string url, Api::Headers headers ) const{
 	req.add( "User-Agent", "Mozilla/5.0 (Windows NT 6.3; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/72.0.3626.109 Safari/537.36" );
 	for( auto h : headers )
 		req.add( h.first, h.second );
-	
+
 	//Get response
 	auto session = getSession( url.find( "https://" ) == 0, uri );
 	session->sendRequest(req);
 	auto& stream = session->receiveResponse(res);
-	
+
 	switch( res.getStatus() ){
 		case HTTPResponse::HTTP_OK:
 			return { std::move(session), stream };
-		
+
 		case HTTPResponse::HTTP_MOVED_PERMANENTLY:
 		case HTTPResponse::HTTP_FOUND:
 		case HTTPResponse::HTTP_SEE_OTHER:
@@ -83,7 +83,7 @@ Api::UrlResponse Api::getFromUrl( string url, Api::Headers headers ) const{
 			}
 			else
 				throw runtime_error( "Could not find location to redirect to" );
-		
+
 		default:
 			throw runtime_error( "Returned with status code: " + to_string(res.getStatus()) );
 	}
@@ -94,3 +94,13 @@ string Api::get_from_url( string url, vector<pair<string,string> > headers ) con
 	return static_cast<std::stringstream const&>(std::stringstream() << responce.second.rdbuf()).str();
 }
 
+
+Post Api::get_post( unsigned post_id, Image::Size level, bool force_refresh ){
+	Post post;
+	if( !force_refresh && post_handler.get_checked( post_id, post, level ) )
+		return post;
+
+	post = fetch_post( post_id, level );
+	post_handler.add(post);  //TODO: Removing this causes very repeatable "database is locked" errors
+	return post;
+}

@@ -22,13 +22,14 @@ using namespace std;
 LocalApi::LocalApi( string short_hand )
 	:	Api( short_hand ) { }
 
-Post LocalApi::get_post( unsigned id, Image::Size level ){
+Post LocalApi::fetch_post( unsigned id, Image::Size level ){
 	Post post;
 	post.id = id;
 	ApiHandler::get_instance()->get_by_shorthand( site_name ).booru.load( post, level );
 	return post;
 }
+Post LocalApi::get_post( unsigned id, Image::Size level, bool /*force_refresh*/ )
+	{ return fetch_post( id, level ); }
 
 Index LocalApi::get_index( string search, int page, int limit )
 	{ return Booru( site_name ).iteratePosts( { search, page, limit } ); }
-

@@ -28,39 +28,42 @@ string PostPage::serve( vector<string> args, vector<header> &headers ) const{
 	require( args.size() == 3, "fail" );
 	Api& api = ApiHandler::get_instance()->get_by_shorthand( args[1] );
 	UrlHandler url( &api );
-	
-	unsigned id = getInt( args[2], "Post id not an number!" );
-	Post post = api.get_post( id );
-	
+
+	std::string id_str = args[2];
+	bool force_refresh = id_str.size()>1 && id_str[0] == '!';
+	if (force_refresh)
+		id_str = id_str.substr(1);
+	unsigned id = getInt( id_str, "Post id not an number!" );
+	Post post = api.get_post( id, Image::ORIGINAL, force_refresh );
+
 	Styler s( &api, "Post: " + url.image_tags( post, 128 ) );
 	headers.push_back( content_type() );
-	
+
 	//Quick link to image
 	//TODO: change behaviour once we have pools
 	s.head( link(s.doc, REL("next"), HREF( url.image_url( post, Image::ORIGINAL, true ) ) ) );
-	
+
 	s.head( link(s.doc, REL("shortcut icon"), HREF( "/favicon/" + api.get_shorthand() + "/post" ) ) );
-	
+
 	auto navi = s.main_navigation( "" );
-	s.other_actions( 
+	s.other_actions(
 			li(s.doc)( a(s.doc, HREF( url.image_url( post, Image::ORIGINAL, true ) ))( "Save post" ) )
 		);
 	s.nav( navi );
-	
+
 	//Post info
 	auto info = aside( s.doc, CLASS( "post_info" ) );
 	info( h3(s.doc)( "Info:" ) );
 	s.post_info( info, post, true );
-	
+
 	s.tag_list( info, api.tag_handler.getAll( post.tags ), "Tags:" );
-	
+
 	s.body(
 			div( s.doc, ID("container") )(
 					s.post( post )
 				,	info
 				)
 		);
-	
+
 	return s.doc;
 }
-

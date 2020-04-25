@@ -21,29 +21,25 @@
 #include "../server/Server.hpp"
 
 class SanApi : public Api{
-	protected:
-		
-		
 	public:
 		SanApi( std::string short_hand="san" ) : Api( short_hand ) { }
-		
-		virtual std::string get_name() const{ return "Sankaku-chan"; }
-		virtual std::string get_url() const{ return "https://chan.sankakucomplex.com/"; }
-		
-		
-		Post get_post( unsigned id, Image::Size level );
-		Index get_index( std::string search, int page, int limit=-1 );
-		
-		virtual ThemeColor main_color() override{ return {0xFF,0xFF,0xFF}; }
-		virtual ThemeColor secondary_color() override{ return {0xFF,0x76,0x1C}; }
-		
-		virtual std::string original_post_url( unsigned id ) override{
+
+		std::string get_name() const override{ return "Sankaku-chan"; }
+		std::string get_url() const override{ return "https://chan.sankakucomplex.com/"; }
+
+
+		Post fetch_post( unsigned id, Image::Size level ) override;
+		Index get_index( std::string search, int page, int limit=-1 ) override;
+
+		ThemeColor main_color() override{ return {0xFF,0xFF,0xFF}; }
+		ThemeColor secondary_color() override{ return {0xFF,0x76,0x1C}; }
+
+		std::string original_post_url( unsigned id ) override{
 			return get_url() + "post/show/" + std::to_string( id );
 		}
-		virtual std::string original_index_url( std::string search ) override{
+		std::string original_index_url( std::string search ) override{
 			return get_url() + "?tags=" + Server::remove_reserved( Server::encode_str( search ) );
 		}
 };
 
 #endif
-

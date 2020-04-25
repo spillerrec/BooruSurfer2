@@ -25,20 +25,20 @@
 class LocalApi : public Api{
 	public:
 		LocalApi( std::string short_hand );
-		
-		virtual std::string get_name() const{ return "Local files"; }
-		virtual std::string get_shorthand() const{ return "local-" + site_name; }
-		virtual std::string get_url() const{ return "file:///"; }
-		
-		Post get_post( unsigned id, Image::Size level );
-		Index get_index( std::string search, int page, int limit=-1 );
-		
-		virtual ThemeColor main_color() override{ return {0xA4,0x81,0x5E}; }
-		virtual ThemeColor secondary_color() override{ return {0xFF,0xFF,0xFF}; }
-		
-		virtual std::string original_post_url( unsigned id ) override{ return {}; }
-		virtual std::string original_index_url( std::string search ) override{ return {}; }
+
+		std::string get_name() const override{ return "Local files"; }
+		std::string get_shorthand() const override{ return "local-" + site_name; }
+		std::string get_url() const override{ return "file:///"; }
+
+		Post fetch_post( unsigned id, Image::Size level ) override;
+		Post get_post( unsigned id, Image::Size level, bool force_refresh ) override;
+		Index get_index( std::string search, int page, int limit=-1 ) override;
+
+		ThemeColor main_color() override{ return {0xA4,0x81,0x5E}; }
+		ThemeColor secondary_color() override{ return {0xFF,0xFF,0xFF}; }
+
+		std::string original_post_url( unsigned id ) override{ return {}; }
+		std::string original_index_url( std::string search ) override{ return {}; }
 };
 
 #endif
-
